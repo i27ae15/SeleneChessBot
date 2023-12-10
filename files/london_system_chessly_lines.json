@@ -1,0 +1,4907 @@
+[
+    {
+        "title": "London System",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bd3",
+                        "black": "Nh5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Be5",
+                        "black": "Nxe5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "dxe5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bd3",
+                        "black": "Nh5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Be5",
+                        "black": "f6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bg3",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Qe2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Ngf3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bd3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Ne5",
+                        "black": "Bd7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Qf3",
+                        "black": "Nxe5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "dxe5",
+                        "black": "Ne8"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Qh3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bd3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Ne5",
+                        "black": "Nxe5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "dxe5",
+                        "black": "Nd7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "h4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 5",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bd3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Ne5",
+                        "black": "Nd7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Ndf3",
+                        "black": "Ndxe5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "dxe5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 6",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg3",
+                        "black": "Qc7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "dxc5",
+                        "black": "Bxg3"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "hxg3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 7",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Ngf3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bg3",
+                        "black": "Bxg3"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "hxg3",
+                        "black": "Qd6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bb5",
+                        "black": "Bd7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bxc6",
+                        "black": "Bxc6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Ne5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 8",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd3",
+                        "black": "Qe7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Ne5",
+                        "black": "Nd7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Nxd7",
+                        "black": "Bxd7"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Bxd6",
+                        "black": "Qxd6"
+                    },
+                    {
+                        "move_number": "12",
+                        "white": "dxc5",
+                        "black": "Qxc5"
+                    },
+                    {
+                        "move_number": "13",
+                        "white": "Bxh7+",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 9",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd3",
+                        "black": "Re8"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Ne5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 10",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd3",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "e4",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "e5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 11",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd3",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "e4",
+                        "black": "dxe4"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Nxe4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 12",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd3",
+                        "black": "c4"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bc2",
+                        "black": "b5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "e4",
+                        "black": "dxe4"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Ng5",
+                        "black": "h6"
+                    },
+                    {
+                        "move_number": "12",
+                        "white": "Ngxe4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 13",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd3",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "exd4",
+                        "black": "Re8"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Ne5",
+                        "black": "Qc7"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Ndf3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 14",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bg3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Ngf3",
+                        "black": "Qc7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Rc1",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "c4",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "b4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 15",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Nh5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg5",
+                        "black": "f6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bh4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bd3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "O-O",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 16",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "exd4",
+                        "black": "Nh5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Be3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Ne5",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Nd3",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "c5 without e6",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nd2",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "exd4",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qb3",
+                        "black": "Qc8"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Ngf3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bd3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "O-O",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nd2",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "exd4",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Ngf3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Qb3",
+                        "black": "Qc8"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nh4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nd2",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Qb3",
+                        "black": "c4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qc2",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "e4",
+                        "black": "Nxe4"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nxe4",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "f3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nd2",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Qb3",
+                        "black": "c4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qc2",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "b3",
+                        "black": "cxb3"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "axb3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "b4",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Early C5s",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e4",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Qxd4",
+                        "black": "dxe4"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Qxd8+",
+                        "black": "Kxd8"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nc3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "O-O-O+",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Nge2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e4",
+                        "black": "dxe4"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "d5",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Qd2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e4",
+                        "black": "dxe4"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "d5",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "a6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Qe2",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "O-O-O",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e4",
+                        "black": "dxe4"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "d5",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bb5+",
+                        "black": "Bd7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "dxe6",
+                        "black": "fxe6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bxd7+",
+                        "black": "Qxd7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Qxd7+",
+                        "black": "Nbxd7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "O-O-O",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 5",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "dxc5",
+                        "black": "Qa5+"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nd2",
+                        "black": "Qxc5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "a3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 6",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "dxc5",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "b4",
+                        "black": "a5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "c3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 7",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "dxc5",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "b4",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "a3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nd2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 8",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "dxc5",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Bb5",
+                        "black": "Qa5+"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nc3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "a3",
+                        "black": "Ne4"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Ne2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 9",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "dxc5",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Bb5",
+                        "black": "Qa5+"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nc3",
+                        "black": "a6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bxc6+",
+                        "black": "bxc6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Nf3",
+                        "black": "Ne4"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Qd4",
+                        "black": "Nxc3"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Qxc3",
+                        "black": "Qxc3+"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "bxc3",
+                        "black": "f6"
+                    },
+                    {
+                        "move_number": "12",
+                        "white": "Bc7",
+                        "black": "e5"
+                    },
+                    {
+                        "move_number": "13",
+                        "white": "Bb6",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 10",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bd3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bxd6",
+                        "black": "Qxd6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "f4",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "cxd4",
+                        "black": "Bd7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "a3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Ngf3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 11",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bd3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bxd6",
+                        "black": "Qxd6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "f4",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Ngf3",
+                        "black": "Bb7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Ne5",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "g4",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Early Bf5 / Bg4",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nd2",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qa4",
+                        "black": "Nd7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bb5",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Ne5",
+                        "black": "Ndxe5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "dxc5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nd2",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "dxc5",
+                        "black": "Qxb2"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Nd4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nd2",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Ngf3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qb3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "f3",
+                        "black": "Bh5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 5",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 6",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nf3",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qb3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 7",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Bb4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Qa4+",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nf3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 8",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "c4",
+                        "black": "dxc4"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bxc4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 9",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "Bb4"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "cxd5",
+                        "black": "Qxd5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "f3",
+                        "black": "Bg6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "e4",
+                        "black": "Qd7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "a3",
+                        "black": "Ba5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bc4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 10",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "Bb4"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "cxd5",
+                        "black": "exd5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Qb3",
+                        "black": "Bxc3+"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qxc3",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Qg3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bc7",
+                        "black": "Qe7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Bd6",
+                        "black": "Qd8"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "f3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 11",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "Bb4"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "cxd5",
+                        "black": "Bxc3+"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "bxc3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 12",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Rc1",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nf3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "a3",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Nc6 Early",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nf3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "h3",
+                        "black": "h6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "a3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bxd6",
+                        "black": "Qxd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nf3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "c5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Bb4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Rc1",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nf3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "dxc4"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Bxc4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nc3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 5",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Bb4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "cxd5",
+                        "black": "dxc4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Ne2",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "a3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Ng3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 6",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "a3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg5",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bxf6",
+                        "black": "Bxf6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "g4",
+                        "black": "Bg6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "cxd5",
+                        "black": "exd5"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Bg2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 7",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "f6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Bd3",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nf3",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bb5",
+                        "black": "g5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bg3",
+                        "black": "h5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "h3",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "c4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 8",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "f6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Bd3",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nf3",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bb5",
+                        "black": "a6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bxc6+",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "h3",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nc3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 9",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "f6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Bd3",
+                        "black": "Be6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nf3",
+                        "black": "Bf7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bg3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "O-O",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "c4",
+                        "black": "Nge7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nc3",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Other moves after d5",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nf3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qc2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "c4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bg3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nf3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Be2",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "O-O",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "c3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "h3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "f6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Bd3",
+                        "black": "Ne7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nc3",
+                        "black": "dxc4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bxc4",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "exd4",
+                        "black": "Nbc6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nge2",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Nimzo India",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "a6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "d5",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "dxe6",
+                        "black": "Bxe6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Ng5",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nxe6",
+                        "black": "fxe6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "g4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "d4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nb5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Bb7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nb5",
+                        "black": "Na6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nd2",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Nc4",
+                        "black": "Ne4"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "exd4",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Ne3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Na3",
+                        "black": "Qxb2"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nb5",
+                        "black": "Nd5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Rb1",
+                        "black": "Qxa2"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Ra1",
+                        "black": "Qb2"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bc4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 5",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Na3",
+                        "black": "Qxb2"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nb5",
+                        "black": "Na6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "a3",
+                        "black": "Nd5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Rb1",
+                        "black": "Qa2"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bd6",
+                        "black": "Bxd6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Bc4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 6",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Na3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nb5",
+                        "black": "Na6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "a4",
+                        "black": "c4"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "c3",
+                        "black": "Bd7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "b3",
+                        "black": "Bxb5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "axb5",
+                        "black": "Qxb5"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "bxc4",
+                        "black": "dxc4"
+                    },
+                    {
+                        "move_number": "12",
+                        "white": "Qb1",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 7",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Na3",
+                        "black": "cxd4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nc4",
+                        "black": "Qb4+"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "c3",
+                        "black": "dxc3"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "a3",
+                        "black": "c2+"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "bxc4",
+                        "black": "dxc1=Q+"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Kxd1",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 8",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nbd2",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "h3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "c3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 9",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Qf3",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Bb7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "O-O-O",
+                        "black": "Bb4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nge2",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "e4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 10",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Qf3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Nc3",
+                        "black": "Bb7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "O-O-O",
+                        "black": "a6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "g4",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "g5",
+                        "black": "Ne4"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nxe4",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Pirc and Grundfeld",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e4",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e5",
+                        "black": "Nh5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bc1",
+                        "black": "f5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "f4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e4",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e5",
+                        "black": "Ne8"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Qe2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e4",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Qd2",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bh6",
+                        "black": "Bxh6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qxh6",
+                        "black": "b5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "e5",
+                        "black": "b4"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nce2",
+                        "black": "Nd5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Nf3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e4",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Qd2",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bh6",
+                        "black": "Bxh6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qxh6",
+                        "black": "b5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "e5",
+                        "black": "dxe5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "dxe5",
+                        "black": "Nd5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "O-O-O",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 5",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e4",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Qd2",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bh6",
+                        "black": "Bxh6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qxh6",
+                        "black": "Qa5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd3",
+                        "black": "b5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nf3",
+                        "black": "b4"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Ne2",
+                        "black": "Qh5"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Qd2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 6",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e4",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Qd2",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "O-O-O",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "e5",
+                        "black": "dxe5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "dxe5",
+                        "black": "Nh5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bh6",
+                        "black": "Bxe5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Nf3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 7",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e4",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Qd2",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "O-O-O",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "e5",
+                        "black": "Nh5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bh6",
+                        "black": "dxe5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "dxe5",
+                        "black": "Bxe5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "h4",
+                        "black": "Bd6"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "g4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 8",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e4",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Qd2",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "O-O-O",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bh6",
+                        "black": "b5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "f3",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "h4",
+                        "black": "Qa5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Kb1",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 9",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h4",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nf3",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Be2",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Ne5",
+                        "black": "Bxe2"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Qxe2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 10",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nb5",
+                        "black": "Na6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nf3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Be2",
+                        "black": "Bd7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "a4",
+                        "black": "c4"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Ne5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 11",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h4",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "h5",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "hxg6",
+                        "black": "fxg6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Qd2",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nf3",
+                        "black": "Bf5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "dxc5",
+                        "black": "Qa5"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Nd4",
+                        "black": "Qxc5"
+                    },
+                    {
+                        "move_number": "12",
+                        "white": "O-O-O",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 12",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h4",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "h5",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "hxg6",
+                        "black": "hxg6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Qd2",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Nge2",
+                        "black": "Qa5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Bh6",
+                        "black": "Bxh6"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Rxh6",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 13",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h4",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "h5",
+                        "black": "Nxh5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Rxh5",
+                        "black": "gxh5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Qxh5",
+                        "black": "Nd7"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bd3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 14",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h4",
+                        "black": "h5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nf3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nb5",
+                        "black": "Na6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "c3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Be2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 15",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h4",
+                        "black": "h5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nf3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Ne5",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Qd2",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "dxc5",
+                        "black": "Qa5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Nxc6",
+                        "black": "bxc6"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "a3",
+                        "black": "Qxc5"
+                    },
+                    {
+                        "move_number": "12",
+                        "white": "Na4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 16",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "e3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h4",
+                        "black": "h5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nf3",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qd2",
+                        "black": "Bxf3"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "gxf3",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "O-O-O",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "e4",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Other Nf6 lines",
+        "lines": [
+            {
+                "name": "Chessly Line 1",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e4",
+                        "black": "a6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "dxe6",
+                        "black": "Bxe6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "e5",
+                        "black": "dxe5"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Qxd8+",
+                        "black": "Kxd8"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Bxe5",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "O-O-O",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 2",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "b5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "f3",
+                        "black": "Nh5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Bc1",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nh3",
+                        "black": "Bb7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "e4",
+                        "black": "Qa5+"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd2",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "c4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 3",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "b5"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "f3",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e4",
+                        "black": "b4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "a3",
+                        "black": "a5"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "axb4",
+                        "black": "cxb4"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "c3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 4",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Qc1",
+                        "black": "e5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bg5",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "e4",
+                        "black": "h6"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 5",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e4",
+                        "black": "Qxb2"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nge2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 6",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e4",
+                        "black": "Nxe4"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nxe4",
+                        "black": "Qb4+"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Qd2",
+                        "black": "Qxe4+"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Ne2",
+                        "black": "Qxd5"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Qxd5",
+                        "black": "exd5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Nc3",
+                        "black": "d4"
+                    },
+                    {
+                        "move_number": "11",
+                        "white": "Nd5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 7",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "Qxb2"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Bd2",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "e4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 8",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "e5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Bd2",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "e4",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "g3",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bg2",
+                        "black": "Ne8"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "h4",
+                        "black": "f5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "h5",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 9",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "e5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Bd2",
+                        "black": "Be7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "e4",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Be2",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Nf3",
+                        "black": "Ne8"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "a4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Bh6",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 10",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e4",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bb5+",
+                        "black": "Bd7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "a4",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Nf3",
+                        "black": "Na6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "O-O",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 11",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "d5",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nc3",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "e4",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bb5+",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "a4",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Nf3",
+                        "black": "a6"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "Be2",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 12",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "b6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Bb7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "d5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "c3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 13",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "Qb6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "b3",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "h3",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nf3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "c3",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 14",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "c6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nd2",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Ngf3",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "h3",
+                        "black": "Bg7"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Bh2",
+                        "black": "O-O"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Be2",
+                        "black": "Re8"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "O-O",
+                        "black": "e5"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Nc4",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 15",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "Nc3",
+                        "black": "Nbd7"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "c5"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "d5",
+                        "black": "b5"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Nxb5",
+                        "black": "Qa5+"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "Nc3",
+                        "black": "Rb8"
+                    },
+                    {
+                        "move_number": "8",
+                        "white": "Bd2",
+                        "black": "Rxb2"
+                    },
+                    {
+                        "move_number": "9",
+                        "white": "e4",
+                        "black": "g6"
+                    },
+                    {
+                        "move_number": "10",
+                        "white": "Qc1",
+                        "black": ""
+                    }
+                ]
+            },
+            {
+                "name": "Chessly Line 16",
+                "moves": [
+                    {
+                        "move_number": "1",
+                        "white": "d4",
+                        "black": "Nf6"
+                    },
+                    {
+                        "move_number": "2",
+                        "white": "Bf4",
+                        "black": "Nc6"
+                    },
+                    {
+                        "move_number": "3",
+                        "white": "e3",
+                        "black": "d6"
+                    },
+                    {
+                        "move_number": "4",
+                        "white": "Nf3",
+                        "black": "Bg4"
+                    },
+                    {
+                        "move_number": "5",
+                        "white": "Be2",
+                        "black": "Bxf3"
+                    },
+                    {
+                        "move_number": "6",
+                        "white": "Bxf3",
+                        "black": "e6"
+                    },
+                    {
+                        "move_number": "7",
+                        "white": "O-O",
+                        "black": ""
+                    }
+                ]
+            }
+        ]
+    }
+]
