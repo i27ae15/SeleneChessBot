@@ -48,6 +48,19 @@ class Piece(ABC):
     def sing_char(self) -> str:
         return self.name.value[1]
 
+    def _get_square_or_piece(
+        self,
+        row: int,
+        column: int
+    ) -> list[int, int] | 'Piece' | None:
+        move_or_piece: list[int, int] | Piece | None = []
+        if self.board.board[row][column] is None:
+            move_or_piece = [row, column]
+        else:
+            move_or_piece = self.board.board[row][column]
+
+        return move_or_piece
+
     def capture(self, captured_by: 'Piece'):
         self.captured_by = captured_by
 
@@ -89,27 +102,20 @@ class Piece(ABC):
 
         """
 
-        board = self.board.board
         squares_up: list[Piece | None] = []
         squares_down: list[Piece | None] = []
 
         # check the column in one direction
         for row in range(self.row - 1, -1, -1):
-            if board[row][self.column] is None:
-                squares_up.append([row, self.column])
-            else:
-                squares_up.append(board[row][self.column])
-                if end_at_piece_found:
-                    break
+            squares_up.append(self._get_square_or_piece(row, self.column))
+            if squares_up[-1] and end_at_piece_found:
+                break
 
         # check the column in another direction
         for row in range(self.row + 1, 8):
-            if board[row][self.column] is None:
-                squares_down.append([row, self.column])
-            else:
-                squares_down.append(board[row][self.column])
-                if end_at_piece_found:
-                    break
+            squares_down.append(self._get_square_or_piece(row, self.column))
+            if squares_down[-1] and end_at_piece_found:
+                break
 
         return {
             'd0': squares_up,
@@ -182,8 +188,6 @@ class Piece(ABC):
 
         """
 
-        board = self.board.board
-
         squares_up_left: list[Piece | None] = []
         squares_up_right: list[Piece | None] = []
         squares_down_left: list[Piece | None] = []
@@ -194,48 +198,36 @@ class Piece(ABC):
             range(self.row - 1, -1, -1),
             range(self.column - 1, -1, -1)
         ):
-            if board[row][column] is None:
-                squares_up_left.append([row, column])
-            else:
-                squares_up_left.append(board[row][column])
-                if end_at_piece_found:
-                    break
+            squares_up_left.append(self._get_square_or_piece(row, column))
+            if squares_up_left[-1] and end_at_piece_found:
+                break
 
         # check the up right diagonal
         for row, column in zip(
             range(self.row - 1, -1, -1),
             range(self.column + 1, 8)
         ):
-            if board[row][column] is None:
-                squares_up_right.append([row, column])
-            else:
-                squares_up_right.append(board[row][column])
-                if end_at_piece_found:
-                    break
+            squares_up_right.append(self._get_square_or_piece(row, column))
+            if squares_up_right[-1] and end_at_piece_found:
+                break
 
         # check the down left diagonal
         for row, column in zip(
             range(self.row + 1, 8),
             range(self.column - 1, -1, -1)
         ):
-            if board[row][column] is None:
-                squares_down_left.append([row, column])
-            else:
-                squares_down_left.append(board[row][column])
-                if end_at_piece_found:
-                    break
+            squares_down_left.append(self._get_square_or_piece(row, column))
+            if squares_down_left[-1] and end_at_piece_found:
+                break
 
         # check the down right diagonal
         for row, column in zip(
             range(self.row + 1, 8),
             range(self.column + 1, 8)
         ):
-            if board[row][column] is None:
-                squares_down_right.append([row, column])
-            else:
-                squares_down_right.append(board[row][column])
-                if end_at_piece_found:
-                    break
+            squares_down_right.append(self._get_square_or_piece(row, column))
+            if squares_down_right[-1] and end_at_piece_found:
+                break
 
     @abstractmethod
     def can_move(self, new_position: tuple[int, int]) -> bool:
