@@ -24,7 +24,7 @@ ALGEBRAIC_NOTATION = {
 
 def convert_to_algebraic_notation(row: int, column: int) -> str:
     """
-        Converts a position in the form of a tuple of integers to a string in
+        Converts a position in the form of integers to a string in
         algebraic notation.
     """
 

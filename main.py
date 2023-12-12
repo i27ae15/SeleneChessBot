@@ -151,6 +151,8 @@ class ChessGame:
                 while self.check_input(move_to_do):
                     move_to_do = input('Your move: ')
 
+                # TODO: add long castle as LC and short castle as SC
+
                 if self.move_as == WHITE_TO_MOVE:
 
                     # check if the move is correct
@@ -175,5 +177,5 @@ class ChessGame:
 
 
 json_file_path = 'files/london_system_chessly_lines.json'
-chess_game = ChessGame(json_file_path)
+chess_game = ChessGame(json_file_path, [7])
 chess_game.start_game()

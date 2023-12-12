@@ -3,17 +3,34 @@ from core.utilities import convert_to_algebraic_notation
 from .pieces import Piece
 from .utilites import PieceColor, PieceValue, PieceName
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from board import Board
+
 
 class Pawn(Piece):
-    def __init__(self, color: PieceColor, position):
+    def __init__(
+        self,
+        color: PieceColor,
+        position: tuple[int, int],
+        board: 'Board'
+    ):
         super().__init__(
             color,
             position,
             value=PieceValue.PAWN,
-            name=PieceName.PAWN
+            name=PieceName.PAWN,
+            board=board
         )
 
-    def move(self, new_position):
+    def move(self, new_position: tuple[int, int]):
+        # check if the move is valid
+
+        if new_position in self.calculate_legal_moves(self.board):
+            # self.first_move = False
+            return True
+
         # Implement pawn movement logic here
         super().move(new_position)
 
@@ -23,7 +40,6 @@ class Pawn(Piece):
 
     def calculate_legal_moves(
         self,
-        board: list[list[Piece | None]],
         show_in_algebraic_notation: bool = False
     ) -> list[tuple[int, int]] | list[str]:
         """
@@ -37,6 +53,8 @@ class Pawn(Piece):
         :return: A list of legal moves
         """
         # Check if is first move and just add the two forward moves
+
+        board = self.board.board
 
         direction = 1 if self.color == PieceColor.WHITE else -1
         legal_moves: list[list[int, int]] = []

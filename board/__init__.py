@@ -1,1 +1,5 @@
-__all__ = ''
+from board.board import Board
+
+__all__ = [
+    'Board'
+]
