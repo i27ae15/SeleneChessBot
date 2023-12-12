@@ -80,8 +80,8 @@ class Piece(ABC):
         The function will return a dictionary with the following structure:
 
         {
-            '0': [[int, int] | [Pieces]],
-            '1': [[int, int] | [Pieces]]
+            'd0': [[int, int] | [Pieces]],
+            'd1': [[int, int] | [Pieces]]
         }
 
         Where the [int, int] is the position of the square and [Pieces] is a
@@ -112,8 +112,8 @@ class Piece(ABC):
                     break
 
         return {
-            '0': squares_up,
-            '1': squares_down
+            'd0': squares_up,
+            'd1': squares_down
         }
 
     def scan_row(self, end_at_piece_found: bool = True) -> dict:
@@ -126,8 +126,8 @@ class Piece(ABC):
         The function will return a dictionary with the following structure:
 
         {
-            '0': [[int, int] | [Pieces]],
-            '1': [[int, int] | [Pieces]]
+            'd0': [[int, int] | [Pieces]],
+            'd1': [[int, int] | [Pieces]]
         }
 
         Where the [int, int] is the position of the square and [Pieces] is a
@@ -158,8 +158,8 @@ class Piece(ABC):
                     break
 
         return {
-            '0': squares_left,
-            '1': squares_right
+            'd0': squares_left,
+            'd1': squares_right
         }
 
     @abstractmethod

@@ -1,9 +1,10 @@
+from typing import TYPE_CHECKING
+
 from core.utilities import convert_to_algebraic_notation
 
 from .piece import Piece
 from .utilites import PieceColor, PieceValue, PieceName
 
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from board import Board
@@ -81,7 +82,7 @@ class Pawn(Piece):
                 legal_moves.append(pos_to)
 
         # Check if the pawn can capture a piece
-        # check if the pan can capture a piece on the left
+        # check if the pawn can capture a piece on the left
         if self.position[1] - 1 >= 0:
             pos_to: tuple[int, int] = (
                 self.position[0] + 1 * direction,
@@ -93,7 +94,7 @@ class Pawn(Piece):
             if piece is not None and piece.color != self.color:
                 legal_moves.append(pos_to)
 
-        # check if the pan can capture a piece on the right
+        # check if the pawn can capture a piece on the right
         if self.position[1] + 1 <= 7:
             pos_to: tuple[int, int] = (
                 self.position[0] + 1 * direction,
