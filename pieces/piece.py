@@ -26,7 +26,7 @@ class Piece(ABC):
         self.first_move: bool = True
         self.captured_by: Piece | None = None
         self.name: PieceName = name
-        self.board: 'Board' = board  # Class Board in board.py
+        self.board: 'Board' = board
 
     @property
     def is_captured(self) -> bool:
@@ -161,6 +161,81 @@ class Piece(ABC):
             'd0': squares_left,
             'd1': squares_right
         }
+
+    def scan_diagonal(self, end_at_piece_found: bool = True) -> dict:
+
+        """
+
+        This instance will scan the diagonals where the piece is located and
+        until it finds another piece or the end of the board.
+
+        The function will return a dictionary with the following structure:
+
+        {
+            'd0': [[int, int] | [Pieces]],
+            'd1': [[int, int] | [Pieces]],
+            'd2': [[int, int] | [Pieces]],
+            'd3': [[int, int] | [Pieces]]
+        }
+
+        Where the [int, int] is the position of the square and [Pieces] is a
+
+        """
+
+        board = self.board.board
+
+        squares_up_left: list[Piece | None] = []
+        squares_up_right: list[Piece | None] = []
+        squares_down_left: list[Piece | None] = []
+        squares_down_right: list[Piece | None] = []
+
+        # check the up left diagonal
+        for row, column in zip(
+            range(self.row - 1, -1, -1),
+            range(self.column - 1, -1, -1)
+        ):
+            if board[row][column] is None:
+                squares_up_left.append([row, column])
+            else:
+                squares_up_left.append(board[row][column])
+                if end_at_piece_found:
+                    break
+
+        # check the up right diagonal
+        for row, column in zip(
+            range(self.row - 1, -1, -1),
+            range(self.column + 1, 8)
+        ):
+            if board[row][column] is None:
+                squares_up_right.append([row, column])
+            else:
+                squares_up_right.append(board[row][column])
+                if end_at_piece_found:
+                    break
+
+        # check the down left diagonal
+        for row, column in zip(
+            range(self.row + 1, 8),
+            range(self.column - 1, -1, -1)
+        ):
+            if board[row][column] is None:
+                squares_down_left.append([row, column])
+            else:
+                squares_down_left.append(board[row][column])
+                if end_at_piece_found:
+                    break
+
+        # check the down right diagonal
+        for row, column in zip(
+            range(self.row + 1, 8),
+            range(self.column + 1, 8)
+        ):
+            if board[row][column] is None:
+                squares_down_right.append([row, column])
+            else:
+                squares_down_right.append(board[row][column])
+                if end_at_piece_found:
+                    break
 
     @abstractmethod
     def can_move(self, new_position: tuple[int, int]) -> bool:
