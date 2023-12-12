@@ -1,5 +1,6 @@
 # chess.py
 from board import Board
+from pieces import Rook
 from pieces import Pawn
 from pieces.utilites import PieceColor
 
@@ -7,17 +8,22 @@ from pieces.utilites import PieceColor
 
 
 def main():
-    # Create a board instance, set up the game, etc.
     board = Board()
     # print(board)
-    board.add_piece(Pawn(PieceColor.BLACK, (2, 5), board=board))
-    board.add_piece(Pawn(PieceColor.BLACK, (2, 3), board=board))
+    # board.add_piece(Pawn(PieceColor.BLACK, (2, 5), board=board))
+    # board.add_piece(Pawn(PieceColor.BLACK, (2, 3), board=board))
+
+    # print(board.board[6][4].calculate_legal_moves(
+    #         show_in_algebraic_notation=True
+    #     )
+    # )
+
     print(board)
 
-    print(board.board[1][4].calculate_legal_moves(
-            show_in_algebraic_notation=True
-        )
-    )
+    a_rook: Rook = board.board[0][0]
+
+    # print(a_rook.scan_column(end_at_piece_found=False))
+    print(a_rook.scan_row(end_at_piece_found=False))
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from pieces.pieces import Piece
+from pieces.piece import Piece
 from typing import TYPE_CHECKING
 from .utilites import PieceColor, PieceValue, PieceName
 
