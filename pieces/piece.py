@@ -173,24 +173,24 @@ class Piece(ABC):
 
         """
 
-        squares_up: list[Piece | None] = []
-        squares_down: list[Piece | None] = []
+        direction_0: list[Piece | None] = []
+        direction_1: list[Piece | None] = []
 
         # check the column in one direction
         for row in range(self.row - 1, -1, -1):
-            squares_up.append(self._get_square_or_piece(row, self.column))
-            if squares_up[-1] and end_at_piece_found:
+            direction_0.append(self._get_square_or_piece(row, self.column))
+            if isinstance(direction_0[-1], Piece) and end_at_piece_found:
                 break
 
         # check the column in another direction
         for row in range(self.row + 1, 8):
-            squares_down.append(self._get_square_or_piece(row, self.column))
-            if squares_down[-1] and end_at_piece_found:
+            direction_1.append(self._get_square_or_piece(row, self.column))
+            if isinstance(direction_1[-1], Piece) and end_at_piece_found:
                 break
 
         return {
-            'd0': squares_up,
-            'd1': squares_down
+            'd0': direction_0,
+            'd1': direction_1
         }
 
     def scan_row(self, end_at_piece_found: bool = True) -> dict:
@@ -313,7 +313,15 @@ class Piece(ABC):
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False
-    ) -> list[tuple[int, int]] | list[str]:
+    ) -> list[str | list[int, int]]:
+
+        """
+        Returns a list of legal moves for the piece.
+
+        Parameters:
+            show_in_algebraic_notation (bool): If True, returns the list of
+            moves in algebraic notation. Defaults to False.
+        """
         pass
 
     def __str__(self):
