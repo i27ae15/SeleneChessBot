@@ -52,7 +52,26 @@ class Piece(ABC):
         self,
         row: int,
         column: int
-    ) -> list[int, int] | 'Piece' | None:
+    ) -> 'list[int, int] | Piece':
+
+        """
+        Determine if a square on the chessboard is empty or occupied by a
+        piece.
+
+        This method checks the specified square on the board. If the
+        square is empty, it returns its coordinates. If the square is
+        occupied by a chess piece, it returns the piece object.
+
+        Parameters:
+        row (int): The row index of the square to check.
+        column (int): The column index of the square to check.
+
+        Returns:
+        list[int, int] | Piece: The coordinates of the square as a list
+        if it's empty, the Piece object if it's occupied, or None if the
+        square is not on the board.
+        """
+
         move_or_piece: list[int, int] | Piece | None = []
         if self.board.board[row][column] is None:
             move_or_piece = [row, column]
@@ -60,6 +79,59 @@ class Piece(ABC):
             move_or_piece = self.board.board[row][column]
 
         return move_or_piece
+
+    def _check_capturable_moves(
+        self,
+        moves: 'list[list[int, int] | Piece]',
+        check_only_last_move: bool = True
+    ) -> list[list[int, int]]:
+
+        """
+        Filter and modify a list of moves to only include capturable moves.
+
+        This method processes a list of moves and checks for the presence
+        of an enemy piece at the end of the move sequence. If the last move is
+        a capturable enemy piece, it is replaced with its position. If the
+        last move is not capturable (either an ally piece or an empty square),
+        it is removed from the list.
+
+        Parameters:
+        moves (list[list[int, int] | Piece]): A list of moves, where each move
+        is represented either as coordinates or a Piece object.
+
+        check_only_last_move (bool): If True, only the last move in the list
+        will be checked for capturability. If False, all moves in the list will
+        be checked.
+
+        Returns:
+        list[list[int, int]]: A list of moves after filtering and modifying to
+        include only capturable moves. Each move is represented as a list of
+        coordinates.
+        """
+
+        if not len(moves):
+            return moves
+
+        if check_only_last_move:
+            if isinstance(moves[-1], Piece):
+                is_capturable = True
+                if moves[-1].color == self.color:
+                    is_capturable = False
+                    moves.pop()
+
+                if is_capturable:
+                    moves[-1] = list(moves[-1].position)
+        else:
+            for index, move in enumerate(moves):
+                if isinstance(move, Piece):
+                    is_capturable = True
+                    if move.color == self.color:
+                        is_capturable = False
+                        moves.pop(index)
+
+                    if is_capturable:
+                        moves[index] = list(move.position)
+        return moves
 
     def capture(self, captured_by: 'Piece'):
         self.captured_by = captured_by
@@ -86,7 +158,6 @@ class Piece(ABC):
     def scan_column(self, end_at_piece_found: bool = True) -> dict:
 
         """
-
         This instance will scan the column where the piece is located and
         until it finds another piece or the end of the board.
 
@@ -125,7 +196,6 @@ class Piece(ABC):
     def scan_row(self, end_at_piece_found: bool = True) -> dict:
 
         """
-
         This instance will scan the row where the piece is located and
         until it finds another piece or the end of the board.
 
@@ -168,10 +238,9 @@ class Piece(ABC):
             'd1': squares_right
         }
 
-    def scan_diagonal(self, end_at_piece_found: bool = True) -> dict:
+    def scan_diagonals(self, end_at_piece_found: bool = True) -> dict:
 
         """
-
         This instance will scan the diagonals where the piece is located and
         until it finds another piece or the end of the board.
 
@@ -188,18 +257,18 @@ class Piece(ABC):
 
         """
 
-        squares_up_left: list[Piece | None] = []
-        squares_up_right: list[Piece | None] = []
-        squares_down_left: list[Piece | None] = []
-        squares_down_right: list[Piece | None] = []
+        direction_0: list[Piece | None] = []
+        direction_1: list[Piece | None] = []
+        direction_2: list[Piece | None] = []
+        direction_3: list[Piece | None] = []
 
         # check the up left diagonal
         for row, column in zip(
             range(self.row - 1, -1, -1),
             range(self.column - 1, -1, -1)
         ):
-            squares_up_left.append(self._get_square_or_piece(row, column))
-            if squares_up_left[-1] and end_at_piece_found:
+            direction_0.append(self._get_square_or_piece(row, column))
+            if isinstance(direction_0[-1], Piece) and end_at_piece_found:
                 break
 
         # check the up right diagonal
@@ -207,8 +276,8 @@ class Piece(ABC):
             range(self.row - 1, -1, -1),
             range(self.column + 1, 8)
         ):
-            squares_up_right.append(self._get_square_or_piece(row, column))
-            if squares_up_right[-1] and end_at_piece_found:
+            direction_1.append(self._get_square_or_piece(row, column))
+            if isinstance(direction_1[-1], Piece) and end_at_piece_found:
                 break
 
         # check the down left diagonal
@@ -216,8 +285,8 @@ class Piece(ABC):
             range(self.row + 1, 8),
             range(self.column - 1, -1, -1)
         ):
-            squares_down_left.append(self._get_square_or_piece(row, column))
-            if squares_down_left[-1] and end_at_piece_found:
+            direction_2.append(self._get_square_or_piece(row, column))
+            if isinstance(direction_2[-1], Piece) and end_at_piece_found:
                 break
 
         # check the down right diagonal
@@ -225,9 +294,16 @@ class Piece(ABC):
             range(self.row + 1, 8),
             range(self.column + 1, 8)
         ):
-            squares_down_right.append(self._get_square_or_piece(row, column))
-            if squares_down_right[-1] and end_at_piece_found:
+            direction_3.append(self._get_square_or_piece(row, column))
+            if isinstance(direction_3[-1], Piece) and end_at_piece_found:
                 break
+
+        return {
+            'd0': direction_0,
+            'd1': direction_1,
+            'd2': direction_2,
+            'd3': direction_3
+        }
 
     @abstractmethod
     def can_move(self, new_position: tuple[int, int]) -> bool:

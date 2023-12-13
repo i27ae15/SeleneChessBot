@@ -4,5 +4,16 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"background.customImages": ["https://www.google.com/url?sa=i&url=https%3A%2F%2Fmashthosebuttons.com%2F2017%2F01%2Fmake-destiny-great-again%2F&psig=AOvVaw3aMeGn0XB4Z8Edd7CI9Y7L&ust=1702543638009000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCLjpvrmDjIMDFQAAAAAdAAAAABAD"],
+		"background.enabled": true,
+		"background.fullscreen": {
+			"images": [],
+			"opacity": 0.91,
+			"size": "cover",
+			"position": "center",
+			"interval": 0
+		}
+
+	}
 }
