@@ -23,6 +23,76 @@ class Board:
 
         return self.board[row][column] is None
 
+    def get_square_or_piece(
+        self,
+        row: int,
+        column: int
+    ) -> 'list[int, int] | Piece':
+
+        """
+        Determine if a square on the chessboard is empty or occupied by a
+        piece.
+
+        This method checks the specified square on the board. If the
+        square is empty, it returns its coordinates. If the square is
+        occupied by a chess piece, it returns the piece object.
+
+        Parameters:
+        row (int): The row index of the square to check.
+        column (int): The column index of the square to check.
+
+        Returns:
+        list[int, int] | Piece: The coordinates of the square as a list
+        if it's empty, the Piece object if it's occupied, or None if the
+        square is not on the board.
+        """
+
+        move_or_piece: list[int, int] | Piece | None = []
+        if self.board[row][column] is None:
+            move_or_piece = [row, column]
+        else:
+            move_or_piece = self.board[row][column]
+
+        return move_or_piece
+
+    def is_position_on_board(
+        self,
+        position: tuple[int, int],
+        row: int | None = None,
+        column: int | None = None
+    ) -> bool:
+
+        """
+        Check if a position is on the board.
+
+        This method checks if the specified position is on the board.
+        It can be called either with a tuple of coordinates or with
+        separate row and column arguments.
+
+        Parameters:
+            position (tuple[int, int]): A tuple containing the coordinates
+                of the position to check.
+            row (int): The row index of the position to check.
+            column (int): The column index of the position to check.
+
+        Returns:
+            bool: True if the position is on the board, False otherwise.
+        """
+
+        if position:
+            row = position[0]
+            column = position[1]
+
+        if not row or not column:
+            return False
+
+        if row < 0 or row > 7:
+            return False
+        if column < 0 or column > 7:
+            return False
+
+        return True
+
     def create_empty_board(self) -> list[list[None]]:
         return [[None for _ in range(8)] for _ in range(8)]
 

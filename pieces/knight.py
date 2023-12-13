@@ -1,5 +1,8 @@
-from pieces.piece import Piece
 from typing import TYPE_CHECKING
+
+from core.utilities import convert_to_algebraic_notation
+from pieces.piece import Piece
+
 from .utilites import PieceColor, PieceValue, PieceName
 
 if TYPE_CHECKING:
@@ -28,5 +31,38 @@ class Knight(Piece):
     def can_move(self, new_position: tuple[int, int]) -> bool:
         return super().can_move(new_position)
 
-    def calculate_legal_moves(self, board) -> list:
-        return super().calculate_legal_moves(board)
+    def calculate_legal_moves(
+        self,
+        show_in_algebraic_notation: bool = False
+    ) -> list[str | list[int, int]]:
+
+        positions_to_check = [
+            (self.position[0] + 1, self.position[1] + 2),
+            (self.position[0] + 2, self.position[1] + 1),
+            (self.position[0] + 2, self.position[1] - 1),
+            (self.position[0] + 1, self.position[1] - 2),
+            (self.position[0] - 1, self.position[1] - 2),
+            (self.position[0] - 2, self.position[1] - 1),
+            (self.position[0] - 2, self.position[1] + 1),
+            (self.position[0] - 1, self.position[1] + 2)
+        ]
+
+        legal_moves = []
+
+        for position in positions_to_check:
+            if self.board.is_position_on_board(position):
+                square = [
+                    self.board.get_square_or_piece(
+                        row=position[0],
+                        column=position[1]
+                    )
+                ]
+
+                legal_moves += self._check_capturable_moves(square)
+
+        if show_in_algebraic_notation:
+            return [
+                convert_to_algebraic_notation(*move) for move in legal_moves
+            ]
+
+        return legal_moves

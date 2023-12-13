@@ -28,5 +28,9 @@ class King(Piece):
     def can_move(self, new_position: tuple[int, int]) -> bool:
         return super().can_move(new_position)
 
-    def calculate_legal_moves(self, board) -> list:
-        return super().calculate_legal_moves(board)
+    def calculate_legal_moves(
+        self,
+        show_in_algebraic_notation: bool = False
+    ) -> list[str | list[int, int]]:
+
+        return super().calculate_legal_moves(show_in_algebraic_notation)

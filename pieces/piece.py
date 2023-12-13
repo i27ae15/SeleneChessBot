@@ -48,41 +48,9 @@ class Piece(ABC):
     def sing_char(self) -> str:
         return self.name.value[1]
 
-    def _get_square_or_piece(
-        self,
-        row: int,
-        column: int
-    ) -> 'list[int, int] | Piece':
-
-        """
-        Determine if a square on the chessboard is empty or occupied by a
-        piece.
-
-        This method checks the specified square on the board. If the
-        square is empty, it returns its coordinates. If the square is
-        occupied by a chess piece, it returns the piece object.
-
-        Parameters:
-        row (int): The row index of the square to check.
-        column (int): The column index of the square to check.
-
-        Returns:
-        list[int, int] | Piece: The coordinates of the square as a list
-        if it's empty, the Piece object if it's occupied, or None if the
-        square is not on the board.
-        """
-
-        move_or_piece: list[int, int] | Piece | None = []
-        if self.board.board[row][column] is None:
-            move_or_piece = [row, column]
-        else:
-            move_or_piece = self.board.board[row][column]
-
-        return move_or_piece
-
     def _check_capturable_moves(
         self,
-        moves: 'list[list[int, int] | Piece]',
+        moves: 'list[list[int, int], Piece | Piece]',
         check_only_last_move: bool = True
     ) -> list[list[int, int]]:
 
@@ -178,13 +146,17 @@ class Piece(ABC):
 
         # check the column in one direction
         for row in range(self.row - 1, -1, -1):
-            direction_0.append(self._get_square_or_piece(row, self.column))
+            direction_0.append(
+                self.board.get_square_or_piece(row, self.column)
+            )
             if isinstance(direction_0[-1], Piece) and end_at_piece_found:
                 break
 
         # check the column in another direction
         for row in range(self.row + 1, 8):
-            direction_1.append(self._get_square_or_piece(row, self.column))
+            direction_1.append(
+                self.board.get_square_or_piece(row, self.column)
+            )
             if isinstance(direction_1[-1], Piece) and end_at_piece_found:
                 break
 
@@ -267,7 +239,7 @@ class Piece(ABC):
             range(self.row - 1, -1, -1),
             range(self.column - 1, -1, -1)
         ):
-            direction_0.append(self._get_square_or_piece(row, column))
+            direction_0.append(self.board.get_square_or_piece(row, column))
             if isinstance(direction_0[-1], Piece) and end_at_piece_found:
                 break
 
@@ -276,7 +248,7 @@ class Piece(ABC):
             range(self.row - 1, -1, -1),
             range(self.column + 1, 8)
         ):
-            direction_1.append(self._get_square_or_piece(row, column))
+            direction_1.append(self.board.get_square_or_piece(row, column))
             if isinstance(direction_1[-1], Piece) and end_at_piece_found:
                 break
 
@@ -285,7 +257,7 @@ class Piece(ABC):
             range(self.row + 1, 8),
             range(self.column - 1, -1, -1)
         ):
-            direction_2.append(self._get_square_or_piece(row, column))
+            direction_2.append(self.board.get_square_or_piece(row, column))
             if isinstance(direction_2[-1], Piece) and end_at_piece_found:
                 break
 
@@ -294,7 +266,7 @@ class Piece(ABC):
             range(self.row + 1, 8),
             range(self.column + 1, 8)
         ):
-            direction_3.append(self._get_square_or_piece(row, column))
+            direction_3.append(self.board.get_square_or_piece(row, column))
             if isinstance(direction_3[-1], Piece) and end_at_piece_found:
                 break
 

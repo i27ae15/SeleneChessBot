@@ -34,7 +34,7 @@ class Rook(Piece):
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False
-    ) -> list:
+    ) -> list[str | list[int, int]]:
 
         scanned_column = self.scan_column(end_at_piece_found=True)
         scanned_row = self.scan_row(end_at_piece_found=True)

@@ -1,6 +1,6 @@
 # chess.py
 from board import Board
-from pieces import Queen, Rook
+from pieces import Knight
 from pieces.utilites import PieceColor
 
 # Import other necessary modules and classes
@@ -10,7 +10,7 @@ def main():
     board = Board()
     # print(board)
     # board.add_piece(Pawn(PieceColor.BLACK, (2, 5), board=board))
-    p = Queen(PieceColor.WHITE, (3, 3), board=board)
+    p = Knight(PieceColor.WHITE, (4, 7), board=board)
     board.add_piece(piece=p)
 
     print(board)
