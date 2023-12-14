@@ -174,9 +174,6 @@ class Board:
             color is not specified when required.
         """
 
-        # TODO: when trying to add a king check if the king is already on the
-        # board if it is, raise an error
-
         if self._is_initial_board_set_up:
             # check for the double kings
             is_king: bool = False
