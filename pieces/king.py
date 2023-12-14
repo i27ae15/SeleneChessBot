@@ -32,5 +32,4 @@ class King(Piece):
         self,
         show_in_algebraic_notation: bool = False
     ) -> list[str | list[int, int]]:
-
-        return super().calculate_legal_moves(show_in_algebraic_notation)
+        return list()

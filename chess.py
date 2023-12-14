@@ -16,7 +16,12 @@ def main():
 
     # print(board)
     # print(board.pieces_on_board)
-    print(board.get_piece(piece_name=PieceName.KING, piece_color=PieceColor.WHITE))
+    print(
+        board.get_attacked_squares(
+            color=PieceColor.WHITE,
+            show_in_algebraic_notation=True
+        )
+    )
 
     # print(p.calculate_legal_moves(show_in_algebraic_notation=True))
 

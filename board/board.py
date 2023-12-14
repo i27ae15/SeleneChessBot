@@ -29,7 +29,6 @@ class Board:
 
     @staticmethod
     def is_position_on_board(
-        self,
         position: tuple[int, int],
         row: int | None = None,
         column: int | None = None
@@ -240,11 +239,49 @@ class Board:
                     print(f'{p.sing_char}', end=' ')
             print()
 
+    def get_legal_moves(
+        self,
+        color: PieceColor,
+        show_in_algebraic_notation: bool = False
+    ) -> list[tuple[int, int]]:
+
+        legal_moves = []
+
+        for key in self.pieces_on_board[color]:
+            pieces = self.pieces_on_board[color][key]
+            for piece in pieces:
+                piece: Piece
+                legal_moves += piece.calculate_legal_moves(
+                    show_in_algebraic_notation=show_in_algebraic_notation
+                )
+
+        return legal_moves
+
+    def get_attacked_squares(
+        self,
+        color: PieceColor,
+        show_in_algebraic_notation: bool = False
+    ) -> list[tuple[int, int]]:
+
+        # TODO: implement this method in each piece class
+
+        attacked_squares = []
+
+        for key in self.pieces_on_board[color]:
+            pieces = self.pieces_on_board[color][key]
+            for piece in pieces:
+                piece: Piece
+                attacked_squares += piece.get_attacked_squares(
+                    show_in_algebraic_notation=show_in_algebraic_notation
+                )
+
+        return attacked_squares
+
     def get_piece(
         self,
         piece_name: PieceName,
         color: PieceColor,
-    ) -> Piece | None:
+    ) -> list[Piece] | list:
         return self.pieces_on_board[color][piece_name]
 
     def _create_piece(
