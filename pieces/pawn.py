@@ -43,17 +43,6 @@ class Pawn(Piece):
         self,
         show_in_algebraic_notation: bool = False
     ) -> list[tuple[int, int]] | list[str]:
-        """
-        Use a search algorithm to find all the legal moves for the pawn.
-
-        Rules for the pawn, can move one square forward, or two squares forward
-        if it is the first move. Can only move diagonally if it is capturing
-        another piece.
-
-        :param board: The board object
-        :return: A list of legal moves
-        """
-        # Check if is first move and just add the two forward moves
 
         board = self.board.board
 
@@ -105,6 +94,9 @@ class Pawn(Piece):
 
             if piece is not None and piece.color != self.color:
                 legal_moves.append(pos_to)
+
+        # check if can en passant
+        # check if the pawn can capture a piece on the left
 
         if show_in_algebraic_notation:
             return [
