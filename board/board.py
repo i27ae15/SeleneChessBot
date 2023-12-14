@@ -244,9 +244,8 @@ class Board:
         self,
         piece_name: PieceName,
         color: PieceColor,
-        show_in_algebraic_notation: bool = True
     ) -> Piece | None:
-        pass
+        return self.pieces_on_board[color][piece_name]
 
     def _create_piece(
         self,
