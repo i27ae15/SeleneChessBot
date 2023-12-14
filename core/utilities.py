@@ -32,3 +32,14 @@ def convert_to_algebraic_notation(row: int, column: int) -> str:
     column = ALGEBRAIC_NOTATION['column'][column]
 
     return column + row
+
+
+def convert_from_algebraic_notation(position: str) -> tuple:
+    """
+        Converts a position in algebraic notation to a tuple of integers.
+    """
+
+    row = int(position[1]) - 1
+    column = ord(position[0]) - 97
+
+    return (row, column)
