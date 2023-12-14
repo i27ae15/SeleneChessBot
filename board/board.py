@@ -13,7 +13,46 @@ class Board:
 
     def __str__(self) -> str:
         self.print_board()
-        return ''
+        return str()
+
+    @staticmethod
+    def is_position_on_board(
+        self,
+        position: tuple[int, int],
+        row: int | None = None,
+        column: int | None = None
+    ) -> bool:
+
+        """
+        Check if a position is on the board.
+
+        This method checks if the specified position is on the board.
+        It can be called either with a tuple of coordinates or with
+        separate row and column arguments.
+
+        Parameters:
+            position (tuple[int, int]): A tuple containing the coordinates
+                of the position to check.
+            row (int): The row index of the position to check.
+            column (int): The column index of the position to check.
+
+        Returns:
+            bool: True if the position is on the board, False otherwise.
+        """
+
+        if position:
+            row = position[0]
+            column = position[1]
+
+        if not row or not column:
+            return False
+
+        if row < 0 or row > 7:
+            return False
+        if column < 0 or column > 7:
+            return False
+
+        return True
 
     def is_position_empty(
         self,
@@ -54,44 +93,6 @@ class Board:
             move_or_piece = self.board[row][column]
 
         return move_or_piece
-
-    def is_position_on_board(
-        self,
-        position: tuple[int, int],
-        row: int | None = None,
-        column: int | None = None
-    ) -> bool:
-
-        """
-        Check if a position is on the board.
-
-        This method checks if the specified position is on the board.
-        It can be called either with a tuple of coordinates or with
-        separate row and column arguments.
-
-        Parameters:
-            position (tuple[int, int]): A tuple containing the coordinates
-                of the position to check.
-            row (int): The row index of the position to check.
-            column (int): The column index of the position to check.
-
-        Returns:
-            bool: True if the position is on the board, False otherwise.
-        """
-
-        if position:
-            row = position[0]
-            column = position[1]
-
-        if not row or not column:
-            return False
-
-        if row < 0 or row > 7:
-            return False
-        if column < 0 or column > 7:
-            return False
-
-        return True
 
     def create_empty_board(self) -> list[list[None]]:
         return [[None for _ in range(8)] for _ in range(8)]
