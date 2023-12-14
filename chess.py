@@ -15,6 +15,7 @@ def main():
     # board.add_piece(piece=p)
 
     print(board)
+    print(board.pieces_on_board)
     # print(p.calculate_legal_moves(show_in_algebraic_notation=True))
 
 

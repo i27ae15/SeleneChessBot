@@ -222,7 +222,7 @@ class Board:
 
         self.board[row][column] = piece
 
-        return True
+        return piece
 
     def print_board(self, perspective: PieceColor = PieceColor.WHITE):
 
