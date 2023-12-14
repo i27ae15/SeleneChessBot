@@ -28,6 +28,12 @@ class King(Piece):
     def can_move(self, new_position: tuple[int, int]) -> bool:
         return super().can_move(new_position)
 
+    def get_attacked_squares(
+        self,
+        show_in_algebraic_notation: bool = False
+    ) -> list[str | list[int]]:
+        return list()
+
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False

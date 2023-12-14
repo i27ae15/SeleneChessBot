@@ -284,13 +284,28 @@ class Piece(ABC):
     @abstractmethod
     def calculate_legal_moves(
         self,
-        show_in_algebraic_notation: bool = False
+        show_in_algebraic_notation: bool = False,
+        check_capturable_moves: bool = True
     ) -> list[str | list[int, int]]:
 
         """
         Returns a list of legal moves for the piece.
 
         Parameters:
+            show_in_algebraic_notation (bool): If True, returns the list of
+            moves in algebraic notation. Defaults to False.
+        """
+        pass
+
+    @abstractmethod
+    def get_attacked_squares(
+        self,
+        show_in_algebraic_notation: bool = False
+    ) -> list[str | list[int, int]]:
+        """
+        Return a list of the squares attacked by the piece.
+
+        parameters:
             show_in_algebraic_notation (bool): If True, returns the list of
             moves in algebraic notation. Defaults to False.
         """

@@ -39,6 +39,34 @@ class Pawn(Piece):
         # Implement pawn movement logic here
         return super().can_move(new_position)
 
+    def get_attacked_squares(
+        self,
+        show_in_algebraic_notation: bool = False
+    ) -> list[tuple[int, int]]:
+        # get the squares that are being under attacked by the pawn
+        direction = 1 if self.color == PieceColor.WHITE else -1
+        squares_being_attacked: list[tuple[int, int]] = []
+
+        # get the left squared attacked by the pawn
+        if self.position[1] - 1 >= 0:
+            squares_being_attacked.append(
+                (self.position[0] + 1 * direction, self.position[1] - 1)
+            )
+
+        # get the right squared attacked by the pawn
+        if self.position[1] + 1 <= 7:
+            squares_being_attacked.append(
+                (self.position[0] + 1 * direction, self.position[1] + 1)
+            )
+
+        if show_in_algebraic_notation:
+            return [
+                convert_to_algebraic_notation(*square)
+                for square in squares_being_attacked
+            ]
+
+        return squares_being_attacked
+
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False
