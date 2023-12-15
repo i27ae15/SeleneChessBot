@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from core.utilities import convert_to_algebraic_notation
 from pieces.piece import Piece
 
-from .utilites import PieceColor, PieceValue, PieceName
+from .utilites import PieceColor, PieceValue, PieceName, RookSide
 
 if TYPE_CHECKING:
     from board import Board
@@ -58,7 +58,7 @@ class King(Piece):
             (self.position[0] - 1, self.position[1] - 1),
             (self.position[0] - 1, self.position[1]),
             (self.position[0] - 1, self.position[1] + 1),
-            (self.position[0], self.position[1] + 1)
+            (self.position[0], self.position[1] + 1),
         ]
 
         legal_moves = []
@@ -81,9 +81,129 @@ class King(Piece):
                 else:
                     legal_moves.append(position)
 
+        # check if possible to castle
+        direction = 1 if self.color == PieceColor.WHITE else -1
+        if self._check_if_kingside_castleling_is_possible():
+            legal_moves.append(
+                (self.position[0], self.position[1] + 2 * direction)
+            )
+
+        if self._check_if_queenside_castleling_is_possible():
+            legal_moves.append(
+                (self.position[0], self.position[1] - 2 * direction)
+            )
+
         if show_in_algebraic_notation:
             return [
                 convert_to_algebraic_notation(*move) for move in legal_moves
             ]
 
         return legal_moves
+
+    def _check_if_queenside_castleling_is_possible(
+        self
+    ) -> bool:
+
+        # check if the king has the right to castle
+        if not self.board.castleling_rights[self.color][RookSide.QUEEN]:
+            return False
+
+        # check if the squares between the king and the rook are empty
+        squares_to_check = [
+            (self.position[0], self.position[1] - 1),
+            (self.position[0], self.position[1] - 2),
+            (self.position[0], self.position[1] - 3)
+        ]
+
+        for square in squares_to_check:
+            if not self.board.is_position_empty(
+                row=square[0],
+                column=square[1]
+            ):
+                return False
+
+        # check if the square the king is moving to is under attack
+        attacked_squares = self.board.get_attacked_squares(
+            self.color.opposite(),
+            show_in_algebraic_notation=False
+        )
+
+        if (self.position[0], self.position[1] - 2) in attacked_squares:
+            return False
+
+        return True
+
+    def _check_if_kingside_castleling_is_possible(
+        self
+    ) -> bool:
+
+        # check if the king has the right to castle
+        if not self.board.castleling_rights[self.color][RookSide.KING]:
+            return False
+
+        # check if the squares between the king and the rook are empty
+        squares_to_check = [
+            (self.position[0], self.position[1] + 1),
+            (self.position[0], self.position[1] + 2)
+        ]
+
+        for square in squares_to_check:
+            if not self.board.is_position_empty(
+                row=square[0],
+                column=square[1]
+            ):
+                return False
+
+        # check if the square the king is moving to is under attack
+        attacked_squares = self.board.get_attacked_squares(
+            self.color.opposite(),
+            show_in_algebraic_notation=False
+        )
+
+        if (self.position[0], self.position[1] + 2) in attacked_squares:
+            return False
+
+        return True
+
+    def castle(
+        self,
+        side: RookSide
+    ) -> bool:
+
+        sides = {
+            RookSide.KING: self._check_if_kingside_castleling_is_possible,
+            RookSide.QUEEN: self._check_if_queenside_castleling_is_possible
+        }
+
+        if not sides[side]():
+            return False
+
+        rooks = self.board.get_piece(
+            piece_name=PieceName.ROOK,
+            color=self.color,
+        )
+
+        rook = [r for r in rooks if r.rook_side == side][0]
+
+        # calculate the king direction based on the color and the side
+        # of the castleling
+        king_direction = 1 if side == RookSide.KING else -1
+
+        rook_direction = 1 if side == RookSide.KING else -1
+
+        # move the rook
+        rook.move_to(
+            new_position=[
+                self.position[0],
+                self.position[1] + 1 * rook_direction
+            ]
+        )
+
+        # move the king
+        self.move_to(
+            new_position=[
+                self.position[0],
+                self.position[1] + 2 * king_direction
+            ],
+            in_castleling=True
+        )

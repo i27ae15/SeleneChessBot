@@ -109,6 +109,7 @@ class Piece(ABC):
     def move_to(
         self,
         new_position: tuple[int, int] | str,
+        in_castleling: bool = False
     ):
         """
         Move the chess piece to a new position on the board.
@@ -137,6 +138,7 @@ class Piece(ABC):
         - The legality of the move is determined by the `calculate_legal_moves`
         method of the piece.
         """
+
         # check if is a rook and eliminate the right to castle
         if self.first_move and self.name == PieceName.ROOK:
             self.board.castleling_rights[self.color][self.rook_side] = False
@@ -149,7 +151,7 @@ class Piece(ABC):
         if isinstance(new_position, str):
             new_position = convert_from_algebraic_notation(new_position)
 
-        if new_position in self.calculate_legal_moves():
+        if in_castleling or new_position in self.calculate_legal_moves():
             self.board.update_board(
                 new_row=new_position[0],
                 new_column=new_position[1],

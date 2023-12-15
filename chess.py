@@ -2,7 +2,7 @@
 from board import Board
 from pieces import Pawn
 from pieces.king import King
-from pieces.utilites import PieceName, PieceColor
+from pieces.utilites import PieceName, PieceColor, RookSide
 
 # Import other necessary modules and classes
 
@@ -21,20 +21,45 @@ def main():
     #     )
     # )
 
-    rooks = board.get_piece(
-        piece_name=PieceName.ROOK,
+    king: King = board.get_piece(
+        piece_name=PieceName.KING,
         color=PieceColor.WHITE
-    )
+    )[0]
 
     # eliminate the pawns in front of the rooks
-    board.board[1][0] = None
-    board.board[1][7] = None
 
-    for rook in rooks:
-        legal_moves = rook.calculate_legal_moves()
-        rook.move_to(new_position=legal_moves[0])
+    print(board)
 
-    # print(p.calculate_legal_moves(show_in_algebraic_notation=True))
+    # eliminate the pieces between the king and the king side rook
+    board.board[0][5] = None
+    board.board[0][6] = None
+
+    # eliminate the pieces between the king and the queen side rook
+    board.board[0][1] = None
+    board.board[0][2] = None
+    board.board[0][3] = None
+
+    king.castle(side=RookSide.QUEEN)
+
+    # do the same but for the black king
+
+    king: King = board.get_piece(
+        piece_name=PieceName.KING,
+        color=PieceColor.BLACK
+    )[0]
+
+    # eliminate the pieces between the king and the king side rook
+    board.board[7][5] = None
+    board.board[7][6] = None
+
+    # eliminate the pieces between the king and the queen side rook
+    board.board[7][1] = None
+    board.board[7][2] = None
+    board.board[7][3] = None
+
+    king.castle(side=RookSide.QUEEN)
+
+    print(board)
 
 
 if __name__ == "__main__":
