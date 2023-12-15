@@ -5,6 +5,19 @@ class PieceColor(Enum):
     WHITE = 0
     BLACK = 1
 
+    def opposite(self):
+        if self == PieceColor.WHITE:
+            return PieceColor.BLACK
+        else:
+            return PieceColor.WHITE
+
+    @staticmethod
+    def get_opposite(color):
+        if color == PieceColor.WHITE:
+            return PieceColor.BLACK
+        else:
+            return PieceColor.WHITE
+
 
 class PieceValue(Enum):
     PAWN = 1
@@ -22,3 +35,8 @@ class PieceName(Enum):
     ROOK = 'Rook', 'R'
     QUEEN = 'Queen', 'Q'
     KING = 'King', 'K'
+
+
+class RookSide(Enum):
+    QUEEN = 0
+    KING = 1

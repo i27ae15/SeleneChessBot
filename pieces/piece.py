@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from core.utilities import convert_to_algebraic_notation
+from core.utilities import (
+    convert_from_algebraic_notation, convert_to_algebraic_notation
+)
 
-from .utilites import PieceColor, PieceValue, PieceName
+from .utilites import PieceColor, PieceValue, PieceName, RookSide
 
 if TYPE_CHECKING:
     from board import Board
@@ -88,7 +90,7 @@ class Piece(ABC):
                     moves.pop()
 
                 if is_capturable:
-                    moves[-1] = list(moves[-1].position)
+                    moves[-1] = tuple(moves[-1].position)
         else:
             for index, move in enumerate(moves):
                 if isinstance(move, Piece):
@@ -98,16 +100,69 @@ class Piece(ABC):
                         moves.pop(index)
 
                     if is_capturable:
-                        moves[index] = list(move.position)
+                        moves[index] = tuple(move.position)
         return moves
 
     def capture(self, captured_by: 'Piece'):
         self.captured_by = captured_by
 
-    def move(self, new_position: tuple[int, int]):
-        self.position = new_position
-        if self.first_move:
+    def move_to(
+        self,
+        new_position: tuple[int, int] | str,
+    ):
+        """
+        Move the chess piece to a new position on the board.
+
+        This method moves the piece to a specified position, which can be
+        given either as a tuple of coordinates or as a string in algebraic
+        notation. If the piece being moved is a rook or a king and it's their
+        first move, the method adjusts the castling rights accordingly. For a
+        rook, it disables castling on the rook's side. For a king, it disables
+        castling on both the king and queen sides. The method checks if the
+        move is legal before executing it and updates the board and the
+        piece's position. It also marks the first move of the piece as
+        completed.
+
+        Parameters:
+        new_position (tuple[int, int] | str): The new position to move the
+        piece to, either as a tuple of coordinates (row, column)
+        or a string in algebraic notation.
+
+        Returns:
+        bool: True if the move is successful and legal, False otherwise.
+
+        Notes:
+        - The method checks and updates castling rights if the piece is a rook
+        or king moving for the first time.
+        - The legality of the move is determined by the `calculate_legal_moves`
+        method of the piece.
+        """
+        # check if is a rook and eliminate the right to castle
+        if self.first_move and self.name == PieceName.ROOK:
+            self.board.castleling_rights[self.color][self.rook_side] = False
+
+        # check if is a king and eliminate the right to castle
+        if self.first_move and self.name == PieceName.KING:
+            self.board.castleling_rights[self.color][RookSide.KING] = False
+            self.board.castleling_rights[self.color][RookSide.QUEEN] = False
+
+        if isinstance(new_position, str):
+            new_position = convert_from_algebraic_notation(new_position)
+
+        if new_position in self.calculate_legal_moves():
+            self.board.update_board(
+                new_row=new_position[0],
+                new_column=new_position[1],
+                old_column=self.column,
+                old_row=self.row,
+                piece=self,
+            )
+            self.position = new_position
+
             self.first_move = False
+            return True
+
+        return False
 
     def add_move_to_story(
         self,
@@ -276,10 +331,6 @@ class Piece(ABC):
             'd2': direction_2,
             'd3': direction_3
         }
-
-    @abstractmethod
-    def can_move(self, new_position: tuple[int, int]) -> bool:
-        pass
 
     @abstractmethod
     def calculate_legal_moves(

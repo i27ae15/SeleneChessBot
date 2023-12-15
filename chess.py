@@ -14,14 +14,25 @@ def main():
     # p = King(PieceColor.WHITE, (4, 7), board=board)
     # board.add_piece(piece=p)
 
-    # print(board)
-    # print(board.pieces_on_board)
-    print(
-        board.get_attacked_squares(
-            color=PieceColor.WHITE,
-            show_in_algebraic_notation=True
-        )
+    # print(
+    #     board.get_attacked_squares(
+    #         color=PieceColor.WHITE,
+    #         show_in_algebraic_notation=True
+    #     )
+    # )
+
+    rooks = board.get_piece(
+        piece_name=PieceName.ROOK,
+        color=PieceColor.WHITE
     )
+
+    # eliminate the pawns in front of the rooks
+    board.board[1][0] = None
+    board.board[1][7] = None
+
+    for rook in rooks:
+        legal_moves = rook.calculate_legal_moves()
+        rook.move_to(new_position=legal_moves[0])
 
     # print(p.calculate_legal_moves(show_in_algebraic_notation=True))
 

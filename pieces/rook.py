@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from core.utilities import convert_to_algebraic_notation
 from pieces.piece import Piece
 
-from .utilites import PieceColor, PieceValue, PieceName
+from .utilites import PieceColor, PieceValue, PieceName, RookSide
 
 if TYPE_CHECKING:
     from board import Board
@@ -15,8 +15,12 @@ class Rook(Piece):
         self,
         color: PieceColor,
         position: tuple[int, int],
-        board: 'Board'
+        board: 'Board',
+        rook_side: RookSide = None,
     ):
+
+        self.rook_side: RookSide = rook_side
+
         super().__init__(
             color,
             position,
@@ -24,12 +28,6 @@ class Rook(Piece):
             name=PieceName.ROOK,
             board=board
         )
-
-    def move(self, new_position: tuple[int, int]):
-        super().move(new_position)
-
-    def can_move(self, new_position: tuple[int, int]) -> bool:
-        return super().can_move(new_position)
 
     def get_attacked_squares(
         self,

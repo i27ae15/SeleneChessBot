@@ -17,6 +17,9 @@ class Pawn(Piece):
         position: tuple[int, int],
         board: 'Board'
     ):
+
+        self.can_be_captured_en_passant: bool = False
+
         super().__init__(
             color,
             position,

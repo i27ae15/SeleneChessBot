@@ -60,8 +60,8 @@ class Knight(Piece):
         legal_moves = []
 
         for position in positions_to_check:
-            if check_capturable_moves:
-                if self.board.is_position_on_board(position):
+            if self.board.is_position_on_board(position):
+                if check_capturable_moves:
                     square = [
                         self.board.get_square_or_piece(
                             row=position[0],

@@ -1,7 +1,7 @@
 from core.utilities import convert_from_algebraic_notation
 
 from pieces import Piece, Pawn, Rook, Bishop, Knight, Queen, King
-from pieces.utilites import PieceColor, PieceName
+from pieces.utilites import PieceColor, PieceName, RookSide
 
 
 class Board:
@@ -18,6 +18,24 @@ class Board:
             PieceColor.WHITE: self.white_pieces,
             PieceColor.BLACK: self.black_pieces
         }
+
+        self.castleling_rights: dict[PieceColor] = {
+            PieceColor.WHITE: {
+                RookSide.KING: True,
+                RookSide.QUEEN: True,
+            },
+            PieceColor.BLACK: {
+                RookSide.KING: True,
+                RookSide.QUEEN: True,
+            }
+        }
+
+        self._attacked_squares: dict[PieceColor] = {
+            PieceColor.WHITE: list(),
+            PieceColor.BLACK: list()
+        }
+        self._attacked_squares_by_white_checked: bool = False
+        self._attacked_squares_by_black_checked: bool = False
 
         self._is_initial_board_set_up = False
 
@@ -55,7 +73,7 @@ class Board:
             row = position[0]
             column = position[1]
 
-        if not row or not column:
+        if row is None or column is None:
             return False
 
         if row < 0 or row > 7:
@@ -64,6 +82,17 @@ class Board:
             return False
 
         return True
+
+    def update_board(
+        self,
+        old_row: int,
+        old_column: int,
+        new_row: int,
+        new_column: int,
+        piece: Piece,
+    ):
+        self.board[old_row][old_column] = None
+        self.board[new_row][new_column] = piece
 
     def is_position_empty(
         self,
@@ -77,7 +106,7 @@ class Board:
         self,
         row: int,
         column: int
-    ) -> 'list[int, int] | Piece':
+    ) -> 'tuple[int, int] | Piece':
 
         """
         Determine if a square on the chessboard is empty or occupied by a
@@ -97,9 +126,9 @@ class Board:
         square is not on the board.
         """
 
-        move_or_piece: list[int, int] | Piece | None = []
+        move_or_piece: tuple[int, int] | Piece | None = []
         if self.board[row][column] is None:
-            move_or_piece = [row, column]
+            move_or_piece = (row, column)
         else:
             move_or_piece = self.board[row][column]
 
@@ -133,7 +162,8 @@ class Board:
         row: int | str | None = None,
         column: int | str | None = None,
         algebraic_notation: str | None = None,
-        check_if_position_is_empty: bool = True
+        check_if_position_is_empty: bool = True,
+        additional_information: dict = None
     ) -> Piece:
         """
         Add a chess piece to the board at a specified position.
@@ -216,7 +246,8 @@ class Board:
             piece = self._create_piece(
                 piece_name=piece,
                 color=piece_color,
-                position=(row, column)
+                position=(row, column),
+                additional_information=additional_information
             )
 
         self.board[row][column] = piece
@@ -263,7 +294,19 @@ class Board:
         show_in_algebraic_notation: bool = False
     ) -> list[tuple[int, int]]:
 
-        # TODO: implement this method in each piece class
+        # TODO: we should update the variable self_attacked_squares to include
+        # the moves where the attacked squares where calculated, and then
+        # TODO: look a way to unify when show_in_algebraic_notation is True
+
+        if color == PieceColor.WHITE:
+            if self._attacked_squares_by_white_checked:
+                return self._attacked_squares[PieceColor.WHITE]
+            self._attacked_squares_by_white_checked = True
+
+        elif color == PieceColor.BLACK:
+            if self._attacked_squares_by_black_checked:
+                return self._attacked_squares[PieceColor.BLACK]
+            self._attacked_squares_by_black_checked = True
 
         attacked_squares = []
 
@@ -274,6 +317,8 @@ class Board:
                 attacked_squares += piece.get_attacked_squares(
                     show_in_algebraic_notation=show_in_algebraic_notation
                 )
+
+        self._attacked_squares[color] = attacked_squares
 
         return attacked_squares
 
@@ -288,8 +333,12 @@ class Board:
         self,
         piece_name: PieceName,
         color: PieceColor,
-        position: tuple[int, int]
+        position: tuple[int, int],
+        additional_information: dict = None
     ) -> Piece:
+
+        if additional_information is None:
+            additional_information = dict()
 
         piece_clases = {
             PieceName.PAWN: Pawn,
@@ -303,7 +352,8 @@ class Board:
         return piece_clases[piece_name](
             color=color,
             board=self,
-            position=position
+            position=position,
+            **additional_information
         )
 
     def _create_initial_pawn_set_up(self):
@@ -420,7 +470,8 @@ class Board:
                 piece=PieceName.ROOK,
                 piece_color=PieceColor.WHITE,
                 row=0,
-                column=0
+                column=0,
+                additional_information={'rook_side': RookSide.QUEEN}
             )
         )
         self.white_pieces[PieceName.ROOK].append(
@@ -428,7 +479,8 @@ class Board:
                 piece=PieceName.ROOK,
                 piece_color=PieceColor.WHITE,
                 row=0,
-                column=7
+                column=7,
+                additional_information={'rook_side': RookSide.KING}
             )
         )
 
@@ -437,7 +489,8 @@ class Board:
                 piece=PieceName.ROOK,
                 piece_color=PieceColor.BLACK,
                 row=7,
-                column=0
+                column=0,
+                additional_information={'rook_side': RookSide.QUEEN}
             )
         )
         self.black_pieces[PieceName.ROOK].append(
@@ -445,7 +498,8 @@ class Board:
                 piece=PieceName.ROOK,
                 piece_color=PieceColor.BLACK,
                 row=7,
-                column=7
+                column=7,
+                additional_information={'rook_side': RookSide.KING}
             )
         )
 
