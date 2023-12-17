@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-from core.utilities import (
+from core.utils import (
     convert_from_algebraic_notation, convert_to_algebraic_notation
 )
 
@@ -54,7 +54,7 @@ class Piece(ABC):
         self,
         moves: 'list[list[int, int], Piece | Piece]',
         check_only_last_move: bool = True
-    ) -> list[list[int, int]]:
+    ) -> list[tuple[int, int]]:
 
         """
         Filter and modify a list of moves to only include capturable moves.

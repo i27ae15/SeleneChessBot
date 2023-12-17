@@ -1,4 +1,4 @@
-from core.utilities import convert_from_algebraic_notation
+from core.utils import convert_from_algebraic_notation
 
 from pieces import Piece, Pawn, Rook, Bishop, Knight, Queen, King
 from pieces.utilites import PieceColor, PieceName, RookSide
@@ -8,7 +8,10 @@ class Board:
 
     """This class represents the board of the game."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        create_initial_board_set_up: bool = True
+    ) -> None:
 
         self.board: list[list[Piece | None]] = []
         self.white_pieces: dict[list[Piece]] = dict()
@@ -39,11 +42,16 @@ class Board:
 
         self._is_initial_board_set_up = False
 
-        self.create_initial_board_set_up()
+        if create_initial_board_set_up:
+            self.create_initial_board_set_up()
 
     def __str__(self) -> str:
         self.print_board()
         return str()
+
+    def no_castleling_rights(self, color: PieceColor):
+        self.castleling_rights[color][RookSide.KING] = False
+        self.castleling_rights[color][RookSide.QUEEN] = False
 
     @staticmethod
     def is_position_on_board(
@@ -134,8 +142,20 @@ class Board:
 
         return move_or_piece
 
-    def create_empty_board(self) -> list[list[None]]:
-        return [[None for _ in range(8)] for _ in range(8)]
+    def create_empty_board(self):
+        self.board = [[None for _ in range(8)] for _ in range(8)]
+
+    def clean_board(self):
+        # clean the pieces that are in the board
+
+        self.white_pieces = dict()
+        self.black_pieces = dict()
+
+        self.pieces_on_board = {
+            PieceColor.WHITE: dict(),
+            PieceColor.BLACK: dict()
+        }
+        self.create_empty_board()
 
     def create_initial_board_set_up(self) -> list[list[Piece | None]]:
 
@@ -144,7 +164,7 @@ class Board:
                 'The initial board set up has already been created.'
             )
 
-        self.board = self.create_empty_board()
+        self.create_empty_board()
 
         self._create_initial_pawn_set_up()
         self._create_initial_knight_set_up()

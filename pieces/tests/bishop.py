@@ -4,26 +4,26 @@ from core.testing import print_starting, print_success
 
 from board import Board
 
-from pieces import Knight
+from pieces import Bishop
 
 from pieces.utilites import PieceColor, PieceName
 
 
-class TestKnight(unittest.TestCase):
+class TestBishop(unittest.TestCase):
 
     def setUp(self):
         self.board = Board()
         self.board.create_empty_board()
-        self.knight = self.add_knight_to_board()
+        self.bishop = self.add_bishop_to_board()
 
     def tearDown(self) -> None:
         self.board.clean_board()
-        self.knight = self.add_knight_to_board()
+        self.bishop = self.add_bishop_to_board()
         return super().tearDown()
 
-    def add_knight_to_board(self, row: int = 4, column: int = 4) -> Knight:
+    def add_bishop_to_board(self, row: int = 4, column: int = 4) -> Bishop:
         return self.board.add_piece(
-            piece=PieceName.KNIGHT,
+            piece=PieceName.BISHOP,
             piece_color=PieceColor.WHITE,
             row=row,
             column=column
@@ -31,23 +31,29 @@ class TestKnight(unittest.TestCase):
 
     def test_calculate_legal_moves(self):
         print_starting()
+
         expected_moves = [
-            (5, 6), (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            (3, 3), (2, 2), (1, 1), (0, 0), (3, 5), (2, 6), (1, 7), (5, 3),
+            (6, 2), (7, 1), (5, 5), (6, 6), (7, 7)
         ]
+
         self.assertEqual(
-            self.knight.calculate_legal_moves(),
+            self.bishop.calculate_legal_moves(),
             expected_moves
         )
         print_success()
 
     def test_calculate_legal_moves_with_algebraic_notation(self):
         print_starting()
+
         expected_moves = [
-            'f7', 'g6', 'g4', 'f3', 'd3', 'c4', 'c6', 'd7'
+            'a1', 'b2', 'b8', 'c3', 'c7', 'd4', 'd6', 'f4', 'f6', 'g3', 'g7',
+            'h2', 'h8'
         ]
+
         self.assertEqual(
             sorted(
-                self.knight.calculate_legal_moves(
+                self.bishop.calculate_legal_moves(
                     show_in_algebraic_notation=True
                 )
             ),
@@ -65,10 +71,11 @@ class TestKnight(unittest.TestCase):
         )
 
         expected_moves = [
-            (5, 6), (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            (3, 3), (2, 2), (1, 1), (0, 0), (3, 5), (2, 6), (1, 7), (5, 3),
+            (6, 2), (7, 1), (5, 5), (6, 6), (7, 7)
         ]
         self.assertEqual(
-            self.knight.calculate_legal_moves(),
+            self.bishop.calculate_legal_moves(),
             expected_moves
         )
 
@@ -84,10 +91,12 @@ class TestKnight(unittest.TestCase):
         )
 
         expected_moves = [
-            (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            (3, 3), (2, 2), (1, 1), (0, 0), (3, 5), (2, 6), (1, 7), (5, 3),
+            (6, 2), (7, 1), (5, 5), (6, 6), (7, 7)
         ]
+
         self.assertEqual(
-            self.knight.calculate_legal_moves(),
+            self.bishop.calculate_legal_moves(),
             expected_moves
         )
 

@@ -4,26 +4,26 @@ from core.testing import print_starting, print_success
 
 from board import Board
 
-from pieces import Knight
+from pieces import Rook
 
 from pieces.utilites import PieceColor, PieceName
 
 
-class TestKnight(unittest.TestCase):
+class TestRook(unittest.TestCase):
 
     def setUp(self):
         self.board = Board()
         self.board.create_empty_board()
-        self.knight = self.add_knight_to_board()
+        self.rook = self.add_rook_to_board()
 
     def tearDown(self) -> None:
         self.board.clean_board()
-        self.knight = self.add_knight_to_board()
+        self.rook = self.add_rook_to_board()
         return super().tearDown()
 
-    def add_knight_to_board(self, row: int = 4, column: int = 4) -> Knight:
+    def add_rook_to_board(self, row: int = 4, column: int = 4) -> Rook:
         return self.board.add_piece(
-            piece=PieceName.KNIGHT,
+            piece=PieceName.ROOK,
             piece_color=PieceColor.WHITE,
             row=row,
             column=column
@@ -32,22 +32,27 @@ class TestKnight(unittest.TestCase):
     def test_calculate_legal_moves(self):
         print_starting()
         expected_moves = [
-            (5, 6), (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            [4, 0], [4, 1], [4, 2], [4, 3], [4, 5], [4, 6], [4, 7],
+            [0, 4], [1, 4], [2, 4], [3, 4], [5, 4], [6, 4], [7, 4]
         ]
+        calculated_moves = self.rook.calculate_legal_moves()
+        calculated_moves = [list(move) for move in calculated_moves]
+
         self.assertEqual(
-            self.knight.calculate_legal_moves(),
-            expected_moves
+            sorted(calculated_moves),
+            sorted(expected_moves)
         )
         print_success()
 
     def test_calculate_legal_moves_with_algebraic_notation(self):
         print_starting()
         expected_moves = [
-            'f7', 'g6', 'g4', 'f3', 'd3', 'c4', 'c6', 'd7'
+            'e1', 'e2', 'e3', 'e4', 'e6', 'e7', 'e8', 'a5', 'b5', 'c5',
+            'd5', 'f5', 'g5', 'h5'
         ]
         self.assertEqual(
             sorted(
-                self.knight.calculate_legal_moves(
+                self.rook.calculate_legal_moves(
                     show_in_algebraic_notation=True
                 )
             ),
@@ -60,16 +65,20 @@ class TestKnight(unittest.TestCase):
         self.board.add_piece(
             piece=PieceName.PAWN,
             piece_color=PieceColor.BLACK,
-            row=5,
-            column=6
+            row=0,
+            column=4
         )
 
         expected_moves = [
-            (5, 6), (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            [4, 0], [4, 1], [4, 2], [4, 3], [4, 5], [4, 6], [4, 7],
+            [0, 4], [1, 4], [2, 4], [3, 4], [5, 4], [6, 4], [7, 4]
         ]
+        calculated_moves = self.rook.calculate_legal_moves()
+        calculated_moves = [list(move) for move in calculated_moves]
+
         self.assertEqual(
-            self.knight.calculate_legal_moves(),
-            expected_moves
+            sorted(calculated_moves),
+            sorted(expected_moves)
         )
 
         print_success()
@@ -79,16 +88,19 @@ class TestKnight(unittest.TestCase):
         self.board.add_piece(
             piece=PieceName.PAWN,
             piece_color=PieceColor.WHITE,
-            row=5,
-            column=6
+            row=0,
+            column=4
         )
-
         expected_moves = [
-            (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            [4, 0], [4, 1], [4, 2], [4, 3], [4, 5], [4, 6], [4, 7],
+            [1, 4], [2, 4], [3, 4], [5, 4], [6, 4], [7, 4]
         ]
+        calculated_moves = self.rook.calculate_legal_moves()
+        calculated_moves = [list(move) for move in calculated_moves]
+
         self.assertEqual(
-            self.knight.calculate_legal_moves(),
-            expected_moves
+            sorted(calculated_moves),
+            sorted(expected_moves)
         )
 
         print_success()

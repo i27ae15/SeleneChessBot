@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from core.utilities import convert_to_algebraic_notation
+from core.utils import convert_to_algebraic_notation
 from pieces.piece import Piece
 
 from .utilites import PieceColor, PieceValue, PieceName
@@ -27,9 +27,6 @@ class Knight(Piece):
 
     def move(self, new_position: tuple[int, int]):
         super().move(new_position)
-
-    def can_move(self, new_position: tuple[int, int]) -> bool:
-        return super().can_move(new_position)
 
     def get_attacked_squares(
         self,

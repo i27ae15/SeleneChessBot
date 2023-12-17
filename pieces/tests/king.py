@@ -1,29 +1,32 @@
+# FILEPATH: /c:/Users/andre/Desktop/selene_chess/pieces/tests/king.py
 import unittest
 
 from core.testing import print_starting, print_success
 
 from board import Board
 
-from pieces import Knight
+from pieces import King
 
 from pieces.utilites import PieceColor, PieceName
 
 
-class TestKnight(unittest.TestCase):
+class TestKing(unittest.TestCase):
 
     def setUp(self):
-        self.board = Board()
+        self.board = Board(create_initial_board_set_up=False)
         self.board.create_empty_board()
-        self.knight = self.add_knight_to_board()
+        self.king = self.add_king_to_board()
+        self.board.no_castleling_rights(color=PieceColor.WHITE)
 
     def tearDown(self) -> None:
         self.board.clean_board()
-        self.knight = self.add_knight_to_board()
+
+        self.king = self.add_king_to_board()
         return super().tearDown()
 
-    def add_knight_to_board(self, row: int = 4, column: int = 4) -> Knight:
+    def add_king_to_board(self, row: int = 4, column: int = 4) -> King:
         return self.board.add_piece(
-            piece=PieceName.KNIGHT,
+            piece=PieceName.KING,
             piece_color=PieceColor.WHITE,
             row=row,
             column=column
@@ -32,22 +35,25 @@ class TestKnight(unittest.TestCase):
     def test_calculate_legal_moves(self):
         print_starting()
         expected_moves = [
-            (5, 6), (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            [3, 3], [3, 4], [3, 5], [4, 3], [4, 5], [5, 3], [5, 4], [5, 5]
         ]
+        calculated_moves = self.king.calculate_legal_moves()
+        calculated_moves = [list(move) for move in calculated_moves]
+
         self.assertEqual(
-            self.knight.calculate_legal_moves(),
-            expected_moves
+            sorted(calculated_moves),
+            sorted(expected_moves)
         )
         print_success()
 
     def test_calculate_legal_moves_with_algebraic_notation(self):
         print_starting()
         expected_moves = [
-            'f7', 'g6', 'g4', 'f3', 'd3', 'c4', 'c6', 'd7'
+            'd4', 'd5', 'd6', 'e4', 'e6', 'f4', 'f5', 'f6'
         ]
         self.assertEqual(
             sorted(
-                self.knight.calculate_legal_moves(
+                self.king.calculate_legal_moves(
                     show_in_algebraic_notation=True
                 )
             ),
@@ -61,17 +67,18 @@ class TestKnight(unittest.TestCase):
             piece=PieceName.PAWN,
             piece_color=PieceColor.BLACK,
             row=5,
-            column=6
+            column=5
         )
-
         expected_moves = [
-            (5, 6), (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            [3, 3], [3, 4], [3, 5], [4, 3], [4, 5], [5, 3], [5, 4], [5, 5]
         ]
-        self.assertEqual(
-            self.knight.calculate_legal_moves(),
-            expected_moves
-        )
+        calculated_moves = self.king.calculate_legal_moves()
+        calculated_moves = [list(move) for move in calculated_moves]
 
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
         print_success()
 
     def test_friendly_piece_on_legal_move(self):
@@ -80,17 +87,18 @@ class TestKnight(unittest.TestCase):
             piece=PieceName.PAWN,
             piece_color=PieceColor.WHITE,
             row=5,
-            column=6
+            column=5
         )
-
         expected_moves = [
-            (6, 5), (6, 3), (5, 2), (3, 2), (2, 3), (2, 5), (3, 6)
+            [3, 3], [3, 4], [3, 5], [4, 3], [4, 5], [5, 3], [5, 4]
         ]
-        self.assertEqual(
-            self.knight.calculate_legal_moves(),
-            expected_moves
-        )
+        calculated_moves = self.king.calculate_legal_moves()
+        calculated_moves = [list(move) for move in calculated_moves]
 
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
         print_success()
 
 

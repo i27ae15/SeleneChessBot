@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from core.utilities import convert_to_algebraic_notation
+from core.utils import convert_to_algebraic_notation
 
 from .piece import Piece
 from .utilites import PieceColor, PieceValue, PieceName
