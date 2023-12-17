@@ -333,29 +333,6 @@ class Piece(ABC):
             end_at_piece_found=end_at_piece_found,
         )
 
-        # check the down left diagonal
-        for row, column in zip(
-            range(self.row + 1, 8),
-            range(self.column - 1, -1, -1)
-        ):
-            direction_2.append(self.board.get_square_or_piece(row, column))
-            last_square = direction_2[-1]
-            if isinstance(last_square, Piece):
-                if last_square.name == PieceName.KING:
-                    if not traspase_king and end_at_piece_found:
-                        break
-        # check the down right diagonal
-        for row, column in zip(
-            range(self.row + 1, 8),
-            range(self.column + 1, 8)
-        ):
-            direction_3.append(self.board.get_square_or_piece(row, column))
-            last_square = direction_1[-1]
-            if isinstance(last_square, Piece):
-                if last_square.name == PieceName.KING:
-                    if not traspase_king and end_at_piece_found:
-                        break
-
         return {
             'd0': direction_0,
             'd1': direction_1,
