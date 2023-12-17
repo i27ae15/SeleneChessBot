@@ -188,7 +188,6 @@ class King(Piece):
         # calculate the king direction based on the color and the side
         # of the castleling
         king_direction = 1 if side == RookSide.KING else -1
-
         rook_direction = 1 if side == RookSide.KING else -1
 
         # move the rook

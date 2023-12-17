@@ -52,6 +52,6 @@ def save_to_json(data, filename):
         json.dump(data, json_file, indent=4)
 
 
-doc_path = 'files/london_system.docx'  # Replace with the word document to use
+doc_path = 'files/advance_caro.docx'  # Replace with the word document to use
 chess_data = extract_chessly_lines(doc_path)
-save_to_json(chess_data, 'london_system_chessly_lines.json')
+save_to_json(chess_data, 'advance_caro_chessly_lines.json')
