@@ -25,12 +25,6 @@ class King(Piece):
             board=board
         )
 
-    def move(self, new_position: tuple[int, int]):
-        super().move(new_position)
-
-    def can_move(self, new_position: tuple[int, int]) -> bool:
-        return super().can_move(new_position)
-
     def get_attacked_squares(
         self,
         show_in_algebraic_notation: bool = False
@@ -67,19 +61,24 @@ class King(Piece):
             show_in_algebraic_notation=False
         )
 
+        algebraic_list = list()
+
+        for move in positions_to_check:
+            algebraic_list.append(convert_to_algebraic_notation(*move))
+
         for position in positions_to_check:
             if self.board.is_position_on_board(position):
-                if check_capturable_moves:
-                    if position not in attacked_squares:
+                if position not in attacked_squares:
+                    if check_capturable_moves:
                         square = [
                             self.board.get_square_or_piece(
                                 row=position[0],
                                 column=position[1]
                             )
                         ]
-                    legal_moves += self._check_capturable_moves(square)
-                else:
-                    legal_moves.append(position)
+                        legal_moves += self._check_capturable_moves(square)
+                    else:
+                        legal_moves.append(position)
 
         # check if possible to castle
         direction = 1 if self.color == PieceColor.WHITE else -1

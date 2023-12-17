@@ -270,7 +270,15 @@ class Board:
                 additional_information=additional_information
             )
 
+        # add piece to the board
         self.board[row][column] = piece
+
+        pieces_on_board = self.pieces_on_board[piece.color]
+
+        if not pieces_on_board.get(piece.name):
+            pieces_on_board[piece.name] = []
+
+        pieces_on_board[piece.name].append(piece)
 
         return piece
 

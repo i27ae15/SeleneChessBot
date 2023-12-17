@@ -4,6 +4,7 @@ import unittest
 from core.testing import print_starting, print_success
 
 from board import Board
+from core.utils import convert_to_algebraic_notation
 
 from pieces import King
 
@@ -81,14 +82,47 @@ class TestKing(unittest.TestCase):
         )
         print_success()
 
+    def test_enemy_queen_on_legal_move(self):
+        print_starting()
+        q = self.board.add_piece(
+            piece=PieceName.QUEEN,
+            piece_color=PieceColor.BLACK,
+            row=5,
+            column=5
+        )
+        expected_moves = [
+            'd5', 'e4', 'f6'
+        ]
+        calculated_moves = self.king.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+
+        attacked_squares = self.board.get_attacked_squares(
+            color=PieceColor.BLACK,
+            show_in_algebraic_notation=True
+        )
+        algebraic_list = list()
+
+        for move in attacked_squares:
+            algebraic_list.append(convert_to_algebraic_notation(*move))
+
+        print('att', q.calculate_legal_moves(show_in_algebraic_notation=True))
+
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
+        print_success()
+
     def test_friendly_piece_on_legal_move(self):
         print_starting()
         self.board.add_piece(
-            piece=PieceName.PAWN,
+            piece=PieceName.QUEEN,
             piece_color=PieceColor.WHITE,
             row=5,
             column=5
         )
+
         expected_moves = [
             [3, 3], [3, 4], [3, 5], [4, 3], [4, 5], [5, 3], [5, 4]
         ]

@@ -37,13 +37,14 @@ class Queen(Piece):
     ) -> list[str | list[int]]:
         return self.calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
-            check_capturable_moves=False
+            traspase_king=True,
         )
 
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
-        check_capturable_moves: bool = True
+        check_capturable_moves: bool = True,
+        traspase_king: bool = False
     ) -> list[str | list[int, int]]:
 
         # for the queen we got to combine the legal moves of the rook and the
@@ -51,7 +52,9 @@ class Queen(Piece):
 
         # first scan the diagonals
         legal_moves: list[list[int, int]] = []
-        diagonal_moves: list[list[int, int] | Piece] = self.scan_diagonals()
+        diagonal_moves: list[list[int, int] | Piece] = self.scan_diagonals(
+            traspase_king=traspase_king
+        )
 
         for key in diagonal_moves:
             if check_capturable_moves:

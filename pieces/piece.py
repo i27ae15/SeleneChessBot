@@ -53,7 +53,7 @@ class Piece(ABC):
     def _check_capturable_moves(
         self,
         moves: 'list[list[int, int], Piece | Piece]',
-        check_only_last_move: bool = True
+        check_only_last_move: bool = False
     ) -> list[tuple[int, int]]:
 
         """
@@ -102,6 +102,28 @@ class Piece(ABC):
                     if is_capturable:
                         moves[index] = tuple(move.position)
         return moves
+
+    def _check_row_and_columns(
+        self,
+        start_range: list[int],
+        end_range: list[int],
+        end_at_piece_found: bool = True,
+        traspase_king: bool = False
+    ) -> list[tuple[int, int]]:
+
+        list_to_output: list[Piece | None] = []
+
+        for row, column in zip(start_range, end_range):
+            list_to_output.append(
+                self.board.get_square_or_piece(row, column)
+            )
+            last_square = list_to_output[-1]
+            if isinstance(last_square, Piece):
+                if last_square.name == PieceName.KING:
+                    if not traspase_king and end_at_piece_found:
+                        break
+
+        return list_to_output
 
     def capture(self, captured_by: 'Piece'):
         self.captured_by = captured_by
@@ -240,34 +262,35 @@ class Piece(ABC):
 
         """
 
-        board = self.board.board
-        squares_left: list[Piece | None] = []
-        squares_right: list[Piece | None] = []
+        direction_0: list[Piece | None] = []
+        direction_1: list[Piece | None] = []
 
         # check the row in one direction
         for column in range(self.column - 1, -1, -1):
-            if board[self.row][column] is None:
-                squares_left.append([self.row, column])
-            else:
-                squares_left.append(board[self.row][column])
-                if end_at_piece_found:
-                    break
+            direction_0.append(
+                self.board.get_square_or_piece(self.row, column)
+            )
+            if isinstance(direction_0[-1], Piece) and end_at_piece_found:
+                break
 
         # check the row in another direction
         for column in range(self.column + 1, 8):
-            if board[self.row][column] is None:
-                squares_right.append([self.row, column])
-            else:
-                squares_right.append(board[self.row][column])
-                if end_at_piece_found:
-                    break
+            direction_1.append(
+                self.board.get_square_or_piece(self.row, column)
+            )
+            if isinstance(direction_0[-1], Piece) and end_at_piece_found:
+                break
 
         return {
-            'd0': squares_left,
-            'd1': squares_right
+            'd0': direction_0,
+            'd1': direction_1
         }
 
-    def scan_diagonals(self, end_at_piece_found: bool = True) -> dict:
+    def scan_diagonals(
+        self,
+        end_at_piece_found: bool = True,
+        traspase_king: bool = False
+    ) -> dict:
 
         """
         This instance will scan the diagonals where the piece is located and
@@ -286,28 +309,29 @@ class Piece(ABC):
 
         """
 
-        direction_0: list[Piece | None] = []
-        direction_1: list[Piece | None] = []
-        direction_2: list[Piece | None] = []
-        direction_3: list[Piece | None] = []
-
-        # check the up left diagonal
-        for row, column in zip(
-            range(self.row - 1, -1, -1),
-            range(self.column - 1, -1, -1)
-        ):
-            direction_0.append(self.board.get_square_or_piece(row, column))
-            if isinstance(direction_0[-1], Piece) and end_at_piece_found:
-                break
-
-        # check the up right diagonal
-        for row, column in zip(
-            range(self.row - 1, -1, -1),
-            range(self.column + 1, 8)
-        ):
-            direction_1.append(self.board.get_square_or_piece(row, column))
-            if isinstance(direction_1[-1], Piece) and end_at_piece_found:
-                break
+        direction_0: list[Piece | None] = self._check_row_and_columns(
+            start_range=range(self.row - 1, -1, -1),
+            end_range=range(self.column - 1, -1, -1),
+            end_at_piece_found=end_at_piece_found,
+            traspase_king=traspase_king
+        )
+        direction_1: list[Piece | None] = self._check_row_and_columns(
+            start_range=range(self.row - 1, -1, -1),
+            end_range=range(self.column + 1, 8),
+            end_at_piece_found=end_at_piece_found,
+            traspase_king=traspase_king
+        )
+        direction_2: list[Piece | None] = self._check_row_and_columns(
+            start_range=range(self.row + 1, 8),
+            end_range=range(self.column - 1, -1, -1),
+            end_at_piece_found=end_at_piece_found,
+            traspase_king=traspase_king
+        )
+        direction_3: list[Piece | None] = self._check_row_and_columns(
+            start_range=range(self.row + 1, 8),
+            end_range=range(self.column + 1, 8),
+            end_at_piece_found=end_at_piece_found,
+        )
 
         # check the down left diagonal
         for row, column in zip(
@@ -315,17 +339,22 @@ class Piece(ABC):
             range(self.column - 1, -1, -1)
         ):
             direction_2.append(self.board.get_square_or_piece(row, column))
-            if isinstance(direction_2[-1], Piece) and end_at_piece_found:
-                break
-
+            last_square = direction_2[-1]
+            if isinstance(last_square, Piece):
+                if last_square.name == PieceName.KING:
+                    if not traspase_king and end_at_piece_found:
+                        break
         # check the down right diagonal
         for row, column in zip(
             range(self.row + 1, 8),
             range(self.column + 1, 8)
         ):
             direction_3.append(self.board.get_square_or_piece(row, column))
-            if isinstance(direction_3[-1], Piece) and end_at_piece_found:
-                break
+            last_square = direction_1[-1]
+            if isinstance(last_square, Piece):
+                if last_square.name == PieceName.KING:
+                    if not traspase_king and end_at_piece_found:
+                        break
 
         return {
             'd0': direction_0,
