@@ -28,20 +28,6 @@ class Pawn(Piece):
             board=board
         )
 
-    def move(self, new_position: tuple[int, int]):
-        # check if the move is valid
-
-        if new_position in self.calculate_legal_moves(self.board):
-            # self.first_move = False
-            return True
-
-        # Implement pawn movement logic here
-        super().move(new_position)
-
-    def can_move(self, new_position):
-        # Implement pawn movement logic here
-        return super().can_move(new_position)
-
     def get_attacked_squares(
         self,
         show_in_algebraic_notation: bool = False
@@ -88,9 +74,9 @@ class Pawn(Piece):
             self.position[1]
         )
 
-        if board[pos_to[0]][pos_to[1]] is None:
-            legal_moves.append(pos_to)
+        if self.board.is_position_empty(*pos_to):
             can_move_forward = True
+            legal_moves.append(pos_to)
 
         # Check if the pawn can move forward two squares
         pos_to: tuple[int, int] = (
@@ -98,7 +84,7 @@ class Pawn(Piece):
             self.position[1]
         )
         if self.first_move and can_move_forward:
-            if board[pos_to[0]][pos_to[1]] is None:
+            if self.board.is_position_empty(*pos_to):
                 legal_moves.append(pos_to)
 
         # Check if the pawn can capture a piece

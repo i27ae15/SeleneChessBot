@@ -49,7 +49,7 @@ class Board:
         self.print_board()
         return str()
 
-    def no_castleling_rights(self, color: PieceColor):
+    def remove_castleling_rights(self, color: PieceColor):
         self.castleling_rights[color][RookSide.KING] = False
         self.castleling_rights[color][RookSide.QUEEN] = False
 

@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 
 class Piece(ABC):
+
     def __init__(
         self,
         color: PieceColor,
