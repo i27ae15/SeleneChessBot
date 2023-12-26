@@ -192,7 +192,7 @@ class Piece(ABC):
     def add_move_to_story(
         self,
         move_number: int,
-        new_position: tuple[int, int]
+        new_position: tuple[int, int] | str
     ):
         self.move_story.append((move_number, new_position))
 
