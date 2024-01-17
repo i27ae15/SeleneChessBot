@@ -195,7 +195,7 @@ class King(Piece):
         rook_direction = 1 if side == RookSide.KING else -1
 
         # move the rook
-        m = rook.move_to(
+        rook.move_to(
             new_position=(
                 self.position[0],
                 self.position[1] + 1 * rook_direction
