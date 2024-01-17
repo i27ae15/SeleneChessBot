@@ -183,12 +183,6 @@ class Game:
         for piece in pieces:
             piece: Piece
 
-            print('-'*50)
-            print('move_to', move_to)
-            print('piece', piece.name)
-            print('legal_move', piece.calculate_legal_moves(True))
-            print('-'*50)
-
             if move_to in piece.calculate_legal_moves(
                 show_in_algebraic_notation=True
             ):
