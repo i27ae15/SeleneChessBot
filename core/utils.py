@@ -37,6 +37,8 @@ def convert_to_algebraic_notation(row: int, column: int) -> str:
 def convert_from_algebraic_notation(position: str) -> tuple:
     """
         Converts a position in algebraic notation to a tuple of integers.
+
+        TODO: Implement the color of the piece when the king if being castled
     """
 
     row = int(position[1]) - 1

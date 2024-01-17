@@ -64,7 +64,12 @@ class King(Piece):
         algebraic_list = list()
 
         for move in positions_to_check:
-            algebraic_list.append(convert_to_algebraic_notation(*move))
+            row, column = move
+            if row < 0 or row > 7 or column < 0 or column > 7:
+                continue
+            algebraic_list.append(
+                convert_to_algebraic_notation(row=row, column=column)
+            )
 
         for position in positions_to_check:
             if self.board.is_position_on_board(position):
@@ -81,7 +86,7 @@ class King(Piece):
                         legal_moves.append(position)
 
         # check if possible to castle
-        direction = 1 if self.color == PieceColor.WHITE else -1
+        direction = 1  # if self.color == PieceColor.WHITE else -1
         if self._check_if_kingside_castleling_is_possible():
             legal_moves.append(
                 (self.position[0], self.position[1] + 2 * direction)
@@ -190,11 +195,11 @@ class King(Piece):
         rook_direction = 1 if side == RookSide.KING else -1
 
         # move the rook
-        rook.move_to(
-            new_position=[
+        m = rook.move_to(
+            new_position=(
                 self.position[0],
                 self.position[1] + 1 * rook_direction
-            ]
+            )
         )
 
         # move the king
@@ -205,3 +210,5 @@ class King(Piece):
             ],
             in_castleling=True
         )
+
+        return True

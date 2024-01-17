@@ -279,7 +279,7 @@ class Piece(ABC):
             direction_1.append(
                 self.board.get_square_or_piece(self.row, column)
             )
-            if isinstance(direction_0[-1], Piece) and end_at_piece_found:
+            if isinstance(direction_1[-1], Piece) and end_at_piece_found:
                 break
 
         return {

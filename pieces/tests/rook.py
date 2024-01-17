@@ -105,6 +105,29 @@ class TestRook(unittest.TestCase):
 
         print_success()
 
+    def test_scan_row_when_piece_in_corner(self):
+
+        print_starting()
+
+        rook: Rook = self.add_rook_to_board(row=0, column=0)
+        expected_moves_algebraic = [
+            'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'b1', 'c1', 'd1',
+            'e1', 'f1', 'g1', 'h1'
+        ]
+        rook.scan_row()
+        rook.scan_column()
+
+        legal_moves = rook.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+
+        self.assertEqual(
+            sorted(legal_moves),
+            sorted(expected_moves_algebraic)
+        )
+
+        print_success()
+
 
 if __name__ == '__main__':
     unittest.main()
