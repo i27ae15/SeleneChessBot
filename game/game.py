@@ -9,11 +9,10 @@ from .piece_move import PieceMove
 
 class Game:
 
-    def __init__(self) -> None:
-        """
-        This class will be the main class of the game.
+    """
+    This class represents the main controller of a chess game.
 
-        It will be responsible for:
+    It will be responsible for:
 
         - Creating the board
         - Track the moves of the game
@@ -24,10 +23,60 @@ class Game:
             * stalemate
             * checkmate
 
-        The board and game class will live independently from each other.
-        So there can be a board without a game and a game without a board.
+    The Game class operates independently from the Board class, allowing for
+    the existence of a board without a game and vice versa.
 
-        """
+    Attributes:
+        board (Board): An instance of the Board class representing the
+        chessboard.
+
+        moves (dict): A dictionary tracking all moves made in the game,
+        structured with turn numbers as keys and lists of moves
+        (first White, then Black) as values.
+
+        player_turn (PieceColor): The color of the player whose turn it is to
+        move.
+
+        current_turn (int): The current turn number in the game.
+
+        white_possible_pawn_enp (Pawn | None): Tracks the White pawn eligible
+        for en passant.
+
+        black_possible_pawn_enp (Pawn | None): Tracks the Black pawn eligible
+        for en passant.
+
+        en_passant_pawns (dict): A dictionary mapping each player color to
+        their pawn that can potentially be captured en passant.
+
+    Methods:
+
+        move_piece(move: str) -> None:
+            Processes and adds a move to the game, updating the board and game
+            state accordingly.
+
+        _get_movable_piece(
+                piece_move: PieceMove,
+                pieces: dict[list[Piece]]
+            ) -> Piece | None:
+            Determines and returns the specific piece that is to be moved
+            based on the provided move information.
+
+        _manage_game_state(piece_move: PieceMove) -> None:
+            Updates the game state after each move, including turn
+            management and move tracking.
+
+        _move_piece(piece: Piece, piece_move: PieceMove) -> None:
+            Executes a chess piece's move on the board, including handling
+            special moves.
+
+        _clean_en_passant_pawns(piece: Piece, piece_move: PieceMove) -> None:
+            Resets en passant status of pawns after a move.
+
+        _manage_en_passant_pawns(piece: Piece, piece_move: PieceMove) -> None:
+            Manages potential en passant captures based on recent pawn moves.
+    """
+
+    def __init__(self) -> None:
 
         self.board: Board = Board()
         self.moves: dict = {}
@@ -58,10 +107,22 @@ class Game:
 
     def move_piece(self, move: str) -> None:
         """
-        This method will add a move to the moves dict.
+        Processes a chess move and updates the game state accordingly.
 
-        :param move: The move in algebraic notation
-        :return: None
+        This method interprets the given move in algebraic notation and
+        applies it to the game. It handles various aspects of a chess move
+        including piece movement, castling, and pawn-specific rules like en
+        passant. After executing the move, it updates the game's state by
+        switching the player turn, tracking the move history, and preparing
+        for the next turn. Additionally, it ensures that moves adhere to the
+        rules of chess, raising an error for invalid moves.
+
+        Parameters:
+            move (str): The chess move in algebraic notation.
+
+        Raises:
+            ValueError: If the move is determined to be invalid or illegal in
+            the current game state.
         """
 
         piece_move = PieceMove(move, self.player_turn)
@@ -72,15 +133,30 @@ class Game:
             pieces=pieces[piece_move.piece]
         )
 
-        if piece_move.is_castleling:
-            if not piece.castle(side=piece_move.castleling_side):
-                raise ValueError('Invalid move')
-        else:
-            if not piece.move_to(piece_move.square):
-                raise ValueError('Invalid move')
+        # move the piece
+        self._move_piece(piece, piece_move)
+
+        # manage the en passant pawns
+        self._manage_en_passant_pawns(piece, piece_move)
+
+        piece.add_move_to_story(
+            move_number=self.current_turn,
+            new_position=piece_move.square
+        )
+
+        # manage the game_state
+        self._manage_game_state(piece_move)
+
+    def _clean_en_passant_state(self):
+        """
+        Resets the en passant status of pawns.
+
+        This method is called after each move to ensure that the en passant
+        capture opportunity is only available for one turn after a pawn moves
+        two squares forward from its starting position.
+        """
 
         en_passant_pawn: Pawn = self.en_passant_pawns[self.player_turn]
-
         # set the last pawn moved two squares to not be able to be captured
         if en_passant_pawn:
             en_passant_pawn.can_be_captured_en_passant = False
@@ -89,6 +165,23 @@ class Game:
                 self.white_possible_pawn_enp = None
             elif self.player_turn == PieceColor.BLACK:
                 self.black_possible_pawn_enp = None
+
+    def _manage_en_passant_pawns(self, piece: Piece, piece_move: PieceMove):
+        """
+        Manages pawns that can be captured en passant.
+
+        This method updates the tracking of pawns eligible for en passant
+        capture, based on the most recent move. It first clears the current
+        en passant status and then sets up new pawns for en passant if
+        applicable.
+
+        Parameters:
+            piece (Piece): The piece that has just been moved, potentially
+            a pawn.
+            piece_move (PieceMove): The move that has just been executed.
+        """
+
+        self._clean_en_passant_state()
 
         # if the piece is a pawn, track for en passant
         if piece_move.piece == PieceName.PAWN:
@@ -103,32 +196,35 @@ class Game:
 
                 piece.can_be_captured_en_passant = True
 
-        piece.add_move_to_story(
-            move_number=self.current_turn,
-            new_position=piece_move.square
-        )
-
-        # check if the move is valid
-
-        if self.current_turn not in self.moves:
-            self.moves[self.current_turn] = []
-
-        self.player_turn = self.player_turn.opposite()
-        self.moves[self.current_turn].append(piece_move.move)
-
-        if self.player_turn == PieceColor.WHITE:
-            self.current_turn += 1
-
     def _get_movable_piece(
         self,
         piece_move: PieceMove,
         pieces: dict[list[Piece]]
     ) -> Piece | None:
         """
-        This method will return the piece that can be moved.
+        Identifies and returns the specific piece that can legally perform the
+        given move.
 
-        :param pieces: The pieces that can be moved
-        :return: The piece that can be moved
+        This method iterates through the provided list of pieces, filtering
+        them based on the requirements of the move (such as the piece's file
+        or position). It then checks if the move is within the piece's legal
+        moves. The method is crucial for ensuring that only valid and legal
+        chess moves are executed in the game. If no piece matches the criteria
+        for the move, it raises an error, indicating an illegal move.
+
+        Parameters:
+            piece_move (PieceMove): The parsed move information, encapsulating
+            details like the piece type and target square.
+
+            pieces (dict[list[Piece]]): A dictionary of pieces keyed by their
+            types, available for moving.
+
+        Returns:
+            Piece | None: The piece that is eligible and able to make the move.
+
+        Raises:
+            ValueError: If no eligible piece is found or if the move is
+            illegal.
         """
 
         for piece in pieces:
@@ -152,3 +248,49 @@ class Game:
                 return piece
 
         raise ValueError('Invalid move')
+
+    def _move_piece(self, piece: Piece, piece_move: PieceMove):
+        """
+        Executes the movement of a piece on the board.
+
+        This method handles the actual movement of a piece, including special
+        moves like castling. It ensures that the piece is moved according to
+        the rules of chess, raising an error if the move is invalid.
+
+        Parameters:
+            piece (Piece): The piece to be moved.
+            piece_move (PieceMove): The move to be executed.
+
+        Raises:
+            ValueError: If the move is not legal or possible.
+        """
+
+        if piece_move.is_castleling:
+            # this mean that the piece is the king
+            if not piece.castle(side=piece_move.castleling_side):
+                raise ValueError('Invalid move')
+        else:
+            if not piece.move_to(piece_move.square):
+                raise ValueError('Invalid move')
+
+    def _manage_game_state(self, piece_move: PieceMove):
+        """
+        Manages the state of the game after a move is made.
+
+        This method updates the game's move history and player turns. It
+        ensures that the moves are recorded correctly and manages the
+        transition between turns. It also increments the turn counter when
+        it's time for the White player to move again.
+
+        Parameters:
+            piece_move (PieceMove): The move that has just been executed.
+        """
+        # check if the move is valid
+        if self.current_turn not in self.moves:
+            self.moves[self.current_turn] = []
+
+        self.player_turn = self.player_turn.opposite()
+        self.moves[self.current_turn].append(piece_move.move)
+
+        if self.player_turn == PieceColor.WHITE:
+            self.current_turn += 1
