@@ -2,7 +2,6 @@ from pieces.utilites import PieceColor, PieceName, RookSide
 
 
 class PieceMove:
-
     """
     Represents a chess move in a game.
 
@@ -61,7 +60,6 @@ class PieceMove:
         """
 
     def __init__(self, move: str, player_turn: PieceColor) -> None:
-
         """
         Initializes the PieceMove instance with the given move and player's
         turn.
@@ -163,7 +161,6 @@ class PieceMove:
             return 'c1' if self.player_turn == PieceColor.WHITE else 'c8'
 
     def set_square_and_pos(self):
-
         """
         Determines and sets the target square and, if applicable, the piece's
         file.
