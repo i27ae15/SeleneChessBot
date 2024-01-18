@@ -16,7 +16,7 @@ class TestGame(unittest.TestCase):
         self.game = Game()
         return super().tearDown()
 
-    def atest_first_moves(self):
+    def test_first_moves(self):
 
         print_starting()
 
@@ -50,7 +50,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def atest_several_moves(self):
+    def test_several_moves(self):
 
         print_starting()
 
@@ -153,7 +153,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def atest_invalid_move(self):
+    def test_invalid_move(self):
 
         print_starting()
 
@@ -165,7 +165,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def atest_invalid_abbreviation(self):
+    def test_invalid_abbreviation(self):
 
         print_starting()
 
@@ -177,7 +177,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def atest_multiple_moves(self):
+    def test_multiple_moves(self):
 
         print_starting()
 
@@ -195,7 +195,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def qtest_en_passant_tracking(self):
+    def test_en_passant_tracking(self):
 
         print_starting()
 
@@ -206,8 +206,6 @@ class TestGame(unittest.TestCase):
         self.game.move_piece('Pd4')
 
         self.game.move_piece('Pe4')
-
-        print_success()
 
     def test_capture_en_passant(self):
 

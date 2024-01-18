@@ -62,17 +62,14 @@ class Game:
 
         :param move: The move in algebraic notation
         :return: None
-
-        Note: we should add a P in front when a pawn is being moved
         """
 
         piece_move = PieceMove(move, self.player_turn)
 
         pieces = self.board.pieces_on_board[self.player_turn]
         piece: Piece = self._get_movable_piece(
-            piece=piece_move.piece,
-            move_to=piece_move.square,
-            pieces=pieces
+            piece_move=piece_move,
+            pieces=pieces[piece_move.piece]
         )
 
         if piece_move.is_castleling:
@@ -124,8 +121,7 @@ class Game:
 
     def _get_movable_piece(
         self,
-        piece: PieceName,
-        move_to: str,
+        piece_move: PieceMove,
         pieces: dict[list[Piece]]
     ) -> Piece | None:
         """
@@ -133,15 +129,24 @@ class Game:
 
         :param pieces: The pieces that can be moved
         :return: The piece that can be moved
-
         """
-        pieces = pieces[piece]
-        # get the piece that can move to the given square
 
         for piece in pieces:
             piece: Piece
 
-            if move_to in piece.calculate_legal_moves(
+            # if there is a file in the piece_move object, look for that file
+            # when going to the piece, so we do not to calculate the legal
+            # moves for all the pieces
+
+            if piece_move.piece_file:
+                if piece.algebraic_pos[0] != piece_move.piece_file:
+                    continue
+
+            # if we are here, we have found the piece (two pieces can be in
+            # the same file) or we do not have a file, so calculate the legal
+            # moves for the piece and check if the move is in the legal moves
+
+            if piece_move.square in piece.calculate_legal_moves(
                 show_in_algebraic_notation=True
             ):
                 return piece
