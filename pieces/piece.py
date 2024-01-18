@@ -123,6 +123,8 @@ class Piece(ABC):
                 if last_square.name == PieceName.KING:
                     if not traspase_king and end_at_piece_found:
                         break
+                if end_at_piece_found:
+                    break
 
         return list_to_output
 
@@ -174,6 +176,12 @@ class Piece(ABC):
         if isinstance(new_position, str):
             new_position = convert_from_algebraic_notation(new_position)
 
+        # check if is a pawn and check if the movement is en passant
+        is_on_passant = False
+        if self.name == PieceName.PAWN:
+            if new_position == self._get_on_passant_square():
+                is_on_passant = True
+
         if in_castleling or new_position in self.calculate_legal_moves():
             self.board.update_board(
                 new_row=new_position[0],
@@ -181,10 +189,12 @@ class Piece(ABC):
                 old_column=self.column,
                 old_row=self.row,
                 piece=self,
+                is_en_passant=is_on_passant
             )
-            self.position = new_position
 
+            self.position = new_position
             self.first_move = False
+
             return True
 
         return False

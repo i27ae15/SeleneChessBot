@@ -64,7 +64,7 @@ class Pawn(Piece):
         board = self.board.board
 
         direction = 1 if self.color == PieceColor.WHITE else -1
-        legal_moves: list[list[int, int]] = []
+        legal_moves: list[tuple[int, int]] = []
 
         can_move_forward: bool = False
 
@@ -115,9 +115,50 @@ class Pawn(Piece):
         # check if can en passant
         # check if the pawn can capture a piece on the left
 
+        en_passant_square = self._get_on_passant_square()
+        if en_passant_square is not None:
+            legal_moves.append(en_passant_square)
+
         if show_in_algebraic_notation:
             return [
                 convert_to_algebraic_notation(*move) for move in legal_moves
             ]
 
         return legal_moves
+
+    def _get_on_passant_square(self) -> tuple[int, int] | None:
+
+        # the first things we need to check if whether we have a pawn
+        # next to the left or to the right of this pawn
+
+        # check if there is a pawn the in direction 0
+        direction = 1 if self.color == PieceColor.WHITE else -1
+        if self.position[1] - 1 >= 0:
+            piece: Piece | tuple = self.board.get_square_or_piece(
+                row=self.position[0],
+                column=self.position[1] - 1
+            )
+            if isinstance(piece, Piece):
+                if piece is not None and piece.name == PieceName.PAWN:
+                    piece: Pawn
+                    if piece.can_be_captured_en_passant:
+                        return (
+                            self.position[0] + 1 * direction, self.position[1] - 1
+                        )
+
+        # check if there is pawn in the direction 1
+        if self.position[1] + 1 <= 7:
+            piece: Piece | tuple = self.board.get_square_or_piece(
+                row=self.position[0],
+                column=self.position[1] + 1
+            )
+
+            if isinstance(piece, Piece):
+                if piece is not None and piece.name == PieceName.PAWN:
+                    piece: Pawn
+                    if piece.can_be_captured_en_passant:
+                        return (
+                            self.position[0] + 1 * direction, self.position[1] + 1
+                        )
+
+        self.board.get_square_or_piece(row=self.position[0] - 1, column=0)

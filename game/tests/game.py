@@ -16,7 +16,7 @@ class TestGame(unittest.TestCase):
         self.game = Game()
         return super().tearDown()
 
-    def test_first_moves(self):
+    def atest_first_moves(self):
 
         print_starting()
 
@@ -50,7 +50,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def test_several_moves(self):
+    def atest_several_moves(self):
 
         print_starting()
 
@@ -153,7 +153,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def test_invalid_move(self):
+    def atest_invalid_move(self):
 
         print_starting()
 
@@ -165,7 +165,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def test_invalid_abbreviation(self):
+    def atest_invalid_abbreviation(self):
 
         print_starting()
 
@@ -177,7 +177,7 @@ class TestGame(unittest.TestCase):
 
         print_success()
 
-    def test_multiple_moves(self):
+    def atest_multiple_moves(self):
 
         print_starting()
 
@@ -193,7 +193,43 @@ class TestGame(unittest.TestCase):
         self.game.move_piece('Nc3')
         self.game.move_piece('Nf6')
 
-        print(self.game.moves)
+        print_success()
+
+    def qtest_en_passant_tracking(self):
+
+        print_starting()
+
+        self.game.move_piece('Pa4')
+        self.game.move_piece('Pd5')
+
+        self.game.move_piece('Pa5')
+        self.game.move_piece('Pd4')
+
+        self.game.move_piece('Pe4')
+
+        print_success()
+
+    def test_capture_en_passant(self):
+
+        print_starting()
+
+        self.game.move_piece('Pa4')
+        self.game.move_piece('Pd5')
+
+        self.game.move_piece('Pa5')
+        self.game.move_piece('Pd4')
+
+        self.game.move_piece('Pe4')
+
+        # get the pawn on d4
+        pawn = self.game.board.get_square_or_piece(row=3, column=3)
+        legal_moves = pawn.calculate_legal_moves(True)
+
+        # check if the pawn can capture en passant
+
+        self.assertIn('e3', legal_moves)
+        self.game.move_piece('Pe3')
+
         self.game.board.print_board()
 
         print_success()

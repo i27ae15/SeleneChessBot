@@ -98,9 +98,15 @@ class Board:
         new_row: int,
         new_column: int,
         piece: Piece,
+        is_en_passant: bool = False
     ):
         self.board[old_row][old_column] = None
         self.board[new_row][new_column] = piece
+
+        if is_en_passant:
+            # delete the pawn that was captured
+            direction = -1 if piece == PieceColor.WHITE else 1
+            self.board[new_row + direction][new_column] = None
 
     def is_position_empty(
         self,

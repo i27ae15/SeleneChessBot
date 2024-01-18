@@ -9,6 +9,7 @@ class PGN:
 
     def __init__(self, moves: str | dict) -> None:
 
+        self.game: Game = Game()
         self.pgn: str = self.convert_to_pgn(moves)
 
     def convert_to_pgn(self, moves: str | dict) -> str:
@@ -49,16 +50,13 @@ class PGN:
 
         # we want to create the game object and recreate these moves to
         # see if they are valid ones
-        game: Game = Game()
-
-        # cut the string in the dot
         splited_moves = moves.split('.')
         # eliminate the first element of the list
         # this looks horrible, we should make it more elegant
         splited_moves = splited_moves[1:]
         splited_moves[-1] = splited_moves[-1] + '0'
 
-        for move in splited_moves:
+        for index, move in enumerate(splited_moves):
 
             # we have to delete the last element of the move string
             # because of the way we split the string
@@ -71,10 +69,20 @@ class PGN:
 
             # put the moves into the game and see if they are valid
 
-            game.move_piece(white_move)
-            game.move_piece(black_move)
+            print('move number', index + 1)
 
-        print(game.board.print_board())
+            try:
+                print('white move', white_move)
+                self.game.move_piece(white_move)
+                print('black move', black_move)
+                self.game.move_piece(black_move)
+
+            except ValueError:
+                print('-' * 50)
+                print('The moves are not valid')
+                self.game.board.print_board()
+                print('-' * 50)
+                break
 
         return moves
 
@@ -100,17 +108,13 @@ class PGN:
 
         pgn = str()
 
-        # create a game object to validate the moves in the dictionary
-
-        game = Game()
-
         for key in moves:
 
             white_move = moves[key][0]
             black_move = moves[key][1]
 
-            game.move_piece(white_move)
-            game.move_piece(black_move)
+            self.game.move_piece(white_move)
+            self.game.move_piece(black_move)
 
             pgn += f'{key}. {white_move} {black_move} '
 

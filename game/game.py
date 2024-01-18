@@ -2,7 +2,7 @@
 from board import Board
 
 from pieces.utilites import PieceColor, PieceName, RookSide
-from pieces import Piece
+from pieces import Piece, Pawn
 
 
 class PieceMove:
@@ -32,8 +32,6 @@ class PieceMove:
 
         """
 
-        print('move', move)
-
         if len(move) == 2:
             # this will mean that the piece is a pawn so add the P
             return 'P'
@@ -43,7 +41,13 @@ class PieceMove:
             self.is_castleling = True
             return 'K'
 
-        return move[0]
+        abr = move[0]
+
+        for piece in PieceName:
+            if piece.value[1] == abr:
+                return abr
+
+        raise ValueError('Invalid move')
 
     def get_piece_name(self, piece_abbreviation: str) -> PieceName:
         """
@@ -121,6 +125,14 @@ class Game:
 
         self.current_turn: int = 1
 
+        self.white_possible_pawn_enp: Pawn | None = None
+        self.black_possible_pawn_enp: Pawn | None = None
+
+        self.en_passant_pawns = {
+            PieceColor.WHITE: self.white_possible_pawn_enp,
+            PieceColor.BLACK: self.black_possible_pawn_enp
+        }
+
     def move_piece(self, move: str) -> None:
         """
         This method will add a move to the moves dict.
@@ -129,7 +141,6 @@ class Game:
         :return: None
 
         Note: we should add a P in front when a pawn is being moved
-
         """
 
         piece_move = PieceMove(move, self.player_turn)
@@ -147,6 +158,30 @@ class Game:
         else:
             if not piece.move_to(piece_move.square):
                 raise ValueError('Invalid move')
+
+        en_passant_pawn: Pawn = self.en_passant_pawns[self.player_turn]
+
+        # set the last pawn moved two squares to not be able to be captured
+        if en_passant_pawn:
+            en_passant_pawn.can_be_captured_en_passant = False
+
+            if self.player_turn == PieceColor.WHITE:
+                self.white_possible_pawn_enp = None
+            elif self.player_turn == PieceColor.BLACK:
+                self.black_possible_pawn_enp = None
+
+        # if the piece is a pawn, track for en passant
+        if piece_move.piece_name == PieceName.PAWN:
+            piece: Pawn
+            # if the move is a double move, track the pawn
+            if piece_move.square[-1] in '45':
+
+                if self.player_turn == PieceColor.WHITE:
+                    self.white_possible_pawn_enp = piece
+                elif self.player_turn == PieceColor.BLACK:
+                    self.black_possible_pawn_enp = piece
+
+                piece.can_be_captured_en_passant = True
 
         piece.add_move_to_story(
             move_number=self.current_turn,
