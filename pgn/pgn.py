@@ -4,22 +4,62 @@ from game import Game
 class PGN:
 
     """
-    This will be a class that will save the moves in a pgn format
+    A class for handling and converting chess moves into Portable Game
+    Notation (PGN).
+
+    This class is responsible for converting a series of chess moves, provided
+    either as a string or a dictionary, into PGN format. It includes methods
+    to validate PGN strings and convert move dictionaries into PGN strings.
+
+    Attributes:
+        game (Game): An instance of the Game class to manage the chess game
+        state.
+
+        pgn (str): The PGN representation of the chess moves.
+
+    Methods:
+        convert_to_pgn(moves): Converts the given moves into PGN format.
+
+        check_if_pgn_is_valid(moves): Validates if the provided PGN string is
+        correctly formatted.
+
+        convert_dict_to_pgn(moves): Converts a dictionary of moves into PGN
+        format.
+
+        _get_white_and_black_moves(move): Splits a move string into white and
+        black moves.
+
+    Example of PGN format:
+        1. e4 e5 2. Nf3 Nc6 ...
+
+    Example of move dictionary:
+        {
+            1: ['e4', 'e5'],
+            2: ['Nf3', 'Nc6'],
+            ...
+        }
     """
 
     def __init__(self, moves: str | dict) -> None:
+        """
+        Initializes the PGN instance by setting up the game state and
+        converting the provided moves into PGN format.
+
+        :param moves: Chess moves in either string or dictionary format.
+        """
 
         self.game: Game = Game()
         self.pgn: str = self.convert_to_pgn(moves)
 
     def convert_to_pgn(self, moves: str | dict) -> str:
-
         """
-        This method will convert the moves to a pgn format.
+        Converts the given moves into PGN format. Accepts either a string or a
+        dictionary representation of moves and returns a PGN-formatted string.
 
-        :param moves: The moves that will be converted to pgn
-        :return: The moves in pgn format
+        :param moves: Moves to be converted, either as a string or a
+        dictionary.
 
+        :return: A string representing the moves in PGN format.
         """
 
         if isinstance(moves, str):
@@ -32,20 +72,14 @@ class PGN:
 
     def check_if_pgn_is_valid(self, moves: str) -> str:
         """
-        This method will check if the moves are in pgn format.
+        Checks and validates if the given PGN string is correctly formatted.
+        The method verifies each move within the string to ensure it adheres
+        to PGN standards.
 
-        :param moves: The moves that will be checked
-        :return: The moves in pgn format
+        :param moves: A string representing the moves in PGN format to be
+        validated.
 
-        The format of a valid PGN should look something like this:
-
-        1. e4 e6
-        2. d4 d5
-        3. Nd2 Nf6
-        4. e5 Nfd7
-        ...
-        1-0
-
+        :return: The original PGN string if valid.
         """
 
         # we want to create the game object and recreate these moves to
@@ -88,20 +122,14 @@ class PGN:
 
     def convert_dict_to_pgn(self, moves: dict) -> str:
         """
-        This method will convert the moves from a dictionary to a pgn format.
+        Converts a dictionary of moves into a PGN-formatted string. Each entry
+        in the dictionary represents a turn with a pair of moves for white and
+        black.
 
-        :param moves: The moves that will be converted
-        :return: The moves in pgn format
+        :param moves: A dictionary where keys are move numbers and values are
+        lists of white and black moves.
 
-        the dictionary will look like this:
-
-        {
-            1: ['e4', 'e6'],
-            2: ['d4', 'd5'],
-            3: ['Nd2', 'Nf6']
-            ...
-        }
-
+        :return: A string representing the moves in PGN format.
         """
 
         # We have to convert the dictionary into a string
@@ -121,6 +149,14 @@ class PGN:
         return pgn
 
     def _get_white_and_black_moves(self, move: str) -> tuple[str, str]:
+        """
+        Splits a move string into separate white and black moves.
+
+        :param move: A string containing both white and black moves.
+
+        :return: A tuple containing separate strings for white and black
+        moves.
+        """
 
         white_move = str()
         black_move = str()
