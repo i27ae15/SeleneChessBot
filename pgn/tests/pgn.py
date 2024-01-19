@@ -5,7 +5,6 @@ from pgn import PGN
 from core.testing import print_starting, print_success
 from pieces.utilites import PieceColor, PieceName
 
-
 class TestPGN(unittest.TestCase):
 
     def extract_pgn_to_variables(self, file_path: str) -> list[str]:
@@ -14,23 +13,16 @@ class TestPGN(unittest.TestCase):
 
         return games
 
-        pgn_variables = {}
-        for i, game in enumerate(games):
-            var_name = f"var{i+1}"
-            pgn_variables[var_name] = game.replace('\n', ' ')
-
-        return pgn_variables
-
     def atest_pgn_string_format(self):
 
         print_starting()
-        pgn = PGN('1. e4 e6 2. d4 d5 3. Nd2 Nf6')
+        PGN('1. e4 e6 2. d4 d5 3. Nd2 Nf6')
         print_success()
 
     def atest_pgn_dict_format(self):
 
         print_starting()
-        pgn = PGN(
+        PGN(
             {
                 '1': ['e4', 'e6'],
                 '2': ['d4', 'd5'],
@@ -58,7 +50,15 @@ class TestPGN(unittest.TestCase):
         for game in pgn_games:
             g = game.replace('\n', ' ')
             print(g)
-            pgn = PGN(g)
+            pgn: PGN = PGN(g)
+            king = pgn.game.board.get_piece(
+                piece_name=PieceName.KING,
+                color=PieceColor.WHITE,
+            )
+            for k in king:
+                print('-' * 50)
+                print(k.calculate_legal_moves(True))
+                print('-' * 50)
             break
         print_success()
 

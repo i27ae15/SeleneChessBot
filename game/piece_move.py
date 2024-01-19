@@ -176,6 +176,7 @@ class PieceMove:
 
         if self._abr_move == 'O-O' or self._abr_move == 'O-O-O':
             self.square = self.get_castleling_square()
+            return
 
         # take the last two characters of the move, this should be the square
         # the piece wants to move to

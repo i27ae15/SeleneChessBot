@@ -131,6 +131,62 @@ class TestPieceMove(unittest.TestCase):
 
         print_success()
 
+    def test_white_castleling_short(self):
+
+        print_starting()
+
+        piece_move = PieceMove('O-O', PieceColor.WHITE)
+
+        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_abbreviation, 'K')
+        self.assertEqual(piece_move._abr_move, 'O-O')
+        self.assertEqual(piece_move.square, 'g1')
+        self.assertEqual(piece_move.piece_file, None)
+
+        print_success()
+
+    def test_white_castleling_long(self):
+
+        print_starting()
+
+        piece_move = PieceMove('O-O-O', PieceColor.WHITE)
+
+        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_abbreviation, 'K')
+        self.assertEqual(piece_move._abr_move, 'O-O-O')
+        self.assertEqual(piece_move.square, 'c1')
+        self.assertEqual(piece_move.piece_file, None)
+
+        print_success()
+
+    def test_black_castleling_short(self):
+
+        print_starting()
+
+        piece_move = PieceMove('O-O', PieceColor.BLACK)
+
+        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_abbreviation, 'K')
+        self.assertEqual(piece_move._abr_move, 'O-O')
+        self.assertEqual(piece_move.square, 'g8')
+        self.assertEqual(piece_move.piece_file, None)
+
+        print_success()
+
+    def test_black_castleling_long(self):
+
+        print_starting()
+
+        piece_move = PieceMove('O-O-O', PieceColor.BLACK)
+
+        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_abbreviation, 'K')
+        self.assertEqual(piece_move._abr_move, 'O-O-O')
+        self.assertEqual(piece_move.square, 'c8')
+        self.assertEqual(piece_move.piece_file, None)
+
+        print_success()
+
 
 if __name__ == '__main__':
     unittest.main()
