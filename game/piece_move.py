@@ -88,7 +88,7 @@ class PieceMove:
         self._abr_move: str = move.replace('x', '').replace('+', '')
         self.set_move_information()
 
-    def set_piece(self, look_for_pawn: bool = True) -> PieceName:
+    def set_piece(self) -> PieceName:
         """
         Determines and sets the type of piece involved in the move.
 
@@ -109,33 +109,26 @@ class PieceMove:
             piece.
         """
 
-        found = False
+        if len(self._abr_move) == 2 or self._abr_move[0] in 'abcdefgh':
+            # this will mean that the piece is a pawn so add the P
+            self.piece_abbreviation = PieceName.PAWN.value[1]
+            self.piece = PieceName.PAWN
 
-        if look_for_pawn:
-            if len(self._abr_move) == 2:
-                # this will mean that the piece is a pawn so add the P
-                self.piece_abbreviation = 'P'
-                self.piece = PieceName.PAWN
-                found = True
-
-        if self._abr_move == 'O-O' or self._abr_move == 'O-O-O':
+        elif self._abr_move == 'O-O' or self._abr_move == 'O-O-O':
             # the piece we want to move is the king
             self.is_castleling = True
-            self.piece_abbreviation = 'K'
+            self.piece_abbreviation = PieceName.KING.value[1]
             self.piece = PieceName.KING
-            found = True
+        else:
+            abr = self._abr_move[0]
+            for piece in PieceName:
+                if piece.value[1] == abr:
+                    self.piece_abbreviation = piece.value[1]
+                    self.piece = piece
+                    break
 
-        abr = self._abr_move[0]
-
-        for piece in PieceName:
-            if piece.value[1] == abr:
-                self.piece_abbreviation = piece.value[1]
-                self.piece = piece
-                found = True
-                break
-
-        if not found:
-            raise ValueError('Invalid move')
+            else:
+                raise ValueError('Invalid move')
 
         return self.piece
 
@@ -186,6 +179,9 @@ class PieceMove:
             if self._abr_move[1] in 'abcdefgh':
                 self.piece_file = self._abr_move[1]
 
+        if self.piece == PieceName.PAWN:
+            self.piece_file = self._abr_move[0]
+
     def set_move_information(self):
         """
         Parses the move string to extract and set detailed move information.
@@ -198,18 +194,6 @@ class PieceMove:
         Raises:
             ValueError: If the move notation is invalid or cannot be parsed.
         """
-        if len(self._abr_move) == 2:
-            # we know that this is a pawn
-            # set the piece
-            # check that the first letter is within the range of a-h
-            if self._abr_move[0] not in 'abcdefgh':
-                raise ValueError('Invalid move')
-            self.piece = PieceName.PAWN
-            self.piece_file = self._abr_move[0]
-            self.piece_abbreviation = PieceName.PAWN.value[1]
-            self.square = self._abr_move
-            return
-
         # if we haven't get the piece yet, let's get it here
         self.set_piece()
 
