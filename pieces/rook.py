@@ -35,17 +35,25 @@ class Rook(Piece):
     ) -> list[str | list[int]]:
         return self.calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
-            check_capturable_moves=False
+            check_capturable_moves=False,
+            get_only_squares=True
         )
 
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
-        check_capturable_moves: bool = True
+        check_capturable_moves: bool = True,
+        get_only_squares: bool = False
     ) -> list[str | list[int, int]]:
 
-        scanned_column = self.scan_column(end_at_piece_found=True)
-        scanned_row = self.scan_row(end_at_piece_found=True)
+        scanned_column = self.scan_column(
+            end_at_piece_found=True,
+            get_only_squares=get_only_squares
+        )
+        scanned_row = self.scan_row(
+            end_at_piece_found=True,
+            get_only_squares=get_only_squares
+        )
 
         legal_moves = list()
 

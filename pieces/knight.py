@@ -34,13 +34,13 @@ class Knight(Piece):
     ) -> list[str | list[int]]:
         return self.calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
-            check_capturable_moves=False
+            check_capturable_moves=False,
         )
 
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
-        check_capturable_moves: bool = True
+        check_capturable_moves: bool = True,
     ) -> list[str | list[int, int]]:
 
         positions_to_check = [

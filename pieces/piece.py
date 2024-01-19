@@ -109,7 +109,8 @@ class Piece(ABC):
         start_range: list[int],
         end_range: list[int],
         end_at_piece_found: bool = True,
-        traspase_king: bool = False
+        traspase_king: bool = False,
+        get_only_squares: bool = False
     ) -> list[tuple[int, int]]:
 
         list_to_output: list[Piece | None] = []
@@ -118,11 +119,17 @@ class Piece(ABC):
             list_to_output.append(
                 self.board.get_square_or_piece(row, column)
             )
+
             last_square = list_to_output[-1]
-            if isinstance(last_square, Piece):
+
+            if isinstance(list_to_output[-1], Piece):
+                if get_only_squares:
+                    list_to_output[-1] = list_to_output[-1].position
+
                 if last_square.name == PieceName.KING:
-                    if not traspase_king and end_at_piece_found:
-                        break
+                    if traspase_king:
+                        continue
+
                 if end_at_piece_found:
                     break
 
@@ -213,7 +220,11 @@ class Piece(ABC):
             if move_number == 1:
                 self.first_move = True
 
-    def scan_column(self, end_at_piece_found: bool = True) -> dict:
+    def scan_column(
+        self,
+        end_at_piece_found: bool = True,
+        get_only_squares: bool = False
+    ) -> dict:
 
         """
         This instance will scan the column where the piece is located and
@@ -228,34 +239,21 @@ class Piece(ABC):
 
         Where the [int, int] is the position of the square and [Pieces] is a
         list of the pieces found in the column.
-
         """
 
-        direction_0: list[Piece | None] = []
-        direction_1: list[Piece | None] = []
+        return self._scan_direction(
+            for_value=self.row,
+            board_scan_value=self.column,
+            f_value_side=0,
+            end_at_piece_found=end_at_piece_found,
+            get_only_squares=get_only_squares
+        )
 
-        # check the column in one direction
-        for row in range(self.row - 1, -1, -1):
-            direction_0.append(
-                self.board.get_square_or_piece(row, self.column)
-            )
-            if isinstance(direction_0[-1], Piece) and end_at_piece_found:
-                break
-
-        # check the column in another direction
-        for row in range(self.row + 1, 8):
-            direction_1.append(
-                self.board.get_square_or_piece(row, self.column)
-            )
-            if isinstance(direction_1[-1], Piece) and end_at_piece_found:
-                break
-
-        return {
-            'd0': direction_0,
-            'd1': direction_1
-        }
-
-    def scan_row(self, end_at_piece_found: bool = True) -> dict:
+    def scan_row(
+        self,
+        end_at_piece_found: bool = True,
+        get_only_squares: bool = False
+    ) -> dict:
 
         """
         This instance will scan the row where the piece is located and
@@ -270,37 +268,21 @@ class Piece(ABC):
 
         Where the [int, int] is the position of the square and [Pieces] is a
         list of the pieces found in the row.
-
         """
 
-        direction_0: list[Piece | None] = []
-        direction_1: list[Piece | None] = []
-
-        # check the row in one direction
-        for column in range(self.column - 1, -1, -1):
-            direction_0.append(
-                self.board.get_square_or_piece(self.row, column)
-            )
-            if isinstance(direction_0[-1], Piece) and end_at_piece_found:
-                break
-
-        # check the row in another direction
-        for column in range(self.column + 1, 8):
-            direction_1.append(
-                self.board.get_square_or_piece(self.row, column)
-            )
-            if isinstance(direction_1[-1], Piece) and end_at_piece_found:
-                break
-
-        return {
-            'd0': direction_0,
-            'd1': direction_1
-        }
+        return self._scan_direction(
+            for_value=self.column,
+            board_scan_value=self.row,
+            f_value_side=1,
+            end_at_piece_found=end_at_piece_found,
+            get_only_squares=get_only_squares
+        )
 
     def scan_diagonals(
         self,
         end_at_piece_found: bool = True,
-        traspase_king: bool = False
+        traspase_king: bool = False,
+        get_only_squares: bool = False
     ) -> dict:
 
         """
@@ -324,24 +306,29 @@ class Piece(ABC):
             start_range=range(self.row - 1, -1, -1),
             end_range=range(self.column - 1, -1, -1),
             end_at_piece_found=end_at_piece_found,
-            traspase_king=traspase_king
+            traspase_king=traspase_king,
+            get_only_squares=get_only_squares
         )
         direction_1: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row - 1, -1, -1),
             end_range=range(self.column + 1, 8),
             end_at_piece_found=end_at_piece_found,
-            traspase_king=traspase_king
+            traspase_king=traspase_king,
+            get_only_squares=get_only_squares
         )
         direction_2: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row + 1, 8),
             end_range=range(self.column - 1, -1, -1),
             end_at_piece_found=end_at_piece_found,
-            traspase_king=traspase_king
+            traspase_king=traspase_king,
+            get_only_squares=get_only_squares
         )
         direction_3: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row + 1, 8),
             end_range=range(self.column + 1, 8),
             end_at_piece_found=end_at_piece_found,
+            traspase_king=traspase_king,
+            get_only_squares=get_only_squares
         )
 
         return {
@@ -381,5 +368,57 @@ class Piece(ABC):
         """
         pass
 
+    def _scan_direction(
+        self,
+        for_value: int,
+        board_scan_value: int,
+        f_value_side: int,
+        end_at_piece_found: bool = True,
+        get_only_squares: bool = False,
+
+    ):
+        direction_0: list[Piece | None] = []
+        direction_1: list[Piece | None] = []
+
+        row_column = [None, None]
+
+        # check the column in one direction
+        for f_value in range(for_value - 1, -1, -1):
+
+            row_column[f_value_side] = f_value
+            row_column[1 - f_value_side] = board_scan_value
+
+            direction_0.append(
+                self.board.get_square_or_piece(*row_column)
+            )
+            if isinstance(direction_0[-1], Piece):
+                if get_only_squares:
+                    direction_0[-1] = direction_0[-1].position
+                if end_at_piece_found:
+                    break
+
+        # check the column in another direction
+        for f_value in range(for_value + 1, 8):
+
+            row_column[f_value_side] = f_value
+            row_column[1 - f_value_side] = board_scan_value
+
+            direction_1.append(
+                self.board.get_square_or_piece(*row_column)
+            )
+            if isinstance(direction_1[-1], Piece):
+                if get_only_squares:
+                    direction_1[-1] = direction_1[-1].position
+                if end_at_piece_found:
+                    break
+
+        return {
+            'd0': direction_0,
+            'd1': direction_1
+        }
+
     def __str__(self):
+        return f"{self.__class__.__name__}({self.color}, {self.position})"
+
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.color}, {self.position})"

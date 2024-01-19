@@ -37,6 +37,7 @@ class Queen(Piece):
     ) -> list[str | list[int]]:
         return self.calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
+            get_only_squares=True,
             traspase_king=True,
         )
 
@@ -44,7 +45,8 @@ class Queen(Piece):
         self,
         show_in_algebraic_notation: bool = False,
         check_capturable_moves: bool = True,
-        traspase_king: bool = False
+        traspase_king: bool = False,
+        get_only_squares: bool = False
     ) -> list[str | list[int, int]]:
 
         # for the queen we got to combine the legal moves of the rook and the
@@ -53,7 +55,9 @@ class Queen(Piece):
         # first scan the diagonals
         legal_moves: list[list[int, int]] = []
         diagonal_moves: list[list[int, int] | Piece] = self.scan_diagonals(
-            traspase_king=traspase_king
+            end_at_piece_found=True,
+            traspase_king=traspase_king,
+            get_only_squares=get_only_squares
         )
 
         for key in diagonal_moves:
@@ -65,8 +69,14 @@ class Queen(Piece):
                 legal_moves += diagonal_moves[key]
 
         # now check for the legal moves of the rook
-        scanned_column = self.scan_column(end_at_piece_found=True)
-        scanned_row = self.scan_row(end_at_piece_found=True)
+        scanned_column = self.scan_column(
+            end_at_piece_found=True,
+            get_only_squares=get_only_squares
+        )
+        scanned_row = self.scan_row(
+            end_at_piece_found=True,
+            get_only_squares=get_only_squares
+        )
 
         if check_capturable_moves:
             legal_moves += self._check_capturable_moves(scanned_column['d0'])
