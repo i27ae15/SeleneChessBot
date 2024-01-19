@@ -110,7 +110,7 @@ class PieceMove:
         """
 
         if len(self._abr_move) == 2 or self._abr_move[0] in 'abcdefgh':
-            # this will mean that the piece is a pawn so add the P
+            # this will mean that the piece is a pawn
             self.piece_abbreviation = PieceName.PAWN.value[1]
             self.piece = PieceName.PAWN
 

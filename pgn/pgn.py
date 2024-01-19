@@ -88,32 +88,33 @@ class PGN:
         # eliminate the first element of the list
         # this looks horrible, we should make it more elegant
         splited_moves = splited_moves[1:]
-        splited_moves[-1] = splited_moves[-1] + '0'
 
         for index, move in enumerate(splited_moves):
 
-            # we have to delete the last element of the move string
-            # because of the way we split the string
-            move = move[:-1]
-
             # now, we have to cut the string in two parts
             # the white move and the black move
-
             white_move, black_move = self._get_white_and_black_moves(move)
 
             # put the moves into the game and see if they are valid
-
-            print('move number', index + 1)
-
+            white_is_valid = False
+            black_is_valid = False
             try:
-                print('white move', white_move)
                 self.game.move_piece(white_move)
-                print('black move', black_move)
-                self.game.move_piece(black_move)
+                white_is_valid = True
+                if black_move:
+                    self.game.move_piece(black_move)
+                    black_is_valid = True
 
             except ValueError:
                 print('-' * 50)
                 print('The moves are not valid')
+                print('move number', index + 1)
+
+                if not white_is_valid:
+                    print('white not valid move', white_move)
+                elif not black_is_valid:
+                    print('black not valid move', black_move)
+
                 self.game.board.print_board()
                 print('-' * 50)
                 break
@@ -161,5 +162,13 @@ class PGN:
         white_move = str()
         black_move = str()
 
-        white_move, black_move = move.strip().split(' ')
+        try:
+            stripped_move = move.split(' ')
+            white_move = stripped_move[0]
+
+            if len(stripped_move) > 1:
+                black_move = stripped_move[1]
+
+        except ValueError:
+            print('error in move', move)
         return white_move, black_move
