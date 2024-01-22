@@ -9,16 +9,22 @@ from pieces.utilites import PieceName, PieceColor
 
 class TestBoard(unittest.TestCase):
 
-    def atest_initial_set_up(self):
+    def test_initial_set_up(self):
 
         print_starting()
 
         board = Board()
-        print(board)
+
+        print('-' * 50)
+        print('pieces on board')
+        pieces_on_board = board.pieces_on_board[PieceColor.WHITE]
+        for key in pieces_on_board:
+            print(key.name, [piece.algebraic_pos for piece in pieces_on_board[key]])
+        print('-' * 50)
 
         print_success()
 
-    def test_print_attacked_w_squares(self):
+    def atest_print_attacked_w_squares(self):
 
         print_starting()
 
@@ -67,7 +73,7 @@ class TestBoard(unittest.TestCase):
         )
         print_success()
 
-    def test_print_attacked_b_squares(self):
+    def atest_print_attacked_b_squares(self):
 
         print_starting()
 

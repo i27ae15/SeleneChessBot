@@ -337,6 +337,7 @@ class Board:
         if not pieces_on_board.get(piece.name):
             pieces_on_board[piece.name] = []
 
+        # NOTE: could this be referencing to the piece.name instance of the object?
         pieces_on_board[piece.name].append(piece)
 
         return piece
@@ -826,30 +827,20 @@ class Board:
         It updates the white_pieces and black_pieces dictionaries accordingly.
         """
 
-        white_pieces = []
-        black_pieces = []
         for i in range(8):
 
-            white_pieces.append(
-                self.add_piece(
-                    piece=PieceName.PAWN,
-                    piece_color=PieceColor.WHITE,
-                    row=1,
-                    column=i
-                )
+            self.add_piece(
+                piece=PieceName.PAWN,
+                piece_color=PieceColor.WHITE,
+                row=1,
+                column=i
             )
-
-            black_pieces.append(
-                self.add_piece(
-                    piece=PieceName.PAWN,
-                    piece_color=PieceColor.BLACK,
-                    row=6,
-                    column=i
-                )
+            self.add_piece(
+                piece=PieceName.PAWN,
+                piece_color=PieceColor.BLACK,
+                row=6,
+                column=i
             )
-
-        self.white_pieces[PieceName.PAWN] = white_pieces
-        self.black_pieces[PieceName.PAWN] = black_pieces
 
     def _create_initial_knight_set_up(self):
         """
@@ -861,41 +852,30 @@ class Board:
         dictionaries are updated with these knights.
         """
 
-        self.white_pieces[PieceName.KNIGHT] = []
-        self.black_pieces[PieceName.KNIGHT] = []
-
-        self.white_pieces[PieceName.KNIGHT].append(
-            self.add_piece(
-                piece=PieceName.KNIGHT,
-                piece_color=PieceColor.WHITE,
-                row=0,
-                column=1
-            )
+        self.add_piece(
+            piece=PieceName.KNIGHT,
+            piece_color=PieceColor.WHITE,
+            row=0,
+            column=1
         )
-        self.white_pieces[PieceName.KNIGHT].append(
-            self.add_piece(
-                piece=PieceName.KNIGHT,
-                piece_color=PieceColor.WHITE,
-                row=0,
-                column=6
-            )
+        self.add_piece(
+            piece=PieceName.KNIGHT,
+            piece_color=PieceColor.WHITE,
+            row=0,
+            column=6
         )
 
-        self.black_pieces[PieceName.KNIGHT].append(
-            self.add_piece(
-                piece=PieceName.KNIGHT,
-                piece_color=PieceColor.BLACK,
-                row=7,
-                column=1
-            )
+        self.add_piece(
+            piece=PieceName.KNIGHT,
+            piece_color=PieceColor.BLACK,
+            row=7,
+            column=1
         )
-        self.black_pieces[PieceName.KNIGHT].append(
-            self.add_piece(
-                piece=PieceName.KNIGHT,
-                piece_color=PieceColor.BLACK,
-                row=7,
-                column=6
-            )
+        self.add_piece(
+            piece=PieceName.KNIGHT,
+            piece_color=PieceColor.BLACK,
+            row=7,
+            column=6
         )
 
     def _create_initial_bishop_set_up(self):
@@ -908,41 +888,30 @@ class Board:
         dictionaries are updated with these bishops.
         """
 
-        self.white_pieces[PieceName.BISHOP] = []
-        self.black_pieces[PieceName.BISHOP] = []
-
-        self.white_pieces[PieceName.BISHOP].append(
-            self.add_piece(
-                piece=PieceName.BISHOP,
-                piece_color=PieceColor.WHITE,
-                row=0,
-                column=2
-            )
+        self.add_piece(
+            piece=PieceName.BISHOP,
+            piece_color=PieceColor.WHITE,
+            row=0,
+            column=2
         )
-        self.white_pieces[PieceName.BISHOP].append(
-            self.add_piece(
-                piece=PieceName.BISHOP,
-                piece_color=PieceColor.WHITE,
-                row=0,
-                column=5
-            )
+        self.add_piece(
+            piece=PieceName.BISHOP,
+            piece_color=PieceColor.WHITE,
+            row=0,
+            column=5
         )
 
-        self.black_pieces[PieceName.BISHOP].append(
-            self.add_piece(
-                piece=PieceName.BISHOP,
-                piece_color=PieceColor.BLACK,
-                row=7,
-                column=2
-            )
+        self.add_piece(
+            piece=PieceName.BISHOP,
+            piece_color=PieceColor.BLACK,
+            row=7,
+            column=2
         )
-        self.black_pieces[PieceName.BISHOP].append(
-            self.add_piece(
-                piece=PieceName.BISHOP,
-                piece_color=PieceColor.BLACK,
-                row=7,
-                column=5
-            )
+        self.add_piece(
+            piece=PieceName.BISHOP,
+            piece_color=PieceColor.BLACK,
+            row=7,
+            column=5
         )
 
     def _create_initial_rook_set_up(self):
@@ -957,45 +926,34 @@ class Board:
         recorded.
         """
 
-        self.white_pieces[PieceName.ROOK] = []
-        self.black_pieces[PieceName.ROOK] = []
-
-        self.white_pieces[PieceName.ROOK].append(
-            self.add_piece(
-                piece=PieceName.ROOK,
-                piece_color=PieceColor.WHITE,
-                row=0,
-                column=0,
-                additional_information={'rook_side': RookSide.QUEEN}
-            )
+        self.add_piece(
+            piece=PieceName.ROOK,
+            piece_color=PieceColor.WHITE,
+            row=0,
+            column=0,
+            additional_information={'rook_side': RookSide.QUEEN}
         )
-        self.white_pieces[PieceName.ROOK].append(
-            self.add_piece(
-                piece=PieceName.ROOK,
-                piece_color=PieceColor.WHITE,
-                row=0,
-                column=7,
-                additional_information={'rook_side': RookSide.KING}
-            )
+        self.add_piece(
+            piece=PieceName.ROOK,
+            piece_color=PieceColor.WHITE,
+            row=0,
+            column=7,
+            additional_information={'rook_side': RookSide.KING}
         )
 
-        self.black_pieces[PieceName.ROOK].append(
-            self.add_piece(
-                piece=PieceName.ROOK,
-                piece_color=PieceColor.BLACK,
-                row=7,
-                column=0,
-                additional_information={'rook_side': RookSide.QUEEN}
-            )
+        self.add_piece(
+            piece=PieceName.ROOK,
+            piece_color=PieceColor.BLACK,
+            row=7,
+            column=0,
+            additional_information={'rook_side': RookSide.QUEEN}
         )
-        self.black_pieces[PieceName.ROOK].append(
-            self.add_piece(
-                piece=PieceName.ROOK,
-                piece_color=PieceColor.BLACK,
-                row=7,
-                column=7,
-                additional_information={'rook_side': RookSide.KING}
-            )
+        self.add_piece(
+            piece=PieceName.ROOK,
+            piece_color=PieceColor.BLACK,
+            row=7,
+            column=7,
+            additional_information={'rook_side': RookSide.KING}
         )
 
     def _create_initial_queen_set_up(self):
@@ -1008,25 +966,18 @@ class Board:
         queens.
         """
 
-        self.white_pieces[PieceName.QUEEN] = []
-        self.black_pieces[PieceName.QUEEN] = []
-
-        self.white_pieces[PieceName.QUEEN].append(
-            self.add_piece(
-                piece=PieceName.QUEEN,
-                piece_color=PieceColor.WHITE,
-                row=0,
-                column=3
-            )
+        self.add_piece(
+            piece=PieceName.QUEEN,
+            piece_color=PieceColor.WHITE,
+            row=0,
+            column=3
         )
 
-        self.black_pieces[PieceName.QUEEN].append(
-            self.add_piece(
-                piece=PieceName.QUEEN,
-                piece_color=PieceColor.BLACK,
-                row=7,
-                column=3
-            )
+        self.add_piece(
+            piece=PieceName.QUEEN,
+            piece_color=PieceColor.BLACK,
+            row=7,
+            column=3
         )
 
     def _create_initial_king_set_up(self):
@@ -1039,25 +990,18 @@ class Board:
         kings.
         """
 
-        self.white_pieces[PieceName.KING] = []
-        self.black_pieces[PieceName.KING] = []
-
-        self.white_pieces[PieceName.KING].append(
-            self.add_piece(
-                piece=PieceName.KING,
-                piece_color=PieceColor.WHITE,
-                row=0,
-                column=4
-            )
+        self.add_piece(
+            piece=PieceName.KING,
+            piece_color=PieceColor.WHITE,
+            row=0,
+            column=4
         )
 
-        self.black_pieces[PieceName.KING].append(
-            self.add_piece(
-                piece=PieceName.KING,
-                piece_color=PieceColor.BLACK,
-                row=7,
-                column=4
-            )
+        self.add_piece(
+            piece=PieceName.KING,
+            piece_color=PieceColor.BLACK,
+            row=7,
+            column=4
         )
 
     def _manage_capture(
