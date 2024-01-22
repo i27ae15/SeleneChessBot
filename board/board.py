@@ -1,7 +1,9 @@
-from core.utils import convert_from_algebraic_notation
+from core.utils import convert_from_algebraic_notation, ALGEBRAIC_NOTATION
 
 from pieces import Piece, Pawn, Rook, Bishop, Knight, Queen, King
-from pieces.utilites import PieceColor, PieceName, RookSide
+from pieces.utilites import (
+    PieceColor, PieceName, RookSide, NO_TRASPASS_KING_PIECES
+)
 
 from colorama import Fore, Style
 
@@ -466,6 +468,7 @@ class Board:
     def get_attacked_squares(
         self,
         color: PieceColor,
+        traspass_king: bool = False,
         show_in_algebraic_notation: bool = False
     ) -> list[tuple[int, int]]:
         """
@@ -505,8 +508,13 @@ class Board:
             pieces = self.pieces_on_board[color][key]
             for piece in pieces:
                 piece: Piece
+                extra_var = dict()
+                if piece.name not in NO_TRASPASS_KING_PIECES:
+                    extra_var['traspass_king'] = traspass_king
+
                 attacked_squares += piece.get_attacked_squares(
-                    show_in_algebraic_notation=show_in_algebraic_notation
+                    show_in_algebraic_notation=show_in_algebraic_notation,
+                    **extra_var
                 )
 
         self._attacked_squares[color] = attacked_squares
@@ -551,8 +559,10 @@ class Board:
 
     def print_attacked_squares(
         self,
+        traspass_king: bool = False,
+        piece_name: PieceName | None = None,
+        show_in_algebraic_notation: bool = True,
         perspective: PieceColor = PieceColor.WHITE,
-        piece_name: PieceName | None = None
     ):
         """
         Print the squares attacked from a specified perspective.
@@ -572,6 +582,7 @@ class Board:
         if not piece_name:
             attacked_squares = self.get_attacked_squares(
                 color=perspective,
+                traspass_king=traspass_king,
             )
         else:
             pieces = self.get_piece(
@@ -579,13 +590,18 @@ class Board:
                 color=perspective
             )
             for piece in pieces:
-                piece: Piece
-                attacked_squares += piece.get_attacked_squares()
+                extra_var = dict()
+                if piece.name not in NO_TRASPASS_KING_PIECES:
+                    extra_var['traspass_king'] = traspass_king
 
-        print('Attacked squares:', attacked_squares)
+                piece: Piece
+                attacked_squares += piece.get_attacked_squares(**extra_var)
+
         self.print_board(
             perspective=perspective,
             special_color_on=attacked_squares,
+            show_in_algebraic_notation=show_in_algebraic_notation
+
         )
 
     def remove_castleling_rights(self, color: PieceColor):
@@ -600,9 +616,10 @@ class Board:
 
     def print_board(
         self,
+        special_color: str = Fore.RED,
+        show_in_algebraic_notation: bool = False,
         perspective: PieceColor = PieceColor.WHITE,
         special_color_on: tuple[tuple[int, int]] | None = None,
-        special_color: str = Fore.RED
     ):
         """
         Print the chessboard from a specified perspective.
@@ -626,8 +643,9 @@ class Board:
         """
 
         board_representation = self._get_board_representation(
+            special_color=special_color,
             special_color_on=special_color_on,
-            special_color=special_color
+            show_in_algebraic_notation=show_in_algebraic_notation
         )
 
         if perspective == PieceColor.WHITE:
@@ -675,8 +693,9 @@ class Board:
 
     def _get_board_representation(
         self,
+        special_color: str = Fore.RED,
+        show_in_algebraic_notation: bool = False,
         special_color_on: tuple[tuple[int, int]] | None = None,
-        special_color: str = Fore.RED
     ) -> list[list[str]]:
         """
         Generate a string representation of the chessboard.
@@ -709,10 +728,22 @@ class Board:
                 char = str()
                 color = Fore.WHITE
 
+                algebraic_char = str()
+                if show_in_algebraic_notation:
+                    algebraic_char = (
+                        ALGEBRAIC_NOTATION['column'][column_index] +
+                        ALGEBRAIC_NOTATION['row'][row_index]
+                    )
+
                 if p is None:
-                    char = '.'
+                    if show_in_algebraic_notation:
+                        char = algebraic_char
+                    else:
+                        char = '.'
                 else:
                     char = p.sing_char
+                    if show_in_algebraic_notation:
+                        char += f'{algebraic_char[-1]}'
                     if p.color == PieceColor.BLACK:
                         color = Fore.LIGHTBLACK_EX
 
