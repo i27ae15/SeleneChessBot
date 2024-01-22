@@ -40,3 +40,10 @@ class PieceName(Enum):
 class RookSide(Enum):
     QUEEN = 0
     KING = 1
+
+
+NO_TRASPASS_KING_PIECES = [
+    PieceName.PAWN,
+    PieceName.KING,
+    PieceName.KNIGHT
+]

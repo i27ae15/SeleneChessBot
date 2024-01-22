@@ -109,7 +109,7 @@ class Piece(ABC):
         start_range: list[int],
         end_range: list[int],
         end_at_piece_found: bool = True,
-        traspase_king: bool = False,
+        traspass_king: bool = False,
         get_only_squares: bool = False
     ) -> list[tuple[int, int]]:
 
@@ -124,10 +124,10 @@ class Piece(ABC):
 
             if isinstance(list_to_output[-1], Piece):
                 if get_only_squares:
-                    list_to_output[-1] = list_to_output[-1].position
+                    list_to_output[-1] = last_square.position
 
                 if last_square.name == PieceName.KING:
-                    if traspase_king:
+                    if traspass_king:
                         continue
 
                 if end_at_piece_found:
@@ -222,8 +222,9 @@ class Piece(ABC):
 
     def scan_column(
         self,
+        traspass_king: bool = False,
+        get_only_squares: bool = False,
         end_at_piece_found: bool = True,
-        get_only_squares: bool = False
     ) -> dict:
 
         """
@@ -246,13 +247,15 @@ class Piece(ABC):
             board_scan_value=self.column,
             f_value_side=0,
             end_at_piece_found=end_at_piece_found,
-            get_only_squares=get_only_squares
+            get_only_squares=get_only_squares,
+            traspass_king=traspass_king
         )
 
     def scan_row(
         self,
+        traspass_king: bool = False,
+        get_only_squares: bool = False,
         end_at_piece_found: bool = True,
-        get_only_squares: bool = False
     ) -> dict:
 
         """
@@ -275,13 +278,14 @@ class Piece(ABC):
             board_scan_value=self.row,
             f_value_side=1,
             end_at_piece_found=end_at_piece_found,
-            get_only_squares=get_only_squares
+            get_only_squares=get_only_squares,
+            traspass_king=traspass_king
         )
 
     def scan_diagonals(
         self,
         end_at_piece_found: bool = True,
-        traspase_king: bool = False,
+        traspass_king: bool = False,
         get_only_squares: bool = False
     ) -> dict:
 
@@ -306,28 +310,28 @@ class Piece(ABC):
             start_range=range(self.row - 1, -1, -1),
             end_range=range(self.column - 1, -1, -1),
             end_at_piece_found=end_at_piece_found,
-            traspase_king=traspase_king,
+            traspass_king=traspass_king,
             get_only_squares=get_only_squares
         )
         direction_1: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row - 1, -1, -1),
             end_range=range(self.column + 1, 8),
             end_at_piece_found=end_at_piece_found,
-            traspase_king=traspase_king,
+            traspass_king=traspass_king,
             get_only_squares=get_only_squares
         )
         direction_2: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row + 1, 8),
             end_range=range(self.column - 1, -1, -1),
             end_at_piece_found=end_at_piece_found,
-            traspase_king=traspase_king,
+            traspass_king=traspass_king,
             get_only_squares=get_only_squares
         )
         direction_3: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row + 1, 8),
             end_range=range(self.column + 1, 8),
             end_at_piece_found=end_at_piece_found,
-            traspase_king=traspase_king,
+            traspass_king=traspass_king,
             get_only_squares=get_only_squares
         )
 
@@ -375,7 +379,7 @@ class Piece(ABC):
         f_value_side: int,
         end_at_piece_found: bool = True,
         get_only_squares: bool = False,
-
+        traspass_king: bool = False
     ):
         direction_0: list[Piece | None] = []
         direction_1: list[Piece | None] = []
@@ -394,6 +398,7 @@ class Piece(ABC):
             if isinstance(direction_0[-1], Piece):
                 if get_only_squares:
                     direction_0[-1] = direction_0[-1].position
+
                 if end_at_piece_found:
                     break
 
@@ -406,9 +411,16 @@ class Piece(ABC):
             direction_1.append(
                 self.board.get_square_or_piece(*row_column)
             )
-            if isinstance(direction_1[-1], Piece):
+            last_square = direction_1[-1]
+
+            if isinstance(last_square, Piece):
                 if get_only_squares:
-                    direction_1[-1] = direction_1[-1].position
+                    direction_1[-1] = last_square.position
+
+                if last_square.name == PieceName.KING:
+                    if traspass_king:
+                        continue
+
                 if end_at_piece_found:
                     break
 

@@ -11,6 +11,9 @@ if TYPE_CHECKING:
 
 class King(Piece):
 
+    # TODO: Not attacking square when another square is
+    # attacked by the same square as the king
+
     def __init__(
         self,
         color: PieceColor,
@@ -58,6 +61,7 @@ class King(Piece):
         legal_moves = []
         attacked_squares = self.board.get_attacked_squares(
             self.color.opposite(),
+            traspass_king=True,
             show_in_algebraic_notation=False
         )
 

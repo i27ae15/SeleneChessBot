@@ -121,6 +121,134 @@ class TestKing(unittest.TestCase):
         )
         print_success()
 
+    def test_legal_move_when_king_is_in_b_diagonal_check(self):
+        print_starting()
+        self.board.add_piece(
+            piece=PieceName.BISHOP,
+            piece_color=PieceColor.BLACK,
+            row=2,
+            column=2
+        )
+
+        # expected moves in algebraic notation
+        expected_moves = [
+            'e4', 'f4', 'f5', 'e6', 'd6', 'd5'
+        ]
+        calculated_moves = self.king.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
+        print_success()
+
+    def test_legal_move_when_king_is_in_r_row_check(self):
+        print_starting()
+        self.board.add_piece(
+            piece=PieceName.ROOK,
+            piece_color=PieceColor.BLACK,
+            row=4,
+            column=2
+        )
+
+        # expected moves in algebraic notation
+        expected_moves = [
+            'd4', 'e4', 'f4', 'f6', 'e6', 'd6'
+        ]
+        calculated_moves = self.king.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
+        print_success()
+
+    def test_legal_move_when_king_is_in_check_r_and_b(self):
+
+        print_starting()
+        self.board.add_piece(
+            piece=PieceName.ROOK,
+            piece_color=PieceColor.BLACK,
+            row=4,
+            column=2
+        )
+        self.board.add_piece(
+            piece=PieceName.BISHOP,
+            piece_color=PieceColor.BLACK,
+            row=2,
+            column=2
+        )
+
+        # expected moves in algebraic notation
+        expected_moves = [
+            'e4', 'f4', 'd6', 'e6'
+        ]
+        calculated_moves = self.king.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
+        print_success()
+
+    def test_legal_move_when_king_is_in_q_diagonal_check(self):
+        print_starting()
+        self.board.add_piece(
+            piece=PieceName.QUEEN,
+            piece_color=PieceColor.BLACK,
+            row=2,
+            column=2
+        )
+
+        # expected moves in algebraic notation
+        expected_moves = [
+            'e4', 'f4', 'f5', 'e6', 'd6', 'd5'
+        ]
+        calculated_moves = self.king.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
+        print_success()
+
+    def test_legal_move_when_king_is_in_q_row_check(self):
+        print_starting()
+        self.board.add_piece(
+            piece=PieceName.QUEEN,
+            piece_color=PieceColor.BLACK,
+            row=4,
+            column=2
+        )
+
+        self.board.print_attacked_squares(
+            traspass_king=True,
+            perspective=PieceColor.BLACK,
+            show_in_algebraic_notation=True
+        )
+
+        # expected moves in algebraic notation
+        expected_moves = [
+            'e4', 'f4', 'f6', 'e6',
+        ]
+        calculated_moves = self.king.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
+        print_success()
+
 
 if __name__ == '__main__':
     unittest.main()

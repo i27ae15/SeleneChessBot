@@ -33,19 +33,20 @@ class Queen(Piece):
 
     def get_attacked_squares(
         self,
-        show_in_algebraic_notation: bool = False
+        traspass_king: bool = False,
+        show_in_algebraic_notation: bool = False,
     ) -> list[str | list[int]]:
         return self.calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
             get_only_squares=True,
-            traspase_king=True,
+            traspass_king=traspass_king,
         )
 
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
         check_capturable_moves: bool = True,
-        traspase_king: bool = False,
+        traspass_king: bool = False,
         get_only_squares: bool = False
     ) -> list[str | list[int, int]]:
 
@@ -56,7 +57,7 @@ class Queen(Piece):
         legal_moves: list[list[int, int]] = []
         diagonal_moves: list[list[int, int] | Piece] = self.scan_diagonals(
             end_at_piece_found=True,
-            traspase_king=traspase_king,
+            traspass_king=traspass_king,
             get_only_squares=get_only_squares
         )
 
@@ -71,10 +72,12 @@ class Queen(Piece):
         # now check for the legal moves of the rook
         scanned_column = self.scan_column(
             end_at_piece_found=True,
+            traspass_king=traspass_king,
             get_only_squares=get_only_squares
         )
         scanned_row = self.scan_row(
             end_at_piece_found=True,
+            traspass_king=traspass_king,
             get_only_squares=get_only_squares
         )
 
