@@ -602,7 +602,6 @@ class Board:
             perspective=perspective,
             special_color_on=attacked_squares,
             show_in_algebraic_notation=show_in_algebraic_notation
-
         )
 
     def remove_castleling_rights(self, color: PieceColor):
