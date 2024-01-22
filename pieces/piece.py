@@ -430,7 +430,7 @@ class Piece(ABC):
         }
 
     def __str__(self):
-        return f"{self.__class__.__name__}({self.color}, {self.position})"
+        return f"{self.__class__.__name__}({self.color}, {self.algebraic_pos})"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.color}, {self.position})"
+        return f"{self.__class__.__name__}({self.color}, {self.algebraic_pos})"

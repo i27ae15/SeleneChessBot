@@ -589,6 +589,7 @@ class Board:
                 piece_name=piece_name,
                 color=perspective
             )
+
             for piece in pieces:
                 extra_var = dict()
                 if piece.name not in NO_TRASPASS_KING_PIECES:
@@ -683,13 +684,21 @@ class Board:
             This method updates the internal board representation and does not
             check the legality of the move.
         """
+
+        self._manage_capture(
+            row=new_row,
+            column=new_column,
+            is_en_passant=is_en_passant,
+            piece_color=piece.color
+        )
+
         self.board[old_row][old_column] = None
         self.board[new_row][new_column] = piece
 
-        if is_en_passant:
-            # delete the pawn that was captured
-            direction = -1 if piece == PieceColor.WHITE else 1
-            self.board[new_row + direction][new_column] = None
+        # if is_en_passant:
+        #     # delete the pawn that was captured
+        #     direction = -1 if piece == PieceColor.WHITE else 1
+        #     self.board[new_row + direction][new_column] = None
 
     def _get_board_representation(
         self,
@@ -742,8 +751,10 @@ class Board:
                         char = '.'
                 else:
                     char = p.sing_char
+
                     if show_in_algebraic_notation:
                         char += f'{algebraic_char[-1]}'
+
                     if p.color == PieceColor.BLACK:
                         color = Fore.LIGHTBLACK_EX
 
@@ -1049,6 +1060,33 @@ class Board:
                 column=4
             )
         )
+
+    def _manage_capture(
+        self,
+        row: int,
+        column: int,
+        is_en_passant: bool,
+        piece_color: PieceColor = None,
+    ):
+
+        if is_en_passant:
+            # delete the pawn that was captured
+            direction = -1 if piece_color == PieceColor.WHITE else 1
+            self.board[row + direction][column] = None
+            return
+
+        piece = self.get_square_or_piece(
+            row=row,
+            column=column,
+        )
+
+        if not isinstance(piece, Piece):
+            return
+
+        piece.capture(captured_by=piece)
+
+        # delete the piece from the pieces_on_board dictionary
+        self.pieces_on_board[piece.color][piece.name].remove(piece)
 
     def __str__(self) -> str:
         """

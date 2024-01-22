@@ -115,7 +115,7 @@ class PGN:
                 elif not black_is_valid:
                     print('black not valid move', black_move)
 
-                self.game.board.print_board()
+                # self.game.board.print_board(show_in_algebraic_notation=True)
                 print('-' * 50)
                 break
 

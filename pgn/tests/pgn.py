@@ -5,7 +5,6 @@ from pgn import PGN
 from core.testing import print_starting, print_success
 from pieces.utilites import PieceColor, PieceName
 
-
 class TestPGN(unittest.TestCase):
 
     def extract_pgn_to_variables(self, file_path: str) -> list[str]:
@@ -61,10 +60,13 @@ class TestPGN(unittest.TestCase):
         print_starting()
         game = "1.e4 e5 2.f4 exf4 3.Nf3 g5 4.h4 g4 5.Ne5 Bg7 6.Nxg4 d5 7.exd5 Qe7+ 8.Kf2 Bd4+ 9.Kf3 h5 10.Bb5+ Kd8 11.Nf2 Bg4+ 12.Nxg4 hxg4+ 13.Kxg4 Nf6+ 14.Kh3 Rxh4+ 15.Kxh4 Ne4+ 15.Kxh4 Ne4+ 16.Kg4 Nf2+ 17.Kh5 Qe5+ 18.Kh4 Qf6+ 19.Kh5 Qg6+ 20.Kh4 Bf6+"
 
-
         p = PGN(game)
-        k = p.game.board.get_piece(piece_name=PieceName.KING, color=PieceColor.WHITE)
-        print(k[0].calculate_legal_moves(True))
+        p.game.board.print_attacked_squares(
+            perspective=PieceColor.WHITE,
+            traspass_king=True,
+            show_in_algebraic_notation=True,
+            piece_name=PieceName.KING
+        )
 
 
 if __name__ == '__main__':
