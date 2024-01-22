@@ -58,15 +58,33 @@ class TestPGN(unittest.TestCase):
     def test_unique_game(self):
 
         print_starting()
-        game = "1.e4 e5 2.f4 exf4 3.Nf3 g5 4.h4 g4 5.Ne5 Bg7 6.Nxg4 d5 7.exd5 Qe7+ 8.Kf2 Bd4+ 9.Kf3 h5 10.Bb5+ Kd8 11.Nf2 Bg4+ 12.Nxg4 hxg4+ 13.Kxg4 Nf6+ 14.Kh3 Rxh4+ 15.Kxh4 Ne4+ 15.Kxh4 Ne4+ 16.Kg4 Nf2+ 17.Kh5 Qe5+ 18.Kh4 Qf6+ 19.Kh5 Qg6+ 20.Kh4 Bf6+"
+        game = "1.e4 e5 2.f4 exf4 3.Nf3 g5 4.h4 g4 5.Ne5 Bg7 6.Nxg4 d5 7.exd5 Qe7+ 8.Kf2 Bd4+ 9.Kf3 h5 10.Bb5+ Kd8 11.Nf2 Bg4+ 12.Nxg4 hxg4+ 13.Kxg4 Nf6+ 14.Kh3 Rxh4+ 15.Kxh4 Ne4+ 16.Kg4 Nf2+ 17.Kh5 Qe5+ 18.Kh4 Qf6+ 19.Kh5 Qg6+ 20.Kh4 Bf6+"
 
         p = PGN(game)
+
         p.game.board.print_attacked_squares(
-            perspective=PieceColor.WHITE,
+            perspective=PieceColor.BLACK,
             traspass_king=True,
             show_in_algebraic_notation=True,
-            piece_name=PieceName.KING
         )
+
+        # print('-' * 50)
+        # print('pieces on board')
+        # pieces_on_board = p.game.board.pieces_on_board[PieceColor.BLACK]
+        # for key in pieces_on_board:
+        #     print(key.name, [piece.algebraic_pos for piece in pieces_on_board[key]])
+        # print('-' * 50)
+
+        # for piece in PieceName.__members__.values():
+        #     print('-' * 50)
+        #     print('piece_name', piece.name)
+        #     p.game.board.print_attacked_squares(
+        #         perspective=PieceColor.BLACK,
+        #         traspass_king=True,
+        #         show_in_algebraic_notation=True,
+        #         piece_name=piece
+        #     )
+        #     print('-' * 50)
 
 
 if __name__ == '__main__':

@@ -294,3 +294,6 @@ class Game:
 
         if self.player_turn == PieceColor.WHITE:
             self.current_turn += 1
+            # TODO: Look for a better way to reset these variables
+            self.board._attacked_squares_by_white_checked = False
+            self.board._attacked_squares_by_black_checked = False
