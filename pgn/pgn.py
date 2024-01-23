@@ -105,6 +105,10 @@ class PGN:
                     self.game.move_piece(black_move)
                     black_is_valid = True
 
+                # print('-' * 50)
+                # self.game.board.print_board(show_in_algebraic_notation=True)
+                # print('-' * 50)
+
             except ValueError:
                 print('-' * 50)
                 print('The moves are not valid')

@@ -337,7 +337,8 @@ class Board:
         if not pieces_on_board.get(piece.name):
             pieces_on_board[piece.name] = []
 
-        # NOTE: could this be referencing to the piece.name instance of the object?
+        # NOTE: could this be referencing to the piece.name instance of the
+        # Sobject?
         pieces_on_board[piece.name].append(piece)
 
         return piece
@@ -756,7 +757,10 @@ class Board:
                         char += f'{algebraic_char[-1]}'
 
                     if p.color == PieceColor.BLACK:
-                        color = Fore.LIGHTBLACK_EX
+                        color = Fore.LIGHTBLUE_EX
+
+                    if p.color == PieceColor.WHITE:
+                        color = Fore.LIGHTCYAN_EX
 
                 if special_color_on:
                     if (row_index, column_index) in special_color_on:

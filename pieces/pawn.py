@@ -131,34 +131,36 @@ class Pawn(Piece):
         # the first things we need to check if whether we have a pawn
         # next to the left or to the right of this pawn
 
-        # check if there is a pawn the in direction 0
+        # check if there is a pawn in direction 0
         direction = 1 if self.color == PieceColor.WHITE else -1
         if self.position[1] - 1 >= 0:
             piece: Piece | tuple = self.board.get_square_or_piece(
                 row=self.position[0],
                 column=self.position[1] - 1
             )
-            if isinstance(piece, Piece):
-                if piece is not None and piece.name == PieceName.PAWN:
-                    piece: Pawn
-                    if piece.can_be_captured_en_passant:
-                        return (
-                            self.position[0] + 1 * direction, self.position[1] - 1
-                        )
+            if isinstance(piece, Pawn):
+                if (
+                    piece.color != self.color and
+                    piece.can_be_captured_en_passant
+                ):
+                    return (
+                        self.position[0] + 1 * direction, self.position[1] - 1
+                    )
 
-        # check if there is pawn in the direction 1
+        # check if there is pawn in direction 1
         if self.position[1] + 1 <= 7:
             piece: Piece | tuple = self.board.get_square_or_piece(
                 row=self.position[0],
                 column=self.position[1] + 1
             )
 
-            if isinstance(piece, Piece):
-                if piece is not None and piece.name == PieceName.PAWN:
-                    piece: Pawn
-                    if piece.can_be_captured_en_passant:
-                        return (
-                            self.position[0] + 1 * direction, self.position[1] + 1
-                        )
+            if isinstance(piece, Pawn):
+                if (
+                    piece.color != self.color and
+                    piece.can_be_captured_en_passant
+                ):
+                    return (
+                        self.position[0] + 1 * direction, self.position[1] + 1
+                    )
 
         self.board.get_square_or_piece(row=self.position[0] - 1, column=0)
