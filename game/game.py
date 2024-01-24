@@ -231,11 +231,16 @@ class Game:
             piece: Piece
 
             # if there is a file in the piece_move object, look for that file
-            # when going to the piece, so we do not to calculate the legal
+            # when going to the piece, so we do not have to calculate the legal
             # moves for all the pieces
 
             if piece_move.piece_file:
                 if piece.algebraic_pos[0] != piece_move.piece_file:
+                    continue
+
+            # check if the row is given
+            if piece_move.row is not None:
+                if piece.row != piece_move.row:
                     continue
 
             # if we are here, we have found the piece (two pieces can be in
@@ -294,3 +299,6 @@ class Game:
 
         if self.player_turn == PieceColor.WHITE:
             self.current_turn += 1
+            # TODO: Look for a better way to reset these variables
+            self.board._attacked_squares_by_white_checked = False
+            self.board._attacked_squares_by_black_checked = False
