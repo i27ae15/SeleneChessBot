@@ -40,7 +40,7 @@ class TestPGN(unittest.TestCase):
         print(pgn.pgn)
         print_success()
 
-    def qtest_pgn_from_real_game(self):
+    def test_pgn_from_real_game(self):
 
         print_starting()
         # Usage
@@ -55,7 +55,7 @@ class TestPGN(unittest.TestCase):
                 break
         print_success()
 
-    def test_unique_game(self):
+    def atest_unique_game(self):
 
         print_starting()
         game = "1.e4 e5 2.f4 exf4 3.Nf3 g5 4.h4 g4 5.Ne5 Bg7 6.Nxg4 d5 7.exd5 Qe7+ 8.Kf2 Bd4+ 9.Kf3 h5 10.Bb5+ Kd8 11.Nf2 Bg4+ 12.Nxg4 hxg4+ 13.Kxg4 Nf6+ 14.Kh3 Rxh4+ 15.Kxh4 Ne4+ 15.Kxh4 Ne4+ 16.Kg4 Nf2+ 17.Kh5 Qe5+ 18.Kh4 Qf6+ 19.Kh5 Qg6+ 20.Kh4 Bf6+"

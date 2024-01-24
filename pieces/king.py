@@ -32,15 +32,60 @@ class King(Piece):
         self,
         show_in_algebraic_notation: bool = False
     ) -> list[str | list[int]]:
-        return self.calculate_legal_moves(
+        return self._calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
             check_capturable_moves=False
         )
 
-    def calculate_legal_moves(
+    def castle(
+        self,
+        side: RookSide
+    ) -> bool:
+
+        sides = {
+            RookSide.KING: self._check_if_kingside_castleling_is_possible,
+            RookSide.QUEEN: self._check_if_queenside_castleling_is_possible
+        }
+
+        if not sides[side]():
+            return False
+
+        rooks = self.board.get_piece(
+            piece_name=PieceName.ROOK,
+            color=self.color,
+        )
+
+        rook = [r for r in rooks if r.rook_side == side][0]
+
+        # calculate the king direction based on the color and the side
+        # of the castleling
+        king_direction = 1 if side == RookSide.KING else -1
+        rook_direction = 1 if side == RookSide.KING else -1
+
+        # move the rook
+        rook.move_to(
+            new_position=(
+                self.position[0],
+                self.position[1] + 1 * rook_direction
+            )
+        )
+
+        # move the king
+        self.move_to(
+            new_position=[
+                self.position[0],
+                self.position[1] + 2 * king_direction
+            ],
+            in_castleling=True
+        )
+
+        return True
+
+    def _calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
-        check_capturable_moves: bool = True
+        check_capturable_moves: bool = True,
+        **kwargs
     ) -> list[str | list[int, int]]:
 
         # The king is special, because it can only move if a piece is not
@@ -170,49 +215,5 @@ class King(Piece):
 
         if (self.position[0], self.position[1] + 2) in attacked_squares:
             return False
-
-        return True
-
-    def castle(
-        self,
-        side: RookSide
-    ) -> bool:
-
-        sides = {
-            RookSide.KING: self._check_if_kingside_castleling_is_possible,
-            RookSide.QUEEN: self._check_if_queenside_castleling_is_possible
-        }
-
-        if not sides[side]():
-            return False
-
-        rooks = self.board.get_piece(
-            piece_name=PieceName.ROOK,
-            color=self.color,
-        )
-
-        rook = [r for r in rooks if r.rook_side == side][0]
-
-        # calculate the king direction based on the color and the side
-        # of the castleling
-        king_direction = 1 if side == RookSide.KING else -1
-        rook_direction = 1 if side == RookSide.KING else -1
-
-        # move the rook
-        rook.move_to(
-            new_position=(
-                self.position[0],
-                self.position[1] + 1 * rook_direction
-            )
-        )
-
-        # move the king
-        self.move_to(
-            new_position=[
-                self.position[0],
-                self.position[1] + 2 * king_direction
-            ],
-            in_castleling=True
-        )
 
         return True

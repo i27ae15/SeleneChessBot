@@ -342,11 +342,37 @@ class Piece(ABC):
             'd3': direction_3
         }
 
-    @abstractmethod
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
-        check_capturable_moves: bool = True
+        check_capturable_moves: bool = True,
+        traspass_king: bool = False,
+        get_only_squares: bool = False
+    ) -> list[str | list[int, int]]:
+
+        """
+        Returns a list of legal moves for the piece.
+
+        Parameters:
+            show_in_algebraic_notation (bool): If True, returns the list of
+            moves in algebraic notation. Defaults to False.
+        """
+
+        data = self._calculate_legal_moves(
+            traspass_king=traspass_king,
+            get_only_squares=get_only_squares,
+            check_capturable_moves=check_capturable_moves,
+            show_in_algebraic_notation=show_in_algebraic_notation,
+        )
+        return data
+
+    @abstractmethod
+    def _calculate_legal_moves(
+        self,
+        show_in_algebraic_notation: bool = False,
+        check_capturable_moves: bool = True,
+        traspass_king: bool = False,
+        get_only_squares: bool = False
     ) -> list[str | list[int, int]]:
 
         """

@@ -56,9 +56,10 @@ class Pawn(Piece):
 
         return squares_being_attacked
 
-    def calculate_legal_moves(
+    def _calculate_legal_moves(
         self,
-        show_in_algebraic_notation: bool = False
+        show_in_algebraic_notation: bool = False,
+        **kwargs
     ) -> list[tuple[int, int]] | list[str]:
 
         board = self.board.board

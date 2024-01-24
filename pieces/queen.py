@@ -25,29 +25,24 @@ class Queen(Piece):
             board=board
         )
 
-    def move(self, new_position: tuple[int, int]):
-        super().move(new_position)
-
-    def can_move(self, new_position: tuple[int, int]) -> bool:
-        return super().can_move(new_position)
-
     def get_attacked_squares(
         self,
         traspass_king: bool = False,
         show_in_algebraic_notation: bool = False,
     ) -> list[str | list[int]]:
-        return self.calculate_legal_moves(
+        return self._calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
             get_only_squares=True,
             traspass_king=traspass_king,
         )
 
-    def calculate_legal_moves(
+    def _calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
         check_capturable_moves: bool = True,
         traspass_king: bool = False,
-        get_only_squares: bool = False
+        get_only_squares: bool = False,
+        **kwargs
     ) -> list[str | list[int, int]]:
 
         # for the queen we got to combine the legal moves of the rook and the

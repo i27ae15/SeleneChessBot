@@ -34,19 +34,20 @@ class Rook(Piece):
         traspass_king: bool = False,
         show_in_algebraic_notation: bool = False
     ) -> list[str | list[int]]:
-        return self.calculate_legal_moves(
+        return self._calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
             check_capturable_moves=False,
             traspass_king=traspass_king,
             get_only_squares=True
         )
 
-    def calculate_legal_moves(
+    def _calculate_legal_moves(
         self,
         traspass_king: bool = False,
         get_only_squares: bool = False,
         check_capturable_moves: bool = True,
         show_in_algebraic_notation: bool = False,
+        **kwargs
     ) -> list[str | list[int, int]]:
 
         scanned_column = self.scan_column(

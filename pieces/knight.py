@@ -25,22 +25,20 @@ class Knight(Piece):
             board=board
         )
 
-    def move(self, new_position: tuple[int, int]):
-        super().move(new_position)
-
     def get_attacked_squares(
         self,
         show_in_algebraic_notation: bool = False
     ) -> list[str | list[int]]:
-        return self.calculate_legal_moves(
+        return self._calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
             check_capturable_moves=False,
         )
 
-    def calculate_legal_moves(
+    def _calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
         check_capturable_moves: bool = True,
+        **kwargs,
     ) -> list[str | list[int, int]]:
 
         positions_to_check = [
