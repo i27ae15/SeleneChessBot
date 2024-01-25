@@ -521,6 +521,13 @@ class Piece(ABC):
             # if there is a piece that could attack the king, we need to unify
             # the moves and the calculated legal moves, so the just the moves
             # that appear in both could be returned
+            # convert all moves to position
+            for index, move in enumerate(moves):
+                if isinstance(move, Piece):
+                    if show_in_algebraic_notation:
+                        moves[index] = move.algebraic_pos
+                    else:
+                        moves[index] = move.position
             piece_legal_moves = list(set(piece_legal_moves) & set(moves))
 
         return piece_legal_moves

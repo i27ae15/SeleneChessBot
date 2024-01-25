@@ -52,7 +52,7 @@ class TestPGN(unittest.TestCase):
             g = game.replace('\n', ' ')
             print('game', index + 1)
             PGN(g)
-            # if index == 100:
+            # if index == 10:
             #     break
         print_success()
 
@@ -62,7 +62,7 @@ class TestPGN(unittest.TestCase):
 
         file_path = 'pgn/tests/MacKenzie.txt'
         pgn_games = self.extract_pgn_to_variables(file_path)
-        game = pgn_games[37].replace('\n', ' ')
+        game = pgn_games[5].replace('\n', ' ')
 
         # NOTE: there could be a bug on the en passant tracking
         # on game index 37, there apparently a pawn is being capture on passant
