@@ -19,7 +19,6 @@ class TestRook(unittest.TestCase):
     def tearDown(self) -> None:
         self.board.clean_board()
         self.rook = self.add_rook_to_board()
-        return super().tearDown()
 
     def add_rook_to_board(self, row: int = 4, column: int = 4) -> Rook:
         return self.board.add_piece(
@@ -128,6 +127,39 @@ class TestRook(unittest.TestCase):
 
         print_success()
 
+    def test_legal_moves_with_king_next_to_piece_in_diagonal(self):
+
+        print_starting()
+        self.board.clean_board()
+
+        q = self.board.add_piece(
+            piece=PieceName.QUEEN,
+            piece_color=PieceColor.WHITE,
+            row=4,
+            column=4
+        )
+
+        self.board.add_piece(
+            piece=PieceName.KING,
+            piece_color=PieceColor.WHITE,
+            row=5,
+            column=5
+        )
+
+        # also, add a eneymy bishop in the same diagonal
+        self.board.add_piece(
+            piece=PieceName.BISHOP,
+            piece_color=PieceColor.BLACK,
+            row=0,
+            column=0
+        )
+
+        self.board.print_board()
+        legal_moves = q.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+        print('legal_moves', legal_moves)
+        print_success()
 
 if __name__ == '__main__':
     unittest.main()

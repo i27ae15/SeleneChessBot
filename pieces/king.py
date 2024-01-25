@@ -114,11 +114,10 @@ class King(Piece):
 
         for move in positions_to_check:
             row, column = move
-            if row < 0 or row > 7 or column < 0 or column > 7:
-                continue
-            algebraic_list.append(
-                convert_to_algebraic_notation(row=row, column=column)
-            )
+            if self.board.is_position_on_board(position=move):
+                algebraic_list.append(
+                    convert_to_algebraic_notation(row=row, column=column)
+                )
 
         for position in positions_to_check:
             if self.board.is_position_on_board(position):

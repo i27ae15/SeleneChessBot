@@ -297,7 +297,7 @@ class Board:
                     king_color = piece.color
 
             if is_king:
-                if self.pieces_on_board[king_color][PieceName.KING]:
+                if self.pieces_on_board[king_color].get(PieceName.KING):
                     raise ValueError(
                         f'The {king_color.name} king is already on the board.'
                     )
