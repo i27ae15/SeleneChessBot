@@ -32,18 +32,21 @@ class Rook(Piece):
     def get_attacked_squares(
         self,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         show_in_algebraic_notation: bool = False
     ) -> list[str | list[int]]:
         return self._calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
             check_capturable_moves=False,
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=True
         )
 
     def _calculate_legal_moves(
         self,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         get_only_squares: bool = False,
         check_capturable_moves: bool = True,
         show_in_algebraic_notation: bool = False,
@@ -51,11 +54,13 @@ class Rook(Piece):
     ) -> list[str | list[int, int]]:
 
         scanned_column = self.scan_column(
+            king_color=king_color,
             end_at_piece_found=True,
             traspass_king=traspass_king,
             get_only_squares=get_only_squares,
         )
         scanned_row = self.scan_row(
+            king_color=king_color,
             end_at_piece_found=True,
             traspass_king=traspass_king,
             get_only_squares=get_only_squares

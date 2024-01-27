@@ -518,6 +518,7 @@ class Board:
                 extra_var = dict()
                 if piece.name not in NO_TRASPASS_KING_PIECES:
                     extra_var['traspass_king'] = traspass_king
+                    extra_var['king_color'] = color.opposite()
 
                 piece: Piece
                 attacked_squares += piece.get_attacked_squares(

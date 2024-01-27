@@ -28,12 +28,14 @@ class Queen(Piece):
     def get_attacked_squares(
         self,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         show_in_algebraic_notation: bool = False,
     ) -> list[str | list[int]]:
         return self._calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
             get_only_squares=True,
             traspass_king=traspass_king,
+            king_color=king_color,
         )
 
     def _calculate_legal_moves(
@@ -41,6 +43,7 @@ class Queen(Piece):
         show_in_algebraic_notation: bool = False,
         check_capturable_moves: bool = True,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         get_only_squares: bool = False,
         **kwargs
     ) -> list[str | list[int, int]]:
@@ -53,6 +56,7 @@ class Queen(Piece):
         diagonal_moves: list[list[int, int] | Piece] = self.scan_diagonals(
             end_at_piece_found=True,
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=get_only_squares
         )
 
@@ -68,11 +72,13 @@ class Queen(Piece):
         scanned_column = self.scan_column(
             end_at_piece_found=True,
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=get_only_squares
         )
         scanned_row = self.scan_row(
             end_at_piece_found=True,
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=get_only_squares
         )
 

@@ -129,12 +129,12 @@ class Game:
         )
 
         # move the piece
+        # manage the en passant pawns
+        self._manage_en_passant_pawns(piece, piece_move)
+
         self._move_piece(piece, piece_move)
 
         self._manage_coronation(piece, piece_move)
-
-        # manage the en passant pawns
-        self._manage_en_passant_pawns(piece, piece_move)
 
         piece.add_move_to_story(
             move_number=self.current_turn,
@@ -191,7 +191,7 @@ class Game:
         if piece_move.piece_name == PieceName.PAWN:
             piece: Pawn
             # if the move is a double move, track the pawn
-            if piece_move.square[-1] in '45':
+            if piece_move.square[-1] in '45' and piece.first_move:
 
                 if self.player_turn == PieceColor.WHITE:
                     self.white_possible_pawn_enp = piece

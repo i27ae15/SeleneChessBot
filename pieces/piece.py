@@ -259,7 +259,7 @@ class Piece(ABC):
                 is_en_passant=is_on_passant
             )
 
-            self.position = new_position
+            self.position = tuple(new_position)
             self.first_move = False
 
             return True
@@ -283,6 +283,7 @@ class Piece(ABC):
     def scan_column(
         self,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         get_only_squares: bool = False,
         end_at_piece_found: bool = True,
     ) -> dict:
@@ -308,12 +309,14 @@ class Piece(ABC):
             f_value_side=0,
             end_at_piece_found=end_at_piece_found,
             get_only_squares=get_only_squares,
-            traspass_king=traspass_king
+            traspass_king=traspass_king,
+            king_color=king_color
         )
 
     def scan_row(
         self,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         get_only_squares: bool = False,
         end_at_piece_found: bool = True,
     ) -> dict:
@@ -339,13 +342,15 @@ class Piece(ABC):
             f_value_side=1,
             end_at_piece_found=end_at_piece_found,
             get_only_squares=get_only_squares,
-            traspass_king=traspass_king
+            traspass_king=traspass_king,
+            king_color=king_color
         )
 
     def scan_diagonals(
         self,
         end_at_piece_found: bool = True,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         get_only_squares: bool = False
     ) -> dict:
 
@@ -371,6 +376,7 @@ class Piece(ABC):
             end_range=range(self.column - 1, -1, -1),
             end_at_piece_found=end_at_piece_found,
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=get_only_squares
         )
         direction_1: list[Piece | None] = self._check_row_and_columns(
@@ -378,6 +384,7 @@ class Piece(ABC):
             end_range=range(self.column + 1, 8),
             end_at_piece_found=end_at_piece_found,
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=get_only_squares
         )
         direction_2: list[Piece | None] = self._check_row_and_columns(
@@ -385,6 +392,7 @@ class Piece(ABC):
             end_range=range(self.column - 1, -1, -1),
             end_at_piece_found=end_at_piece_found,
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=get_only_squares
         )
         direction_3: list[Piece | None] = self._check_row_and_columns(
@@ -392,6 +400,7 @@ class Piece(ABC):
             end_range=range(self.column + 1, 8),
             end_at_piece_found=end_at_piece_found,
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=get_only_squares
         )
 
@@ -407,6 +416,7 @@ class Piece(ABC):
         show_in_algebraic_notation: bool = False,
         check_capturable_moves: bool = True,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         get_only_squares: bool = False
     ) -> list[str | list[int, int]]:
 
@@ -420,6 +430,7 @@ class Piece(ABC):
 
         piece_legal_moves = self._calculate_legal_moves(
             traspass_king=traspass_king,
+            king_color=king_color,
             get_only_squares=get_only_squares,
             check_capturable_moves=check_capturable_moves,
             show_in_algebraic_notation=show_in_algebraic_notation,
@@ -428,43 +439,24 @@ class Piece(ABC):
         if self.name == PieceName.KING:
             return piece_legal_moves
 
-        king_position = self._check_if_friendly_king_is_next_to_piece()
+        moves_dict, direction = self._check_if_friendly_king_is_next_to_piece()
 
-        if not king_position:
+        if not moves_dict:
             return piece_legal_moves
 
-        # check if the king is in a column, row, or diagonal within the piece
-
-        moves = list()
         pieces_that_could_attack_king: list[PieceName] = list()
 
-        is_row_or_column = False
-        is_diagonal = False
-
-        if king_position[0] == self.row:
-            moves = self.scan_row()
+        if direction == 0 or direction == 1:
             pieces_that_could_attack_king = [
                 PieceName.ROOK,
                 PieceName.QUEEN
             ]
-            is_row_or_column = True
-
-        elif king_position[1] == self.column:
-            moves = self.scan_column()
-            pieces_that_could_attack_king = [
-                PieceName.ROOK,
-                PieceName.QUEEN
-            ]
-            is_row_or_column = True
 
         else:
-            # at this point, we know that the king is in a diagonal
-            moves = self.scan_diagonals()
             pieces_that_could_attack_king = [
                 PieceName.BISHOP,
                 PieceName.QUEEN
             ]
-            is_diagonal = True
 
             # d0 -> d4
             # d1 -> d2
@@ -474,35 +466,8 @@ class Piece(ABC):
         # column or a row, so we need are sure that one of the directions have
         # a len of 1 and is the same color king, so descard that direction
 
-        if is_row_or_column:
-            directions = ['d0', 'd1']
-            for index, dir in enumerate(directions):
-                if len(moves[dir]) == 1:
-                    p = moves[dir][0]
-                    if isinstance(p, Piece):
-                        if p.name == PieceName.KING and p.color == self.color:
-                            moves = moves[directions[index - 1]]
-                            break
-
-        elif is_diagonal:
-
-            # the complete diagonals are the following d0 -> d3
-            # and d1 -> d2
-
-            diagonals = [['d0', 'd3'], ['d1', 'd2']]
-            terminate = False
-
-            for diagonal in diagonals:
-                for index, dir in enumerate(diagonal):
-                    if len(moves[dir]) == 1:
-                        p = moves[dir][0]
-                        if isinstance(p, Piece):
-                            if p.name == PieceName.KING and p.color == self.color:
-                                moves = moves[diagonal[index - 1]]
-                                terminate = True
-                                break
-                if terminate:
-                    break
+        # convert moves into from a direction to a list of objects
+        moves = moves_dict['d0'] + moves_dict['d1']
 
         if show_in_algebraic_notation:
             alg_moves = []
@@ -511,7 +476,6 @@ class Piece(ABC):
                     alg_moves.append(move)
                 else:
                     alg_moves.append(convert_to_algebraic_notation(*move))
-
             moves = alg_moves
 
         if self._check_if_a_piece_can_attack_friendly_king_in_given_moves(
@@ -552,6 +516,7 @@ class Piece(ABC):
         show_in_algebraic_notation: bool = False,
         check_capturable_moves: bool = True,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         get_only_squares: bool = False
     ) -> list[str | list[int, int]]:
 
@@ -566,30 +531,83 @@ class Piece(ABC):
 
     def _check_if_friendly_king_is_next_to_piece(
         self,
-    ) -> tuple[tuple[int, int]] | bool:
+    ) -> tuple[tuple[int, int], int] | bool:
         """
-        Check if the friendly king is next to the piece.
+        Check if the friendly king is in the same diagonal, row or column as
+        the king
+
+        this will return the direction where the king is localted, and a integer
+        that represent the direction, the directions are the following:
+
+        0 -> column
+        1 -> row
+        2 -> diagonal
+
         """
 
-        possible_king_positions = [
-            (self.row - 1, self.column - 1),
-            (self.row - 1, self.column),
-            (self.row - 1, self.column + 1),
-            (self.row, self.column - 1),
-            (self.row, self.column + 1),
-            (self.row + 1, self.column - 1),
-            (self.row + 1, self.column),
-            (self.row + 1, self.column + 1),
-        ]
+        # check column first
 
-        for move in possible_king_positions:
-            if self.board.is_position_on_board(move):
-                piece = self.board.get_square_or_piece(*move)
-                if isinstance(piece, Piece):
-                    if piece.name == PieceName.KING:
-                        if piece.color == self.color:
-                            return piece.position
-        return False
+        directions = ['d0', 'd1']
+        diagonals_dir = ['d0', 'd1', 'd2', 'd3']
+
+        column = self.scan_column()
+
+        for direction in directions:
+            moves = column[direction]
+
+            if not moves:
+                continue
+            last_square = column[direction][-1]
+            if isinstance(last_square, Piece):
+                if last_square.name == PieceName.KING:
+                    if last_square.color == self.color:
+                        return column, 0
+
+        row = self.scan_row()
+
+        for direction in directions:
+            moves = row[direction]
+
+            if not moves:
+                continue
+
+            last_square = row[direction][-1]
+            if isinstance(last_square, Piece):
+                if last_square.name == PieceName.KING:
+                    if last_square.color == self.color:
+                        return row, 1
+
+        diagonals = self.scan_diagonals()
+
+        for direction in diagonals_dir:
+            moves = diagonals[direction]
+
+            if not moves:
+                continue
+
+            last_square = diagonals[direction][-1]
+
+            if isinstance(last_square, Piece):
+                if last_square.name == PieceName.KING:
+                    if last_square.color == self.color:
+                        # here we need to return the diagonals where the king is
+                        # that is:
+                        # d0 -> d4
+                        # d1 -> d2
+                        to_return = dict()
+                        if direction == 'd0' or direction == 'd3':
+                            to_return = {
+                                'd0': diagonals['d0'],
+                                'd1': diagonals['d3']
+                            }
+                        elif direction == 'd1' or direction == 'd2':
+                            to_return = {
+                                'd0': diagonals['d1'],
+                                'd1': diagonals['d2']
+                            }
+                        return to_return, 2
+
+        return False, -1
 
     def _scan_direction(
         self,
@@ -598,7 +616,8 @@ class Piece(ABC):
         f_value_side: int,
         end_at_piece_found: bool = True,
         get_only_squares: bool = False,
-        traspass_king: bool = False
+        traspass_king: bool = False,
+        king_color: PieceColor = None
     ):
         direction_0: list[Piece | None] = []
         direction_1: list[Piece | None] = []
@@ -637,7 +656,7 @@ class Piece(ABC):
                     direction_1[-1] = last_square.position
 
                 if last_square.name == PieceName.KING:
-                    if traspass_king:
+                    if traspass_king and last_square.color == king_color:
                         continue
 
                 if end_at_piece_found:
@@ -707,6 +726,7 @@ class Piece(ABC):
         end_range: list[int],
         end_at_piece_found: bool = True,
         traspass_king: bool = False,
+        king_color: PieceColor = None,
         get_only_squares: bool = False
     ) -> list[tuple[int, int]]:
 
@@ -724,7 +744,7 @@ class Piece(ABC):
                     list_to_output[-1] = last_square.position
 
                 if last_square.name == PieceName.KING:
-                    if traspass_king:
+                    if traspass_king and last_square.color == king_color:
                         continue
 
                 if end_at_piece_found:

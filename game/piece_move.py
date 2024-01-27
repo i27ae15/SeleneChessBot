@@ -197,7 +197,7 @@ class PieceMove:
     def set_coronation(self):
         if self.piece_name == PieceName.PAWN:
             if self.square[1] == '8' or self.square[1] == '1':
-                piece_to = self.move[-1]
+                piece_to = self._abr_move[-1]
                 for piece_name in PieceName:
                     if piece_name.value[1] == piece_to:
                         self.coronation_into = piece_name

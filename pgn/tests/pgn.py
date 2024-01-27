@@ -42,7 +42,7 @@ class TestPGN(unittest.TestCase):
         print(pgn.pgn)
         print_success()
 
-    def atest_pgn_from_real_game(self):
+    def test_pgn_from_real_game(self):
 
         print_starting()
         # Usage
@@ -53,17 +53,15 @@ class TestPGN(unittest.TestCase):
             g = game.replace('\n', ' ')
             print('game', index + 1)
             PGN(g)
-            if index == 200:
-                break
         print_success()
 
-    def test_unique_game(self):
+    def atest_unique_game(self):
 
         print_starting()
 
         file_path = 'pgn/tests/MacKenzie.txt'
         pgn_games = self.extract_pgn_to_variables(file_path)
-        game = pgn_games[127].replace('\n', ' ')
+        game = pgn_games[192].replace('\n', ' ')
 
         # print('game', game)
 
@@ -79,7 +77,7 @@ class TestPGN(unittest.TestCase):
         # print('-' * 50)
         # print('pieces on board')
 
-        pieces_on_board = p.game.board.pieces_on_board[PieceColor.WHITE]
+        pieces_on_board = p.game.board.pieces_on_board[PieceColor.BLACK]
         for key in pieces_on_board:
             print(
                 key.name,
@@ -99,16 +97,18 @@ class TestPGN(unittest.TestCase):
         #         print('-' * 50)
         #         print('piece_name', piece.name)
         #         p.game.board.print_attacked_squares(
-        #             perspective=PieceColor.WHITE,
+        #             perspective=PieceColor.BLACK,
         #             traspass_king=True,
         #             show_in_algebraic_notation=True,
         #             piece_name=piece
         #         )
         #         print('-' * 50)
-        p.game.board.print_attacked_squares(
-            perspective=PieceColor.BLACK,
-            show_in_algebraic_notation=True
-        )
+        # p.game.board.print_attacked_squares(
+        #     perspective=PieceColor.BLACK,
+        #     show_in_algebraic_notation=True
+        # )
+
+        p.game.board.print_board(show_in_algebraic_notation=True)
 
         print_success()
 
