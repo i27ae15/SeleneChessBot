@@ -506,19 +506,24 @@ class Board:
 
         attacked_squares = []
 
-        for key in self.pieces_on_board[color]:
-            pieces = self.pieces_on_board[color][key]
+        piece_names = PieceName.__members__.values()
+
+        for piece_name in piece_names:
+            pieces = self.get_piece(
+                piece_name=piece_name,
+                color=color
+            )
+
             for piece in pieces:
-                piece: Piece
                 extra_var = dict()
                 if piece.name not in NO_TRASPASS_KING_PIECES:
                     extra_var['traspass_king'] = traspass_king
 
+                piece: Piece
                 attacked_squares += piece.get_attacked_squares(
                     show_in_algebraic_notation=show_in_algebraic_notation,
                     **extra_var
                 )
-
         self._attacked_squares[color] = attacked_squares
 
         return attacked_squares
@@ -581,11 +586,13 @@ class Board:
 
         attacked_squares = list()
 
+        # there is somethign wrong is we call the function like this
         if not piece_name:
             attacked_squares = self.get_attacked_squares(
                 color=perspective,
                 traspass_king=traspass_king,
             )
+
         else:
             pieces = self.get_piece(
                 piece_name=piece_name,
@@ -615,6 +622,21 @@ class Board:
         """
         self.castleling_rights[color][RookSide.KING] = False
         self.castleling_rights[color][RookSide.QUEEN] = False
+
+    def remove_piece(self, piece: Piece):
+        """
+        Remove a piece from the board.
+
+        This method removes a piece from the board, updating the internal
+        representation and the tracking dictionaries. It also removes the
+        piece from the list of attacked squares for its color.
+
+        Parameters:
+            piece (Piece): The piece to remove.
+        """
+
+        self.board[piece.row][piece.column] = None
+        self.pieces_on_board[piece.color][piece.name].remove(piece)
 
     def print_board(
         self,
@@ -695,11 +717,6 @@ class Board:
 
         self.board[old_row][old_column] = None
         self.board[new_row][new_column] = piece
-
-        # if is_en_passant:
-        #     # delete the pawn that was captured
-        #     direction = -1 if piece == PieceColor.WHITE else 1
-        #     self.board[new_row + direction][new_column] = None
 
     def _get_board_representation(
         self,
@@ -1019,18 +1036,21 @@ class Board:
         if is_en_passant:
             # delete the pawn that was captured
             direction = -1 if piece_color == PieceColor.WHITE else 1
+            piece = self.get_square_or_piece(
+                row=row + direction,
+                column=column,
+            )
             self.board[row + direction][column] = None
-            return
+        else:
 
-        piece = self.get_square_or_piece(
-            row=row,
-            column=column,
-        )
+            piece = self.get_square_or_piece(
+                row=row,
+                column=column,
+            )
+            if not isinstance(piece, Piece):
+                return
 
-        if not isinstance(piece, Piece):
-            return
-
-        piece.capture(captured_by=piece)
+            piece.capture(captured_by=piece)
 
         # delete the piece from the pieces_on_board dictionary
         self.pieces_on_board[piece.color][piece.name].remove(piece)

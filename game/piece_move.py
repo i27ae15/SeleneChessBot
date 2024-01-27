@@ -75,21 +75,23 @@ class PieceMove:
             making the move.
         """
 
-        self.move = move
-        self.player_turn = player_turn
+        self.move: str = move
+        self.player_turn: PieceColor = player_turn
         self.is_castleling: bool = False
         self.castleling_side: RookSide | None = None
         self.row: int | None = None
 
         self.piece_abbreviation: str | None = None
-        self.piece: PieceName | None = None
+        self.piece_name: PieceName | None = None
         self.piece_file: str | None = None
         self.square: str | None = None
+
+        self.coronation_into: PieceName | None = None
 
         self._abr_move: str = move.replace('x', '').replace('+', '')
         self.set_move_information()
 
-    def set_piece(self) -> PieceName:
+    def set_piece(self):
         """
         Determines and sets the type of piece involved in the move.
 
@@ -113,25 +115,22 @@ class PieceMove:
         if len(self._abr_move) == 2 or self._abr_move[0] in 'abcdefgh':
             # this will mean that the piece is a pawn
             self.piece_abbreviation = PieceName.PAWN.value[1]
-            self.piece = PieceName.PAWN
+            self.piece_name = PieceName.PAWN
 
         elif self._abr_move == 'O-O' or self._abr_move == 'O-O-O':
             # the piece we want to move is the king
             self.is_castleling = True
             self.piece_abbreviation = PieceName.KING.value[1]
-            self.piece = PieceName.KING
+            self.piece_name = PieceName.KING
         else:
             abr = self._abr_move[0]
             for piece in PieceName:
                 if piece.value[1] == abr:
                     self.piece_abbreviation = piece.value[1]
-                    self.piece = piece
+                    self.piece_name = piece
                     break
-
             else:
                 raise ValueError('Invalid move')
-
-        return self.piece
 
     def get_castleling_square(self) -> str:
         """
@@ -174,7 +173,10 @@ class PieceMove:
 
         # See if the position of the piece is given as int
 
-        if self._abr_move[1] in '12345678' and self.piece != PieceName.PAWN:
+        if (
+            self._abr_move[1] in '12345678'
+            and self.piece_name != PieceName.PAWN
+        ):
             self.row = int(self._abr_move[1]) - 1
 
         # take the last two characters of the move, this should be the square
@@ -185,8 +187,21 @@ class PieceMove:
             if self._abr_move[1] in 'abcdefgh':
                 self.piece_file = self._abr_move[1]
 
-        if self.piece == PieceName.PAWN:
-            self.piece_file = self._abr_move[0]
+        if self.piece_name == PieceName.PAWN:
+            if '=' in self.move:
+                self.piece_file = self._abr_move[0]
+                self.square = self._abr_move[:2]
+            else:
+                self.piece_file = self._abr_move[0]
+
+    def set_coronation(self):
+        if self.piece_name == PieceName.PAWN:
+            if self.square[1] == '8' or self.square[1] == '1':
+                piece_to = self.move[-1]
+                for piece_name in PieceName:
+                    if piece_name.value[1] == piece_to:
+                        self.coronation_into = piece_name
+                        return
 
     def set_move_information(self):
         """
@@ -203,15 +218,21 @@ class PieceMove:
         # if we haven't get the piece yet, let's get it here
         self.set_piece()
 
+        # view if the coronation if being given in the move
+
         # we now have to get the square where the piece is being move to
         # and the pos of the piece if given
         self.set_square_and_pos()
 
+        self.set_coronation()
+
     def __str__(self):
         print('-' * 50)
-        print(f'Piece: {self.piece}')
+        print(f'Piece: {self.piece_name}')
         print(f'Piece abbreviation: {self.piece_abbreviation}')
         print(f'Piece file: {self.piece_file}')
         print(f'Square: {self.square}')
         print(f'Move: {self.move}')
+        if self.piece_name == PieceName.PAWN:
+            print(f'Coronation into: {self.coronation_into}')
         return '-' * 50

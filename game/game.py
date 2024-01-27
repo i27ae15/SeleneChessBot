@@ -100,11 +100,6 @@ class Game:
         self.white_possible_pawn_enp: Pawn | None = None
         self.black_possible_pawn_enp: Pawn | None = None
 
-        self.en_passant_pawns = {
-            PieceColor.WHITE: self.white_possible_pawn_enp,
-            PieceColor.BLACK: self.black_possible_pawn_enp
-        }
-
     def move_piece(self, move: str) -> None:
         """
         Processes a chess move and updates the game state accordingly.
@@ -130,11 +125,13 @@ class Game:
         pieces = self.board.pieces_on_board[self.player_turn]
         piece: Piece = self._get_movable_piece(
             piece_move=piece_move,
-            pieces=pieces[piece_move.piece]
+            pieces=pieces[piece_move.piece_name]
         )
 
         # move the piece
         self._move_piece(piece, piece_move)
+
+        self._manage_coronation(piece, piece_move)
 
         # manage the en passant pawns
         self._manage_en_passant_pawns(piece, piece_move)
@@ -156,8 +153,15 @@ class Game:
         two squares forward from its starting position.
         """
 
-        en_passant_pawn: Pawn = self.en_passant_pawns[self.player_turn]
+        en_passant_pawn: Pawn = None
+
+        if self.player_turn == PieceColor.WHITE:
+            en_passant_pawn = self.white_possible_pawn_enp
+        elif self.player_turn == PieceColor.BLACK:
+            en_passant_pawn = self.black_possible_pawn_enp
+
         # set the last pawn moved two squares to not be able to be captured
+
         if en_passant_pawn:
             en_passant_pawn.can_be_captured_en_passant = False
 
@@ -184,7 +188,7 @@ class Game:
         self._clean_en_passant_state()
 
         # if the piece is a pawn, track for en passant
-        if piece_move.piece == PieceName.PAWN:
+        if piece_move.piece_name == PieceName.PAWN:
             piece: Pawn
             # if the move is a double move, track the pawn
             if piece_move.square[-1] in '45':
@@ -195,6 +199,24 @@ class Game:
                     self.black_possible_pawn_enp = piece
 
                 piece.can_be_captured_en_passant = True
+
+    def _manage_coronation(self, piece: Piece, piece_move: PieceMove):
+        """
+        Manages the coronation of a pawn.
+
+        This method handles the coronation of a pawn into a queen. It checks
+        if the move is a pawn move that reaches the last row of the board,
+        and if so, it replaces the pawn with a queen.
+
+        Parameters:
+            piece (Piece): The piece that has just been moved, potentially
+            a pawn.
+
+            piece_move (PieceMove): The move that has just been executed.
+        """
+
+        if isinstance(piece, Pawn) and piece_move.coronation_into:
+            piece.coronate(piece_move.coronation_into)
 
     def _get_movable_piece(
         self,
@@ -300,5 +322,5 @@ class Game:
         if self.player_turn == PieceColor.WHITE:
             self.current_turn += 1
             # TODO: Look for a better way to reset these variables
-            self.board._attacked_squares_by_white_checked = False
-            self.board._attacked_squares_by_black_checked = False
+        self.board._attacked_squares_by_white_checked = False
+        self.board._attacked_squares_by_black_checked = False

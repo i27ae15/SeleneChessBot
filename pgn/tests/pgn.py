@@ -3,6 +3,7 @@ import unittest
 from pgn import PGN
 
 from core.testing import print_starting, print_success
+from pieces.king import King
 from pieces.utilites import PieceColor, PieceName
 
 
@@ -41,7 +42,7 @@ class TestPGN(unittest.TestCase):
         print(pgn.pgn)
         print_success()
 
-    def test_pgn_from_real_gamew(self):
+    def atest_pgn_from_real_game(self):
 
         print_starting()
         # Usage
@@ -52,17 +53,19 @@ class TestPGN(unittest.TestCase):
             g = game.replace('\n', ' ')
             print('game', index + 1)
             PGN(g)
-            # if index == 10:
-            #     break
+            if index == 200:
+                break
         print_success()
 
-    def atest_unique_game(self):
+    def test_unique_game(self):
 
         print_starting()
 
         file_path = 'pgn/tests/MacKenzie.txt'
         pgn_games = self.extract_pgn_to_variables(file_path)
-        game = pgn_games[5].replace('\n', ' ')
+        game = pgn_games[127].replace('\n', ' ')
+
+        # print('game', game)
 
         # NOTE: there could be a bug on the en passant tracking
         # on game index 37, there apparently a pawn is being capture on passant
@@ -76,23 +79,35 @@ class TestPGN(unittest.TestCase):
         # print('-' * 50)
         # print('pieces on board')
 
-        # pieces_on_board = p.game.board.pieces_on_board[PieceColor.BLACK]
-        # for key in pieces_on_board:
-        #     print(key.name, [piece.algebraic_pos for piece in pieces_on_board[key]])
-        # print('-' * 50)
+        pieces_on_board = p.game.board.pieces_on_board[PieceColor.WHITE]
+        for key in pieces_on_board:
+            print(
+                key.name,
+                [piece.algebraic_pos for piece in pieces_on_board[key]]
+            )
+        print('-' * 50)
+
+        # black_king = p.game.board.get_piece(
+        #     piece_name=PieceName.KING,
+        #     color=PieceColor.BLACK
+        # )[0]
+
+        # print('legal moves for king', black_king.calculate_legal_moves(True))
 
         # for piece in PieceName.__members__.values():
-        #     print('-' * 50)
-        #     print('piece_name', piece.name)
-        #     p.game.board.print_attacked_squares(
-        #         perspective=PieceColor.WHITE,
-        #         traspass_king=True,
-        #         show_in_algebraic_notation=True,
-        #         piece_name=piece
-        #     )
-
-        p.game.board.print_board(
-            show_in_algebraic_notation=True,
+        #     if pieces_on_board[piece]:
+        #         print('-' * 50)
+        #         print('piece_name', piece.name)
+        #         p.game.board.print_attacked_squares(
+        #             perspective=PieceColor.WHITE,
+        #             traspass_king=True,
+        #             show_in_algebraic_notation=True,
+        #             piece_name=piece
+        #         )
+        #         print('-' * 50)
+        p.game.board.print_attacked_squares(
+            perspective=PieceColor.BLACK,
+            show_in_algebraic_notation=True
         )
 
         print_success()

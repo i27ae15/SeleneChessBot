@@ -28,6 +28,16 @@ class Pawn(Piece):
             board=board
         )
 
+    def coronate(self, coronate_into: PieceName):
+
+        self.board.remove_piece(self)
+        self.board.add_piece(
+            piece=coronate_into,
+            piece_color=self.color,
+            row=self.row,
+            column=self.column
+        )
+
     def get_attacked_squares(
         self,
         show_in_algebraic_notation: bool = False
