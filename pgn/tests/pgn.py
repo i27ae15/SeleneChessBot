@@ -55,7 +55,7 @@ class TestPGN(unittest.TestCase):
             PGN(g)
         print_success()
 
-    def atest_unique_game(self):
+    def test_unique_game(self):
 
         print_starting()
 
@@ -103,12 +103,12 @@ class TestPGN(unittest.TestCase):
         #             piece_name=piece
         #         )
         #         print('-' * 50)
-        # p.game.board.print_attacked_squares(
-        #     perspective=PieceColor.BLACK,
-        #     show_in_algebraic_notation=True
-        # )
+        p.game.board.print_attacked_squares(
+            perspective=PieceColor.BLACK,
+            show_in_algebraic_notation=True
+        )
 
-        p.game.board.print_board(show_in_algebraic_notation=True)
+        # p.game.board.print_board(show_in_algebraic_notation=True)
 
         print_success()
 

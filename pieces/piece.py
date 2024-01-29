@@ -175,6 +175,8 @@ class Piece(ABC):
         self.name: PieceName = name
         self.board: 'Board' = board
 
+        self.pieces_attacking_me: dict = dict()
+
     @property
     def is_captured(self) -> bool:
         return True if self.captured_by is not None else False
@@ -272,6 +274,93 @@ class Piece(ABC):
         new_position: tuple[int, int] | str
     ):
         self.move_story.append((move_number, new_position))
+
+    def get_pieces_under_attack(self) -> list['Piece']:
+        """
+        Returns a list of pieces that are under attack by the piece.
+        """
+        attacked_squares = self.calculate_legal_moves()
+        pieces_under_attack = []
+
+        for square in attacked_squares:
+            if isinstance(square, Piece):
+                if square.color != self.color:
+                    pieces_under_attack.append(square)
+                    continue
+
+        return pieces_under_attack
+
+    def get_pieces_attacking_me(self, move_number: int = None) -> list['Piece']:
+        """
+        Return a list of piece that are attacking this piece.
+
+        If calculate_knights is True, the method will calculate the knights
+        that are attacking the piece.
+        """
+
+        # TODO: Make possible to connect the board with the game,
+        # so we can acces important information like the move number
+
+        if move_number:
+            if self.pieces_attacking_me.get('calculated_at_moved') == move_number:
+                return self.pieces_attacking_me['pieces']
+
+        pieces_attacking_me: list[Piece] = []
+
+        positions = ['d0', 'd1']
+
+        columns = self.scan_column()
+        rows = self.scan_row()
+
+        for position in positions:
+            # we only need to check the last position
+            # and since both columns and rows has two directions
+            # we can check both at the same time
+
+            if isinstance(columns[position][-1], Piece):
+                if columns[position][-1].color != self.color:
+                    pieces_attacking_me.append(columns[position][-1])
+
+            if isinstance(rows[position][-1], Piece):
+                if rows[position][-1].color != self.color:
+                    pieces_attacking_me.append(rows[position][-1])
+
+        diagonals = self.scan_diagonals()
+        positions = ['d0', 'd1', 'd2', 'd3']
+
+        for position in positions:
+            if isinstance(diagonals[position][-1], Piece):
+                if diagonals[position][-1].color != self.color:
+                    pieces_attacking_me.append(diagonals[position][-1])
+
+        # and finally calculate the knights
+
+        positions_to_check = [
+            [self.row + 2, self.column + 1],
+            [self.row + 2, self.column - 1],
+            [self.row + 1, self.column + 2],
+            [self.row + 1, self.column - 2],
+
+            [self.row - 1, self.column + 2],
+            [self.row - 1, self.column - 2],
+            [self.row - 2, self.column + 1],
+            [self.row - 2, self.column - 1],
+        ]
+
+        for pos in positions_to_check:
+            if self.board.is_position_on_board(pos):
+                piece = self.board.get_square_or_piece(*pos)
+                if isinstance(piece, Piece):
+                    if piece.name == PieceName.KNIGHT:
+                        if piece.color != self.color:
+                            pieces_attacking_me.append(piece)
+
+        self.pieces_attacking_me = {
+            'pieces': pieces_attacking_me,
+            'calculated_at_moved': move_number
+        }
+
+        return pieces_attacking_me
 
     def undo_move(self):
         if self.move_story:

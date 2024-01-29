@@ -2,7 +2,7 @@
 from board import Board
 
 from pieces.utilites import PieceColor, PieceName
-from pieces import Piece, Pawn
+from pieces import Piece, Pawn, King
 
 from .piece_move import PieceMove
 
@@ -99,6 +99,8 @@ class Game:
 
         self.white_possible_pawn_enp: Pawn | None = None
         self.black_possible_pawn_enp: Pawn | None = None
+
+        self.is_game_terminated: bool = False
 
     def move_piece(self, move: str) -> None:
         """
@@ -312,6 +314,13 @@ class Game:
         Parameters:
             piece_move (PieceMove): The move that has just been executed.
         """
+
+        self._manage_check_detection()
+        self._manage_game_termination()
+
+        self.white_king_under_check = False
+        self.black_king_under_check = False
+
         # check if the move is valid
         if self.current_turn not in self.moves:
             self.moves[self.current_turn] = []
@@ -324,3 +333,144 @@ class Game:
             # TODO: Look for a better way to reset these variables
         self.board._attacked_squares_by_white_checked = False
         self.board._attacked_squares_by_black_checked = False
+
+    def _manage_check_detection(self):
+        """
+        Manages the detection of check and checkmate.
+
+        This method checks if the move has caused a check or checkmate. If
+        so, it raises an error, indicating the end of the game.
+
+        Parameters:
+            piece_move (PieceMove): The move that has just been executed.
+
+        Raises:
+            ValueError: If the move has caused a check or checkmate.
+        """
+
+        # BUG: At this moment, there is possible that both kings are in check
+
+        king: King = self.board.get_piece(
+            piece_name=PieceName.KING,
+            color=self.player_turn.opposite()
+        )[0]
+
+        king.check_if_in_check()
+
+    def _manage_game_termination(self) -> bool:
+        """
+        Manages the termination of the game.
+
+        This method checks if the move has caused the game to end, either
+        through checkmate or stalemate. If so, it raises an error, indicating
+        the end of the game.
+
+        Parameters:
+            piece_move (PieceMove): The move that has just been executed.
+
+        Raises:
+            ValueError: If the move has caused the game to end.
+        """
+
+        king: King = self.board.get_piece(
+            piece_name=PieceName.KING,
+            color=self.player_turn
+        )[0]
+
+        if king.is_in_check:
+            # check if there are legal moves in the board for the color
+            if not self._color_has_legal_moves(color=self.player_turn):
+                raise ValueError('Checkmate')
+
+    def _color_has_legal_moves(self, color: PieceColor) -> bool:
+        """
+        Checks if a color has legal moves.
+
+        This method checks if the given color has any legal moves left. It
+        does so by iterating through all the pieces of the color and checking
+        if any of them have legal moves.
+
+        Parameters:
+            color (PieceColor): The color to check for legal moves.
+
+        Returns:
+            bool: True if the color has legal moves, False otherwise.
+        """
+
+        # first we need to check for the king
+
+        king: King = self.board.get_piece(
+            piece_name=PieceName.KING,
+            color=color
+        )[0]
+
+        if king.calculate_legal_moves():
+            return True
+
+        # if the king does not have legal moves, we need to check if there is a
+        # piece that can protect the king from being attacked
+        # first we need to knwo what is the piece that is attacking the king
+
+        # get the pieces that are attacking the king
+        # since we calculated that above, the variable pieces_attacking_me
+        # should be filled
+
+        pieces: list[Piece] = king.pieces_attacking_me['pieces']
+
+        for piece in pieces:
+            # look first for a knight or a pawn
+            if piece.piece_name in (PieceName.KNIGHT, PieceName.PAWN):
+                # this will mean that the only way to protect the king is to
+                # capture the piece
+                # so we need to check if there is a piece that can capture
+                # the attacking pawn or knight
+
+                pos_to_cap = self._check_if_piece_can_capture_attacking_piece(
+                    attacking_piece=piece,
+                    king=king
+                )
+
+                if not pos_to_cap:
+                    # this mean checkmate
+                    return False
+
+            else:
+                # this mean that the attacking piece is a bishop, a rook or a
+                # queen. For this pieces we have two options:
+                # 1. capture the attacking piece
+                # 2. put a piece between the attacking piece and the king
+
+                pos_to_cap = self._check_if_piece_can_capture_attacking_piece(
+                    attacking_piece=piece,
+                    king=king
+                )
+
+                if pos_to_cap:
+                    return True
+
+                # now we need to check if there is a piece that can be put
+                # between the attacking piece and the king
+                # the best approach if to identify where is the piece that is
+                # attacking the king once we know this, we should scan, row,
+                # column and diagonal and look for a piece
+                # that can move to the position blocking the attacked
+
+    def _check_if_piece_can_capture_attacking_piece(
+        self,
+        attacking_piece: Piece,
+        king: King
+    ):
+        pieces = {
+            PieceColor.WHITE: self.board.white_pieces,
+            PieceColor.BLACK: self.board.black_pieces
+        }
+
+        pieces = pieces[king.color]
+
+        for piece_key in pieces:
+            for piece in pieces[piece_key]:
+                piece: Piece
+                if attacking_piece in piece.get_pieces_under_attack():
+                    return True
+
+        return False

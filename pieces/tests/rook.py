@@ -161,5 +161,6 @@ class TestRook(unittest.TestCase):
         print('legal_moves', legal_moves)
         print_success()
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,5 +1,7 @@
 from pieces.utilites import PieceColor, PieceName, RookSide
 
+from core.utils import convert_from_algebraic_notation
+
 
 class PieceMove:
     """
@@ -85,6 +87,7 @@ class PieceMove:
         self.piece_name: PieceName | None = None
         self.piece_file: str | None = None
         self.square: str | None = None
+        self.square_pos: tuple[int, int] | None = None
 
         self.coronation_into: PieceName | None = None
 
@@ -169,6 +172,7 @@ class PieceMove:
 
         if self._abr_move == 'O-O' or self._abr_move == 'O-O-O':
             self.square = self.get_castleling_square()
+            self.square_pos = convert_from_algebraic_notation(self.square)
             return
 
         # See if the position of the piece is given as int
@@ -193,6 +197,8 @@ class PieceMove:
                 self.square = self._abr_move[:2]
             else:
                 self.piece_file = self._abr_move[0]
+
+        self.square_pos = convert_from_algebraic_notation(self.square)
 
     def set_coronation(self):
         if self.piece_name == PieceName.PAWN:

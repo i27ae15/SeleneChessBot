@@ -20,6 +20,9 @@ class King(Piece):
         position: tuple[int, int],
         board: 'Board'
     ):
+
+        self.is_in_check: bool = False
+
         super().__init__(
             color,
             position,
@@ -28,13 +31,22 @@ class King(Piece):
             board=board
         )
 
+    def check_if_in_check(self) -> bool:
+        if self.get_pieces_attacking_me():
+            self.is_in_check = True
+        else:
+            self.is_in_check = False
+
+        return self.is_in_check
+
     def get_attacked_squares(
         self,
         show_in_algebraic_notation: bool = False
     ) -> list[str | list[int]]:
         return self._calculate_legal_moves(
             show_in_algebraic_notation=show_in_algebraic_notation,
-            check_capturable_moves=False
+            check_capturable_moves=False,
+            check_for_attacked_squares=False
         )
 
     def castle(
@@ -85,6 +97,7 @@ class King(Piece):
         self,
         show_in_algebraic_notation: bool = False,
         check_capturable_moves: bool = True,
+        check_for_attacked_squares: bool = True,
         **kwargs
     ) -> list[str | list[int, int]]:
 
@@ -110,17 +123,11 @@ class King(Piece):
             show_in_algebraic_notation=False
         )
 
-        algebraic_list = list()
-
-        for move in positions_to_check:
-            row, column = move
-            if self.board.is_position_on_board(position=move):
-                algebraic_list.append(
-                    convert_to_algebraic_notation(row=row, column=column)
-                )
-
         for position in positions_to_check:
             if self.board.is_position_on_board(position):
+                if not check_for_attacked_squares:
+                    legal_moves.append(position)
+                    continue
                 if position not in attacked_squares:
                     if check_capturable_moves:
                         square = [
