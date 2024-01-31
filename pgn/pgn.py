@@ -1,5 +1,9 @@
 from game import Game
 
+from pieces.utilites import PieceColor
+
+from pgn.debugger import debug_before_move_decorator, debug_at_end_of_moves
+
 
 class PGN:
 
@@ -40,15 +44,21 @@ class PGN:
         }
     """
 
-    def __init__(self, moves: str | dict) -> None:
+    def __init__(self, moves: str | dict, debug: bool = False) -> None:
         """
         Initializes the PGN instance by setting up the game state and
         converting the provided moves into PGN format.
 
         :param moves: Chess moves in either string or dictionary format.
+
+        :param debug: If true, the pgn will enter in a debuggin format
+        where more things could be controlled in the console.
+
         """
 
         self.game: Game = Game()
+        self.debug: bool = debug
+        self._wait_for_move: int = False
         self.pgn: str = self.convert_to_pgn(moves)
 
     def convert_to_pgn(self, moves: str | dict) -> str:
@@ -95,33 +105,33 @@ class PGN:
             # the white move and the black move
             white_move, black_move = self._get_white_and_black_moves(move)
 
-            # put the moves into the game and see if they are valid
-            white_is_valid = False
-            black_is_valid = False
-            try:
-                self.game.move_piece(white_move)
-                white_is_valid = True
-                if black_move:
-                    self.game.move_piece(black_move)
-                    black_is_valid = True
-
-                # print('-' * 50)
-                # self.game.board.print_board(show_in_algebraic_notation=True)
-                # print('-' * 50)
-
-            except ValueError:
-                print('-' * 50)
-                print('The moves are not valid')
+            if self.debug:
                 print('move number', index + 1)
 
-                if not white_is_valid:
-                    print('white not valid move', white_move)
-                elif not black_is_valid:
-                    print('black not valid move', black_move)
-
-                # self.game.board.print_board(show_in_algebraic_notation=True)
-                print('-' * 50)
+            if not self._execute_move_with_debug(white_move, PieceColor.WHITE):
+                print(
+                    'White move not valid:',
+                    white_move,
+                    'at move number', index + 1
+                )
                 break
+
+            if black_move:
+                if not self._execute_move_with_debug(
+                    black_move,
+                    PieceColor.BLACK
+                ):
+                    print(
+                        'Black move not valid:',
+                        black_move,
+                        'at move number', index + 1
+                    )
+                    break
+
+        if self.debug:
+            print('PGN is valid')
+            print('Press enter to finish or write a command ')
+            debug_at_end_of_moves(self)
 
         return moves
 
@@ -176,3 +186,11 @@ class PGN:
         except ValueError:
             print('error in move', move)
         return white_move, black_move
+
+    @debug_before_move_decorator
+    def _execute_move_with_debug(self, move: str, color: PieceColor) -> bool:
+        try:
+            self.game.move_piece(move)
+            return True
+        except ValueError:
+            return False

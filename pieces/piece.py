@@ -5,7 +5,10 @@ from core.utils import (
     convert_from_algebraic_notation, convert_to_algebraic_notation
 )
 
-from .utilites import PieceColor, PieceValue, PieceName, RookSide
+from .utilites import (
+    PieceColor, PieceValue, PieceName, RookSide, ATTACKING_ROWS_AND_COLUMNS,
+    ATTACKING_DIAGONALS
+)
 
 if TYPE_CHECKING:
     from board import Board
@@ -290,7 +293,10 @@ class Piece(ABC):
 
         return pieces_under_attack
 
-    def get_pieces_attacking_me(self, move_number: int = None) -> list['Piece']:
+    def get_pieces_attacking_me(
+        self,
+        move_number: int = None
+    ) -> list['Piece']:
         """
         Return a list of piece that are attacking this piece.
 
@@ -301,9 +307,9 @@ class Piece(ABC):
         # TODO: Make possible to connect the board with the game,
         # so we can acces important information like the move number
 
-        if move_number:
-            if self.pieces_attacking_me.get('calculated_at_moved') == move_number:
-                return self.pieces_attacking_me['pieces']
+        # if move_number:
+        #     if self.pieces_attacking_me.get('calculated_at_moved') == move_number:
+        #         return self.pieces_attacking_me['pieces']
 
         pieces_attacking_me: list[Piece] = []
 
@@ -317,21 +323,30 @@ class Piece(ABC):
             # and since both columns and rows has two directions
             # we can check both at the same time
 
-            if isinstance(columns[position][-1], Piece):
-                if columns[position][-1].color != self.color:
-                    pieces_attacking_me.append(columns[position][-1])
+            # for rows and columns we also need to check if the last element
+            # is a rook or a queen
+            if columns[position]:
+                last_pos = columns[position][-1]
+                if isinstance(last_pos, Piece):
+                    if last_pos.color != self.color:
+                        if last_pos.name in ATTACKING_ROWS_AND_COLUMNS:
+                            pieces_attacking_me.append(last_pos)
 
-            if isinstance(rows[position][-1], Piece):
-                if rows[position][-1].color != self.color:
-                    pieces_attacking_me.append(rows[position][-1])
+            if rows[position]:
+                last_pos = rows[position][-1]
+                if isinstance(last_pos, Piece):
+                    if last_pos.color != self.color:
+                        if last_pos.name in ATTACKING_ROWS_AND_COLUMNS:
+                            pieces_attacking_me.append(last_pos)
 
         diagonals = self.scan_diagonals()
         positions = ['d0', 'd1', 'd2', 'd3']
 
         for position in positions:
-            if isinstance(diagonals[position][-1], Piece):
-                if diagonals[position][-1].color != self.color:
-                    pieces_attacking_me.append(diagonals[position][-1])
+            if diagonals[position]:
+                if isinstance(diagonals[position][-1], Piece):
+                    if diagonals[position][-1].color != self.color:
+                        pieces_attacking_me.append(diagonals[position][-1])
 
         # and finally calculate the knights
 

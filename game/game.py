@@ -146,6 +146,19 @@ class Game:
         # manage the game_state
         self._manage_game_state(piece_move)
 
+    def print_game_state(self):
+        """
+        Prints the current state of the game.
+
+        This method prints the current state of the game, including the
+        current player turn, the move history, and the board.
+        """
+
+        print(f'Player turn: {self.player_turn}')
+        print(f'white king in check: {self.board.white_king.is_in_check}')
+        print(f'black king in check: {self.board.black_king.is_in_check}')
+        print(f'is_game_terminated: {self.is_game_terminated}')
+
     def _clean_en_passant_state(self):
         """
         Resets the en passant status of pawns.
@@ -318,9 +331,6 @@ class Game:
         self._manage_check_detection()
         self._manage_game_termination()
 
-        self.white_king_under_check = False
-        self.black_king_under_check = False
-
         # check if the move is valid
         if self.current_turn not in self.moves:
             self.moves[self.current_turn] = []
@@ -330,7 +340,7 @@ class Game:
 
         if self.player_turn == PieceColor.WHITE:
             self.current_turn += 1
-            # TODO: Look for a better way to reset these variables
+
         self.board._attacked_squares_by_white_checked = False
         self.board._attacked_squares_by_black_checked = False
 
@@ -348,14 +358,8 @@ class Game:
             ValueError: If the move has caused a check or checkmate.
         """
 
-        # BUG: At this moment, there is possible that both kings are in check
-
-        king: King = self.board.get_piece(
-            piece_name=PieceName.KING,
-            color=self.player_turn.opposite()
-        )[0]
-
-        king.check_if_in_check()
+        self.board.white_king.check_if_in_check()
+        self.board.black_king.check_if_in_check()
 
     def _manage_game_termination(self) -> bool:
         """
@@ -374,13 +378,19 @@ class Game:
 
         king: King = self.board.get_piece(
             piece_name=PieceName.KING,
-            color=self.player_turn
+            color=self.player_turn.opposite()
         )[0]
 
         if king.is_in_check:
             # check if there are legal moves in the board for the color
-            if not self._color_has_legal_moves(color=self.player_turn):
-                raise ValueError('Checkmate')
+            if not self._color_has_legal_moves(color=king.color):
+                self.is_game_terminated = True
+                print('checkmate by color', self.player_turn)
+
+        # check if there is a stale mate in the board
+        # the minimum pieces that are required for a stalemate are 8
+        elif not king.is_in_check and len(self.board.pieces_on_board) == 8:
+            pass
 
     def _color_has_legal_moves(self, color: PieceColor) -> bool:
         """
@@ -404,7 +414,10 @@ class Game:
             color=color
         )[0]
 
-        if king.calculate_legal_moves():
+        king_moves = king.calculate_legal_moves()
+
+        if king_moves:
+            print('king has legal moves')
             return True
 
         # if the king does not have legal moves, we need to check if there is a
@@ -419,7 +432,7 @@ class Game:
 
         for piece in pieces:
             # look first for a knight or a pawn
-            if piece.piece_name in (PieceName.KNIGHT, PieceName.PAWN):
+            if piece.name in (PieceName.KNIGHT, PieceName.PAWN):
                 # this will mean that the only way to protect the king is to
                 # capture the piece
                 # so we need to check if there is a piece that can capture
@@ -446,6 +459,7 @@ class Game:
                 )
 
                 if pos_to_cap:
+                    print('there is a piece that can capture the attacking piece')
                     return True
 
                 # now we need to check if there is a piece that can be put
@@ -455,17 +469,22 @@ class Game:
                 # column and diagonal and look for a piece
                 # that can move to the position blocking the attacked
 
+                pos_to_block = self._check_if_piece_can_block_attacking_piece(
+                    attacking_piece=piece,
+                    king=king
+                )
+
+                if pos_to_block:
+                    print('there is a piece that can block the attacking piece')
+                    return True
+
     def _check_if_piece_can_capture_attacking_piece(
         self,
         attacking_piece: Piece,
         king: King
     ):
-        pieces = {
-            PieceColor.WHITE: self.board.white_pieces,
-            PieceColor.BLACK: self.board.black_pieces
-        }
 
-        pieces = pieces[king.color]
+        pieces = self.board.pieces_on_board[king.color]
 
         for piece_key in pieces:
             for piece in pieces[piece_key]:
@@ -473,4 +492,76 @@ class Game:
                 if attacking_piece in piece.get_pieces_under_attack():
                     return True
 
+        print('no piece can capture the attacking piece')
+        return False
+
+    def _check_if_piece_can_block_attacking_piece(
+        self,
+        attacking_piece: Piece,
+        king: King
+    ) -> bool:
+
+        # first check if the king is being double attacked
+        # if so, we can not block the attack
+
+        if len(king.pieces_attacking_me['pieces']) > 1:
+            return False
+
+        pieces = self.board.pieces_on_board[king.color]
+
+        # first identify where is the piece that is attacking the king
+        # this means if a row, column or diagonal
+
+        rc_directions = ['d0', 'd1']
+        d_directions = ['d0', 'd1', 'd2', 'd3']
+
+        possible_blocking_squares = []
+
+        if attacking_piece.row == king.row:
+            # here this means the king and the attacking piece are
+            # in the same row, so the attacking square can be either
+            # a rook or a queen, let's scan the row and get for the
+            # possible squares where another piece can go to blcok
+
+            row = king.scan_row()
+
+            for dir in rc_directions:
+                last_pos = row[dir][-1]
+                if last_pos == attacking_piece:
+                    if row[dir]:
+                        possible_blocking_squares = row[dir]
+                        break
+
+        elif attacking_piece.column == king.column:
+
+            column = king.scan_column()
+
+            for dir in rc_directions:
+                last_pos = column[dir][-1]
+                if last_pos == attacking_piece:
+                    if column[dir]:
+                        possible_blocking_squares = column[dir]
+                        break
+
+        else:
+
+            # at this point we know that the piece is in a diagonal
+
+            diagonal = king.scan_diagonals()
+
+            for dir in d_directions:
+                last_pos = diagonal[dir][-1]
+                if last_pos == attacking_piece:
+                    if diagonal[dir]:
+                        possible_blocking_squares = diagonal[dir]
+                        break
+
+        for piece_key in pieces:
+            for piece in pieces[piece_key]:
+                piece: Piece
+                for possible_square in possible_blocking_squares:
+                    if possible_square in piece.calculate_legal_moves():
+                        return True
+
+        print('no piece can block the attacking piece')
         return False

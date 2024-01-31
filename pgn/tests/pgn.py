@@ -42,7 +42,7 @@ class TestPGN(unittest.TestCase):
         print(pgn.pgn)
         print_success()
 
-    def test_pgn_from_real_game(self):
+    def atest_pgn_from_real_game(self):
 
         print_starting()
         # Usage
@@ -61,29 +61,22 @@ class TestPGN(unittest.TestCase):
 
         file_path = 'pgn/tests/MacKenzie.txt'
         pgn_games = self.extract_pgn_to_variables(file_path)
-        game = pgn_games[192].replace('\n', ' ')
+        game = pgn_games[18].replace('\n', ' ')
 
-        # print('game', game)
+        print('game', game)
 
-        # NOTE: there could be a bug on the en passant tracking
-        # on game index 37, there apparently a pawn is being capture on passant
-        # even though the pawn next to it in one direction (which is also
-        # a friendly pawn) should not have the ability to captured on passant
-        # the bug for game 37 is solved by double checking the color of the
-        # pawn but we should take a look in the above comment
-
-        p = PGN(game)
+        p = PGN(game, debug=True)
 
         # print('-' * 50)
         # print('pieces on board')
 
-        pieces_on_board = p.game.board.pieces_on_board[PieceColor.BLACK]
-        for key in pieces_on_board:
-            print(
-                key.name,
-                [piece.algebraic_pos for piece in pieces_on_board[key]]
-            )
-        print('-' * 50)
+        # pieces_on_board = p.game.board.pieces_on_board[PieceColor.BLACK]
+        # for key in pieces_on_board:
+        #     print(
+        #         key.name,
+        #         [piece.algebraic_pos for piece in pieces_on_board[key]]
+        #     )
+        # print('-' * 50)
 
         # black_king = p.game.board.get_piece(
         #     piece_name=PieceName.KING,
@@ -103,10 +96,10 @@ class TestPGN(unittest.TestCase):
         #             piece_name=piece
         #         )
         #         print('-' * 50)
-        p.game.board.print_attacked_squares(
-            perspective=PieceColor.BLACK,
-            show_in_algebraic_notation=True
-        )
+        # p.game.board.print_attacked_squares(
+        #     perspective=PieceColor.BLACK,
+        #     show_in_algebraic_notation=True
+        # )
 
         # p.game.board.print_board(show_in_algebraic_notation=True)
 

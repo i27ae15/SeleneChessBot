@@ -198,6 +198,34 @@ class Board:
         if create_initial_board_set_up:
             self.create_initial_board_set_up()
 
+    @property
+    def white_king(self) -> King:
+        """
+        Return the white king piece.
+
+        Returns:
+            King: The white king piece.
+        """
+
+        return self.get_piece(
+            piece_name=PieceName.KING,
+            color=PieceColor.WHITE
+        )[0]
+
+    @property
+    def black_king(self) -> King:
+        """
+        Return the black king piece.
+
+        Returns:
+            King: The black king piece.
+        """
+
+        return self.get_piece(
+            piece_name=PieceName.KING,
+            color=PieceColor.BLACK
+        )[0]
+
     @staticmethod
     def is_position_on_board(
         position: tuple[int, int],
@@ -455,13 +483,15 @@ class Board:
             list[tuple[int, int]]: A list of tuples representing legal moves.
         """
 
-        legal_moves = []
+        pieces = self.pieces_on_board[color]
 
-        for key in self.pieces_on_board[color]:
-            pieces = self.pieces_on_board[color][key]
-            for piece in pieces:
+        legal_moves = dict()
+
+        for piece_key in pieces:
+            for piece in pieces[piece_key]:
                 piece: Piece
-                legal_moves += piece.calculate_legal_moves(
+                name = f'{piece.name.value}_{piece.algebraic_pos}'
+                legal_moves[name] = piece.calculate_legal_moves(
                     show_in_algebraic_notation=show_in_algebraic_notation
                 )
 

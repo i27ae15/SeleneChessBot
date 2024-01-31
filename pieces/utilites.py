@@ -47,3 +47,13 @@ NO_TRASPASS_KING_PIECES = [
     PieceName.KING,
     PieceName.KNIGHT
 ]
+
+ATTACKING_ROWS_AND_COLUMNS = [
+    PieceName.ROOK,
+    PieceName.QUEEN,
+]
+
+ATTACKING_DIAGONALS = [
+    PieceName.BISHOP,
+    PieceName.QUEEN,
+]
