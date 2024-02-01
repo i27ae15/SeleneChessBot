@@ -186,6 +186,9 @@ class Board:
             }
         }
 
+        self.n_white_pieces: int = 16
+        self.n_black_pieces: int = 16
+
         self._attacked_squares: dict[PieceColor] = {
             PieceColor.WHITE: list(),
             PieceColor.BLACK: list()
@@ -261,6 +264,19 @@ class Board:
             return False
 
         return True
+
+    def decrement_piece_count(self, color: PieceColor):
+        """
+        Decrement the count of pieces for a given color.
+
+        Parameters:
+            color (PieceColor): The color for which to decrement the count.
+        """
+
+        if color == PieceColor.WHITE:
+            self.n_white_pieces -= 1
+        elif color == PieceColor.BLACK:
+            self.n_black_pieces -= 1
 
     def add_piece(
         self,
@@ -1084,6 +1100,7 @@ class Board:
             piece.capture(captured_by=piece)
 
         # delete the piece from the pieces_on_board dictionary
+        self.decrement_piece_count(piece.color)
         self.pieces_on_board[piece.color][piece.name].remove(piece)
 
     def __str__(self) -> str:

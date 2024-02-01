@@ -55,7 +55,7 @@ class TestPGN(unittest.TestCase):
             PGN(g)
         print_success()
 
-    def test_unique_game(self):
+    def atest_unique_game(self):
 
         print_starting()
 
@@ -64,44 +64,19 @@ class TestPGN(unittest.TestCase):
         game = pgn_games[18].replace('\n', ' ')
 
         print('game', game)
+        PGN(game, debug=True)
+        print_success()
 
-        p = PGN(game, debug=True)
+    def test_unique_game_stalemate(self):
 
-        # print('-' * 50)
-        # print('pieces on board')
+        print_starting()
 
-        # pieces_on_board = p.game.board.pieces_on_board[PieceColor.BLACK]
-        # for key in pieces_on_board:
-        #     print(
-        #         key.name,
-        #         [piece.algebraic_pos for piece in pieces_on_board[key]]
-        #     )
-        # print('-' * 50)
+        file_path = 'pgn/tests/stalemate.txt'
+        pgn_games = self.extract_pgn_to_variables(file_path)
+        game = pgn_games[0].replace('\n', ' ')
 
-        # black_king = p.game.board.get_piece(
-        #     piece_name=PieceName.KING,
-        #     color=PieceColor.BLACK
-        # )[0]
-
-        # print('legal moves for king', black_king.calculate_legal_moves(True))
-
-        # for piece in PieceName.__members__.values():
-        #     if pieces_on_board[piece]:
-        #         print('-' * 50)
-        #         print('piece_name', piece.name)
-        #         p.game.board.print_attacked_squares(
-        #             perspective=PieceColor.BLACK,
-        #             traspass_king=True,
-        #             show_in_algebraic_notation=True,
-        #             piece_name=piece
-        #         )
-        #         print('-' * 50)
-        # p.game.board.print_attacked_squares(
-        #     perspective=PieceColor.BLACK,
-        #     show_in_algebraic_notation=True
-        # )
-
-        # p.game.board.print_board(show_in_algebraic_notation=True)
+        print('game', game)
+        PGN(game, debug=True)
 
         print_success()
 

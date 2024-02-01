@@ -70,7 +70,6 @@ class Debugger:
             'pawk': GetPiecesAttackingWhiteKingCommand(),
             'wlm': GetWhiteLegalMovesCommand(),
             'blm': GetBlackLegalMovesCommand(),
-            # Map other commands
         }
 
     def execute_command(self, command_key):

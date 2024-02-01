@@ -106,8 +106,8 @@ class PGN:
             white_move, black_move = self._get_white_and_black_moves(move)
 
             if self.debug:
-                print('move number', index + 1)
-
+                _str = f'{index + 1}. {white_move} {black_move}'
+                print(_str)
             if not self._execute_move_with_debug(white_move, PieceColor.WHITE):
                 print(
                     'White move not valid:',
@@ -188,7 +188,7 @@ class PGN:
         return white_move, black_move
 
     @debug_before_move_decorator
-    def _execute_move_with_debug(self, move: str, color: PieceColor) -> bool:
+    def _execute_move_with_debug(self, move: str, *args) -> bool:
         try:
             self.game.move_piece(move)
             return True

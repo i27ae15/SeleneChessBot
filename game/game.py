@@ -383,16 +383,35 @@ class Game:
 
         if king.is_in_check:
             # check if there are legal moves in the board for the color
-            if not self._color_has_legal_moves(color=king.color):
+            if not self._color_has_legal_moves(
+                color=king.color,
+                is_king_in_check=True
+            ):
                 self.is_game_terminated = True
-                print('checkmate by color', self.player_turn)
 
         # check if there is a stale mate in the board
-        # the minimum pieces that are required for a stalemate are 8
-        elif not king.is_in_check and len(self.board.pieces_on_board) == 8:
-            pass
+        # the minimum pieces that are required for a stalemate are 8]
 
-    def _color_has_legal_moves(self, color: PieceColor) -> bool:
+        n_pieces = [
+            self.board.n_white_pieces,
+            self.board.n_black_pieces
+        ]
+
+        n_pieces = n_pieces[king.color.value]
+
+        if not king.is_in_check and n_pieces <= 8:
+            if not self._color_has_legal_moves(
+                color=king.color,
+                is_king_in_check=False
+            ):
+                self.is_game_terminated = True
+                print('stalemate found')
+
+    def _color_has_legal_moves(
+        self,
+        color: PieceColor,
+        is_king_in_check: bool
+    ) -> bool:
         """
         Checks if a color has legal moves.
 
@@ -417,8 +436,28 @@ class Game:
         king_moves = king.calculate_legal_moves()
 
         if king_moves:
-            print('king has legal moves')
             return True
+
+        if is_king_in_check:
+            return self._check_legal_moves_when_king_is_in_check(king)
+
+        elif not is_king_in_check:
+            return self._check_legal_moves_when_king_is_not_in_check(color)
+
+    def _check_legal_moves_when_king_is_not_in_check(
+        self,
+        color: PieceColor
+    ):
+        for piece_key in self.board.pieces_on_board[color]:
+            for piece in self.board.pieces_on_board[color][piece_key]:
+                piece: Piece
+                if piece.calculate_legal_moves():
+                    return True
+
+    def _check_legal_moves_when_king_is_in_check(
+        self,
+        king: King
+    ) -> bool:
 
         # if the king does not have legal moves, we need to check if there is a
         # piece that can protect the king from being attacked
@@ -443,9 +482,10 @@ class Game:
                     king=king
                 )
 
-                if not pos_to_cap:
+                if pos_to_cap:
                     # this mean checkmate
-                    return False
+                    # this was not pos and return False
+                    return True
 
             else:
                 # this mean that the attacking piece is a bishop, a rook or a
@@ -459,7 +499,6 @@ class Game:
                 )
 
                 if pos_to_cap:
-                    print('there is a piece that can capture the attacking piece')
                     return True
 
                 # now we need to check if there is a piece that can be put
@@ -475,8 +514,9 @@ class Game:
                 )
 
                 if pos_to_block:
-                    print('there is a piece that can block the attacking piece')
                     return True
+
+        return False
 
     def _check_if_piece_can_capture_attacking_piece(
         self,
@@ -492,7 +532,6 @@ class Game:
                 if attacking_piece in piece.get_pieces_under_attack():
                     return True
 
-        print('no piece can capture the attacking piece')
         return False
 
     def _check_if_piece_can_block_attacking_piece(
@@ -526,6 +565,8 @@ class Game:
             row = king.scan_row()
 
             for dir in rc_directions:
+                if not row[dir]:
+                    continue
                 last_pos = row[dir][-1]
                 if last_pos == attacking_piece:
                     if row[dir]:
@@ -537,6 +578,8 @@ class Game:
             column = king.scan_column()
 
             for dir in rc_directions:
+                if not column[dir]:
+                    continue
                 last_pos = column[dir][-1]
                 if last_pos == attacking_piece:
                     if column[dir]:
@@ -550,6 +593,8 @@ class Game:
             diagonal = king.scan_diagonals()
 
             for dir in d_directions:
+                if not diagonal[dir]:
+                    continue
                 last_pos = diagonal[dir][-1]
                 if last_pos == attacking_piece:
                     if diagonal[dir]:
@@ -563,5 +608,4 @@ class Game:
                     if possible_square in piece.calculate_legal_moves():
                         return True
 
-        print('no piece can block the attacking piece')
         return False
