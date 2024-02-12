@@ -1,6 +1,9 @@
 from pieces.utilites import PieceColor, PieceName, RookSide
+from pieces import Piece
 
 from core.utils import convert_from_algebraic_notation
+
+from board import Board
 
 
 class PieceMove:
@@ -61,7 +64,12 @@ class PieceMove:
             information.
         """
 
-    def __init__(self, move: str, player_turn: PieceColor) -> None:
+    def __init__(
+        self,
+        move: str,
+        player_turn: PieceColor,
+        board: Board,
+    ) -> None:
         """
         Initializes the PieceMove instance with the given move and player's
         turn.
@@ -88,6 +96,9 @@ class PieceMove:
         self.piece_file: str | None = None
         self.square: str | None = None
         self.square_pos: tuple[int, int] | None = None
+
+        self.is_capture: bool = False
+        self.board: Board = board
 
         self.coronation_into: PieceName | None = None
 
@@ -209,6 +220,18 @@ class PieceMove:
                         self.coronation_into = piece_name
                         return
 
+    def set_is_capture(self):
+
+        piece = self.board.get_square_or_piece(
+            row=self.square_pos[0],
+            column=self.square_pos[1],
+        )
+
+        if isinstance(piece, Piece):
+            if piece.color.value != self.player_turn.value:
+                self.is_capture = True
+            return
+
     def set_move_information(self):
         """
         Parses the move string to extract and set detailed move information.
@@ -231,6 +254,8 @@ class PieceMove:
         self.set_square_and_pos()
 
         self.set_coronation()
+
+        self.set_is_capture()
 
     def __str__(self):
         print('-' * 50)

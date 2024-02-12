@@ -57,6 +57,21 @@ class GetBlackLegalMovesCommand(DebugCommand):
         print(context.game.board.get_legal_moves(PieceColor.BLACK, True))
 
 
+class GetMovesDoneCommand(DebugCommand):
+    def execute(self, context):
+        print(context.game.moves)
+
+
+class GetPiecesOnBoardCommand(DebugCommand):
+    def execute(self, context):
+        print(context.game.board.pieces_on_board)
+
+
+class GetBoardStatesCommand(DebugCommand):
+    def execute(self, context):
+        print(context.game.board_states)
+
+
 class Debugger:
     def __init__(self, game):
         self.game = game
@@ -70,6 +85,9 @@ class Debugger:
             'pawk': GetPiecesAttackingWhiteKingCommand(),
             'wlm': GetWhiteLegalMovesCommand(),
             'blm': GetBlackLegalMovesCommand(),
+            'moves': GetMovesDoneCommand(),
+            'pieces': GetPiecesOnBoardCommand(),
+            'bst': GetBoardStatesCommand(),
         }
 
     def execute_command(self, command_key):

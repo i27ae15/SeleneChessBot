@@ -1,7 +1,8 @@
+import random
 
 from board import Board
 
-from pieces.utilites import PieceColor, PieceName
+from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
 from .piece_move import PieceMove
@@ -80,6 +81,8 @@ class Game:
 
         self.board: Board = Board()
         self.moves: dict = {}
+        self.moves_for_f_rule: int = 0
+        self.board_states: dict[str] = dict()
 
         """
         The dict will look like this:
@@ -101,6 +104,10 @@ class Game:
         self.black_possible_pawn_enp: Pawn | None = None
 
         self.is_game_terminated: bool = False
+        self.is_game_drawn: bool = False
+        self.zobrist_keys: dict = None
+
+        self._initialize_zobrist_keys()
 
     def move_piece(self, move: str) -> None:
         """
@@ -122,7 +129,13 @@ class Game:
             the current game state.
         """
 
-        piece_move = PieceMove(move, self.player_turn)
+        piece_move = PieceMove(
+            move=move,
+            player_turn=self.player_turn,
+            board=self.board
+        )
+
+        self._add_board_state()
 
         pieces = self.board.pieces_on_board[self.player_turn]
         piece: Piece = self._get_movable_piece(
@@ -132,6 +145,7 @@ class Game:
 
         # move the piece
         # manage the en passant pawns
+
         self._manage_en_passant_pawns(piece, piece_move)
 
         self._move_piece(piece, piece_move)
@@ -143,8 +157,96 @@ class Game:
             new_position=piece_move.square
         )
 
+        self._manage_fifty_moves_rule(piece_move)
+
         # manage the game_state
         self._manage_game_state(piece_move)
+
+    def _initialize_zobrist_keys(self):
+
+        if self.zobrist_keys:
+            return
+
+        keys = {}
+        pieces = ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k']
+        for piece in pieces:
+            keys[piece] = {}
+            for row in range(8):
+                for column in range(8):
+                    keys[piece][(row, column)] = random.getrandbits(64)
+
+        keys['castling'] = {
+            (PieceColor.WHITE, RookSide.KING): random.getrandbits(64),
+            (PieceColor.WHITE, RookSide.QUEEN): random.getrandbits(64),
+            (PieceColor.BLACK, RookSide.KING): random.getrandbits(64),
+            (PieceColor.BLACK, RookSide.QUEEN): random.getrandbits(64)
+        }
+        keys['en_passant'] = {
+            column: random.getrandbits(64) for column in range(8)
+        }  # Assuming column index for en passant
+        keys['side'] = random.getrandbits(64)
+
+        self.zobrist_keys = keys
+
+    def compute_board_hash(
+        self,
+        board: Board,
+        current_side: PieceColor,
+        castling_rights: dict,
+        en_passant_column: dict
+    ) -> int:
+
+        board_hash = 0
+
+        # Iterate through each piece on the board and XOR its key
+        for row in range(8):
+            for column in range(8):
+                piece = board.get_square_or_piece(row, column)
+                if isinstance(piece, Piece):
+                    piece: Piece
+                    piece_key = self.zobrist_keys[piece.name.value[1]][(row, column)]
+                    board_hash ^= piece_key
+
+        # Include castling rights
+        for side, rights in castling_rights.items():
+            for right, enabled in rights.items():
+                if enabled:
+                    board_hash ^= self.zobrist_keys['castling'][(side, right)]
+
+        # Include en passant possibility
+        if en_passant_column is not None:
+            board_hash ^= self.zobrist_keys['en_passant'][en_passant_column]
+
+        # Include the side to move
+        if current_side == PieceColor.BLACK:
+            board_hash ^= self.zobrist_keys['side']
+
+        return board_hash
+
+    def _add_board_state(self):
+
+        en_passant_column = (
+            self.black_possible_pawn_enp or self.white_possible_pawn_enp
+        )
+
+        if en_passant_column:
+            en_passant_column = en_passant_column.column
+
+        board_hash = self.compute_board_hash(
+            current_side=self.player_turn,
+            board=self.board,
+            castling_rights=self.board.castleling_rights,
+            en_passant_column=en_passant_column
+        )
+
+        if board_hash in self.board_states:
+            st = self.board_states[board_hash]
+            self.board_states[board_hash] = st + 1
+            if st + 1 >= 3:
+                self.is_game_terminated = True
+                self.is_game_drawn = True
+        else:
+            self.board_states[board_hash] = 1
 
     def print_game_state(self):
         """
@@ -158,6 +260,7 @@ class Game:
         print(f'white king in check: {self.board.white_king.is_in_check}')
         print(f'black king in check: {self.board.black_king.is_in_check}')
         print(f'is_game_terminated: {self.is_game_terminated}')
+        print(f'moves_for_f_rule: {self.moves_for_f_rule}')
 
     def _clean_en_passant_state(self):
         """
@@ -232,6 +335,30 @@ class Game:
 
         if isinstance(piece, Pawn) and piece_move.coronation_into:
             piece.coronate(piece_move.coronation_into)
+
+    def _manage_fifty_moves_rule(self, piece_move: PieceMove):
+        """
+        Manages the 50 moves rule.
+
+        This method manages the 50 moves rule, which states that a game is
+        drawn if no capture has been made and no pawn has been moved in the
+        last 50 moves. It tracks the number of moves since the last capture
+        or pawn move and resets the counter if either of these conditions are
+        met.
+
+        Parameters:
+            piece_move (PieceMove): The move that has just been executed.
+        """
+
+        if piece_move.piece_name == PieceName.PAWN:
+            self.moves_for_f_rule = 0
+        elif piece_move.is_capture:
+            self.moves_for_f_rule = 0
+        else:
+            self.moves_for_f_rule += 1
+
+        if self.moves_for_f_rule >= 100:
+            self.is_game_terminated = True
 
     def _get_movable_piece(
         self,
@@ -405,7 +532,6 @@ class Game:
                 is_king_in_check=False
             ):
                 self.is_game_terminated = True
-                print('stalemate found')
 
     def _color_has_legal_moves(
         self,
