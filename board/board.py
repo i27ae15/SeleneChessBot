@@ -499,10 +499,6 @@ class Board:
             list[tuple[int, int]]: A list of tuples representing legal moves.
         """
 
-        # BUG: When the king is in check, the legal moves should be calculated based on that
-        # right now, is the king is under check, this function allows to move other pieces
-        # leaving the king to die
-
         pieces = self.pieces_on_board[color]
 
         legal_moves = dict()

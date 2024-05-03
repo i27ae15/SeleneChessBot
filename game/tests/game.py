@@ -257,20 +257,20 @@ class TestGame(unittest.TestCase):
 
         print_starting()
 
-        self.game.move_piece('Pe4')
-        self.game.move_piece('Pe5')
+        # self.game.move_piece('Pe4')
+        # self.game.move_piece('Pe5')
 
-        self.game.move_piece('Qh5')
-        self.game.move_piece('Pa6')
+        # self.game.move_piece('Qh5')
+        # self.game.move_piece('Pa6')
 
-        self.game.move_piece('Qe5')
+        # self.game.move_piece('Qe5')
 
-        self.game.print_game_state()
-        self.game.board.print_board()
+        # self.game.print_game_state()
+        # self.game.board.print_board()
 
         l = self.game.board.get_legal_moves(
             PieceColor.BLACK,
-            False
+            True
         )
         print(l)
 
