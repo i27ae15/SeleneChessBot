@@ -5,6 +5,8 @@ from board import Board
 from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
+from core.debugger import control_state_manager
+
 from .piece_move import PieceMove
 
 
@@ -83,6 +85,7 @@ class Game:
         self.moves: dict = {}
         self.moves_for_f_rule: int = 0
         self.board_states: dict[str] = dict()
+        self.debug: bool = False
 
         """
         The dict will look like this:
@@ -108,6 +111,20 @@ class Game:
         self.zobrist_keys: dict = None
 
         self._initialize_zobrist_keys()
+
+    def start(self) -> None:
+
+        # There is a bug that allows to move the pieces when the king is in
+        # check
+
+        while not self.is_game_terminated:
+            text: str = control_state_manager(self)
+            try:
+                self.move_piece(text)
+            except ValueError:
+                print('Invalid move')
+            except Exception as e:
+                print(e)
 
     def move_piece(self, move: str) -> None:
         """
@@ -135,13 +152,15 @@ class Game:
             board=self.board
         )
 
-        self._add_board_state()
-
         pieces = self.board.pieces_on_board[self.player_turn]
         piece: Piece = self._get_movable_piece(
             piece_move=piece_move,
             pieces=pieces[piece_move.piece_name]
         )
+        self._add_board_state()
+
+        # here, once we know the piece, we can take the file
+        piece_move.piece_file = piece.algebraic_pos[0]
 
         # move the piece
         # manage the en passant pawns
@@ -204,7 +223,9 @@ class Game:
                 piece = board.get_square_or_piece(row, column)
                 if isinstance(piece, Piece):
                     piece: Piece
-                    piece_key = self.zobrist_keys[piece.name.value[1]][(row, column)]
+                    piece_key = self.zobrist_keys[piece.name.value[1]][
+                        (row, column)
+                    ]
                     board_hash ^= piece_key
 
         # Include castling rights
@@ -260,6 +281,7 @@ class Game:
         print(f'white king in check: {self.board.white_king.is_in_check}')
         print(f'black king in check: {self.board.black_king.is_in_check}')
         print(f'is_game_terminated: {self.is_game_terminated}')
+        print(f'is_game_drawn: {self.is_game_drawn}')
         print(f'moves_for_f_rule: {self.moves_for_f_rule}')
 
     def _clean_en_passant_state(self):
@@ -514,6 +536,7 @@ class Game:
                 color=king.color,
                 is_king_in_check=True
             ):
+                print('the game is terminating here')
                 self.is_game_terminated = True
 
         # check if there is a stale mate in the board

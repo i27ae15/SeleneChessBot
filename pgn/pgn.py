@@ -2,7 +2,7 @@ from game import Game
 
 from pieces.utilites import PieceColor
 
-from pgn.debugger import debug_before_move_decorator, debug_at_end_of_moves
+from core.debugger import debug_before_move_decorator, debug_at_end_of_moves
 
 
 class PGN:

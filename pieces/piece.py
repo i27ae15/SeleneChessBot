@@ -515,6 +515,39 @@ class Piece(ABC):
             'd3': direction_3
         }
 
+    def scan_direction_for_piece_at_end(
+        self,
+        direction: int,
+        piece_to_find: 'Piece',
+    ) -> list[tuple[int, int], str]:
+
+        """
+        This will look if, at the end of the direction, there is the instance of the
+        piece_to_fiend
+
+        direction = 0 -> column
+        direction = 1 -> row
+        direction = 2 -> diagonal
+        direction = 3 -> column & row
+        direction = 4 -> diagonal & row & column
+        """
+
+        directions_to_scan = {
+            0: [self.scan_column],
+            1: [self.scan_row],
+            2: [self.scan_diagonals],
+            3: [self.scan_column, self.scan_row],
+            4: [self.scan_column, self.scan_row, self.scan_diagonals]
+        }
+
+        for dir in directions_to_scan[direction]:
+            dirs: dict = dir()
+            for key in dirs:
+                direction: list = dirs[key]
+                if direction:
+                    if piece_to_find == direction[-1]:
+                        return direction
+
     def calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
@@ -540,10 +573,64 @@ class Piece(ABC):
             show_in_algebraic_notation=show_in_algebraic_notation,
         )
 
+        possible_legal_moves = []
+
         if self.name == PieceName.KING:
             return piece_legal_moves
 
+        # check if the king is under attack
+
         moves_dict, direction = self._check_if_friendly_king_is_next_to_piece()
+
+        king: Piece = self.board.get_piece(
+            piece_name=PieceName.KING,
+            color=self.color
+        )[0]
+        if king.check_if_in_check():
+
+            # Check first if there is any move that the piece can block the
+            # Enemy piece of attacking the king
+            pieces: list[Piece] = king.pieces_attacking_me['pieces']
+
+            # if there is more than one piece doing this, then, the king is in
+            # double check, meaning that the king must move
+            if len(pieces) > 1:
+                return []
+
+            # this piece could be a Rook, a Bishop or a Queen
+            directions_to_scan: dict = {
+                PieceName.BISHOP: 2,
+                PieceName.ROOK: 3,
+                PieceName.QUEEN: 4,
+            }
+            piece: Piece = pieces[0]
+
+            # we now need to get the direction from where the piece is
+            # attacking the king
+
+            if piece.name in directions_to_scan.keys():
+                direction = directions_to_scan[piece.name]
+                direction = king.scan_direction_for_piece_at_end(
+                    direction=direction,
+                    piece_to_find=piece,
+                )
+
+            for move in piece_legal_moves:
+                if isinstance(move, Piece):
+                    if move == piece:
+                        possible_legal_moves.append(move)
+                else:
+
+                    if move in direction:
+                        possible_legal_moves.append(move)
+
+                    if convert_to_algebraic_notation(*move) in direction:
+                        possible_legal_moves.append(move)
+
+                    if move == piece.position or move == piece.algebraic_pos:
+                        possible_legal_moves.append(move)
+
+            return possible_legal_moves
 
         if not moves_dict:
             return piece_legal_moves
@@ -638,9 +725,9 @@ class Piece(ABC):
     ) -> tuple[tuple[int, int], int] | bool:
         """
         Check if the friendly king is in the same diagonal, row or column as
-        the king
+        the piece
 
-        this will return the direction where the king is localted, and a integer
+        this will return the direction where the king is located, and a integer
         that represent the direction, the directions are the following:
 
         0 -> column

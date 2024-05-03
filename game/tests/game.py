@@ -207,6 +207,8 @@ class TestGame(unittest.TestCase):
 
         self.game.move_piece('Pe4')
 
+        print_success()
+
     def test_capture_en_passant(self):
 
         print_starting()
@@ -231,6 +233,59 @@ class TestGame(unittest.TestCase):
         self.game.board.print_board()
 
         print_success()
+
+    def test_moving_into_check(self):
+
+        print_starting()
+
+        self.game.move_piece('Pe4')
+        self.game.move_piece('Pe5')
+
+        self.game.move_piece('Qh5')
+        self.game.move_piece('Nc6')
+
+        self.game.move_piece('Qf7')
+        self.game.move_piece('Pa5')
+
+        self.game.move_piece('Ph4')
+
+        self.game.board.print_board()
+
+        print_success()
+
+    def test_check_state(self):
+
+        print_starting()
+
+        self.game.move_piece('Pe4')
+        self.game.move_piece('Pe5')
+
+        self.game.move_piece('Qh5')
+        self.game.move_piece('Pa6')
+
+        self.game.move_piece('Qe5')
+
+        self.game.print_game_state()
+        self.game.board.print_board()
+
+        l = self.game.board.get_legal_moves(
+            PieceColor.BLACK,
+            False
+        )
+        print(l)
+
+        print_success()
+
+
+class TestSelfChessGame(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.game: Game = Game()
+        return super().setUp()
+
+    def test_start(self):
+
+        self.game.start()
 
 
 if __name__ == '__main__':
