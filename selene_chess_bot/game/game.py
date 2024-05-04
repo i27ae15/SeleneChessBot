@@ -7,7 +7,8 @@ from pieces import Piece, Pawn, King
 
 from core.debugger import control_state_manager
 
-from .piece_move import PieceMove
+from game.piece_move import PieceMove
+from game.models import GameState
 
 
 class Game:
@@ -110,6 +111,7 @@ class Game:
         self.is_game_drawn: bool = False
         self.zobrist_keys: dict = None
         self.current_state: int = None
+        self.current_game_state: GameState = None
 
         self.game_status: dict = {
             PieceColor.WHITE: {
@@ -195,7 +197,7 @@ class Game:
         piece_placement = "/".join(fen_rows)
 
         # Forming the complete FEN string
-        fen = f"{piece_placement} {active_color} {castling_rights} {en_passant_target} {halfmove_clock} {fullmove_number}"
+        fen = f" {piece_placement} {active_color} {castling_rights} {en_passant_target} {halfmove_clock} {fullmove_number}"
         return fen
 
     def generate_current_fen(self) -> str:
@@ -305,6 +307,8 @@ class Game:
 
         self._add_board_state()
 
+        self._manage_board_state()
+
     def compute_board_hash(
         self,
         board: Board,
@@ -356,6 +360,28 @@ class Game:
         print(f'is_game_terminated: {self.is_game_terminated}')
         print(f'is_game_drawn: {self.is_game_drawn}')
         print(f'moves_for_f_rule: {self.moves_for_f_rule}')
+
+    def _manage_board_state(self):
+
+        # Check if this state exists in the database
+
+        game_state = GameState.objects.filter(state=self.current_state)
+
+        if not game_state:
+            game_state = GameState.objects.create(
+                state=self.current_state,
+                fen=self.generate_current_fen(),
+                is_game_terminated=self.is_game_terminated,
+                white_value=self.white_value,
+                black_value=self.black_value,
+                parent=self.current_game_state
+            )
+
+        else:
+            game_state = game_state[0]
+            game_state.increment_visits()
+
+        self.current_game_state = game_state
 
     def _initialize_zobrist_keys(self):
 

@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 
@@ -6,32 +8,30 @@ class GameState(models.Model):
     """
     This also should act as the node in the AlphaZero tree.
     """
-
-    __tablename__ = 'game_state'
-
-    # Relationship to self
-    parent = relationship(
+    parent: 'GameState' = models.ForeignKey(
         'GameState',
-        remote_side=[id],
-        back_populates='children'
-    )
-    children = relationship(
-        'GameState',
-        back_populates='parent'
+        on_delete=models.CASCADE,
+        related_name='children',
+        null=True
     )
 
-    id: str = Column(
-        UUID(as_uuid=True),
+    id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
-        nullable=False
+        editable=False
     )
 
-    player_turn: str = Column(Integer, nullable=False)
-    is_game_terminated: str = Column(Boolean, nullable=False)
+    state: int = models.FloatField()
 
-    white_value: float = Column(Float, nullable=False)
-    black_value: float = Column(Float, nullable=False)
+    is_game_terminated: bool = models.BooleanField()
 
-    castleling_rights: dict = Column(JSON, nullable=False)
-    fen: str = Column(String, nullable=False)
+    white_value: float = models.FloatField()
+    black_value: float = models.FloatField()
+
+    fen: str = models.CharField(max_length=255)
+
+    num_visits: int = models.IntegerField(default=1)
+
+    def increment_visits(self):
+        self.num_visits += 1
+        self.save()

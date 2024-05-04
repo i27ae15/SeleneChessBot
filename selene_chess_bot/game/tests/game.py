@@ -1,6 +1,6 @@
 import unittest
 
-from game import Game
+from game.game import Game
 
 from pieces.utilites import PieceColor
 

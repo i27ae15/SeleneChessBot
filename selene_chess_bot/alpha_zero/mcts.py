@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from game import Game
+from game.game import Game
 
 
 class Node:
