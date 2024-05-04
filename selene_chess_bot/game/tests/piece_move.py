@@ -1,7 +1,7 @@
 # FILEPATH: /c:/Users/andre/Desktop/selene_chess/tests/test_piece_move.py
 import unittest
 
-from game.piece_move import PieceMove
+from selene_chess_bot.game.piece_move import PieceMove
 
 from pieces.utilites import PieceColor, PieceName
 

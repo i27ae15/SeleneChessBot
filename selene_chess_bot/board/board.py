@@ -92,7 +92,7 @@ class Board:
         update_board(old_row, old_column, new_row, new_column, piece,
             is_en_passant=False): Updates the board state after a move.
 
-        _get_board_representation(
+        get_board_representation(
             special_color_on=None,
             special_color=Fore.RED
         ):
@@ -713,7 +713,7 @@ class Board:
             piece occupying it.
         """
 
-        board_representation = self._get_board_representation(
+        board_representation = self.get_board_representation(
             special_color=special_color,
             special_color_on=special_color_on,
             show_in_algebraic_notation=show_in_algebraic_notation
@@ -765,9 +765,12 @@ class Board:
         self.board[old_row][old_column] = None
         self.board[new_row][new_column] = piece
 
-    def _get_board_representation(
+    def get_board_representation(
         self,
+        reverse: bool = False,
+        use_colors: bool = True,
         special_color: str = Fore.RED,
+        upper_case_diff: bool = False,
         show_in_algebraic_notation: bool = False,
         special_color_on: tuple[tuple[int, int]] | None = None,
     ) -> list[list[str]]:
@@ -788,6 +791,11 @@ class Board:
             special_color (str): The color code (ANSI escape code) to use for
                 highlighting. Default is Fore.RED.
 
+            use_colors (bool): Whether to use ANSI color codes for the output.
+
+            upper_case_diff (bool): Whether to use uppercase for white pieces
+            and lowercase for black pieces.
+
         Returns:
             list[list[str]]: A 2D list representing the board, where each
             element is a string representing a square.
@@ -795,7 +803,13 @@ class Board:
 
         get_board_representation: list[list[str]] = []
 
-        for row_index, row in enumerate(self.board):
+        board = self.board
+
+        if reverse:
+            board = self.board.copy()
+            board.reverse()
+
+        for row_index, row in enumerate(board):
             current_row: list[str] = []
             for column_index, p in enumerate(row):
 
@@ -821,15 +835,22 @@ class Board:
                         char += f'{algebraic_char[-1]}'
 
                     if p.color == PieceColor.BLACK:
-                        color = Fore.LIGHTBLUE_EX
+                        if use_colors:
+                            color = Fore.LIGHTBLUE_EX
+                        if upper_case_diff:
+                            char = char.lower()
 
-                    if p.color == PieceColor.WHITE:
-                        color = Fore.LIGHTCYAN_EX
+                    if use_colors:
+                        if p.color == PieceColor.WHITE:
+                            color = Fore.LIGHTCYAN_EX
 
-                if special_color_on:
+                if use_colors and special_color_on:
                     if (row_index, column_index) in special_color_on:
                         color = special_color
-                str_rep = f'{color}{char}{Style.RESET_ALL}'
+                if use_colors:
+                    str_rep = f'{color}{char}{Style.RESET_ALL}'
+                else:
+                    str_rep = char
                 current_row.append(str_rep)
 
             get_board_representation.append(current_row)

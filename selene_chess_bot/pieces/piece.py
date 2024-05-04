@@ -519,6 +519,7 @@ class Piece(ABC):
         self,
         direction: int,
         piece_to_find: 'Piece',
+        show_in_algebraic_notation: bool = False
     ) -> list[tuple[int, int], str]:
 
         """
@@ -546,6 +547,17 @@ class Piece(ABC):
                 direction: list = dirs[key]
                 if direction:
                     if piece_to_find == direction[-1]:
+
+                        if show_in_algebraic_notation:
+                            alg_list = []
+                            for pos in direction:
+                                if isinstance(pos, Piece):
+                                    alg_list.append(pos)
+                                else:
+                                    alg_list.append(
+                                        convert_to_algebraic_notation(*pos)
+                                    )
+                            direction = alg_list
                         return direction
 
     def calculate_legal_moves(
@@ -613,6 +625,7 @@ class Piece(ABC):
                 direction = king.scan_direction_for_piece_at_end(
                     direction=direction,
                     piece_to_find=piece,
+                    show_in_algebraic_notation=show_in_algebraic_notation
                 )
 
             for move in piece_legal_moves:
@@ -622,9 +635,6 @@ class Piece(ABC):
                 else:
 
                     if move in direction:
-                        possible_legal_moves.append(move)
-
-                    if convert_to_algebraic_notation(*move) in direction:
                         possible_legal_moves.append(move)
 
                     if move == piece.position or move == piece.algebraic_pos:

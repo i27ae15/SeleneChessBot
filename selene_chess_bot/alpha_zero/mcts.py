@@ -1,26 +1,7 @@
 import numpy as np
 import math
 
-
-class Game:
-
-    def get_next_state():
-        pass
-
-    def change_perspective():
-        pass
-
-    def get_valid_moves():
-        pass
-
-    def get_value_and_terminated():
-        pass
-
-    def get_opponent_value():
-        pass
-
-    def get_opponent():
-        pass
+from game import Game
 
 
 class Node:
@@ -46,29 +27,33 @@ class Node:
     def __init__(
         self,
         game: Game,
-        args: dict,
-        state: np.ndarray,
+        c_value: float,
+        state: int,
         parent: 'Node | None' = None,
         action_taken=None
     ):
         """
-        Initializes a new node with the given game state and optional parent and action.
+        Initializes a new node with the given game state and optional parent
+        and action.
 
         Parameters:
             game: The game being played.
             args: Configuration arguments for MCTS, like exploration constant.
             state: The current game state this node represents.
             parent: The parent Node of this node (None if root).
-            action_taken: The action taken to reach this node from the parent node.
+            action_taken: The action taken to reach this node from the parent
+            node.
         """
         self.game: Game = game
-        self.args: dict = args
-        self.state: np.ndarray = state
+        self.c_value: float = c_value
+        self.state: int = state
         self.parent: Node | None = parent
         self.action_taken = action_taken
 
         self.children: list[Node] = []
-        self.expandable_moves = game.get_valid_moves(state)
+        self.expandable_moves: list[str] = game.get_legal_moves(
+            color=game.player_turn
+        )
 
         self.visit_count: int = 0
         self.value_sum: int = 0
@@ -115,7 +100,7 @@ class Node:
             The UCB value of the given child node.
         """
         q_value = 1 - ((child.value_sum / child.visit_count) + 1) / 2
-        return q_value + self.args['C'] * math.sqrt(
+        return q_value + self.c_value * math.sqrt(
             math.log(self.visit_count) / child.visit_count
         )
 
@@ -129,11 +114,17 @@ class Node:
         action = np.random.choice(np.where(self.expandable_moves == 1)[0])
         self.expandable_moves[action] = 0
 
-        child_state = self.state.copy()
+        child_state = self.state
         child_state = self.game.get_next_state(child_state, action, 1)
         child_state = self.game.change_perspective(child_state, player=-1)
 
-        child = Node(self.game, self.args, child_state, self, action)
+        child = Node(
+            game=self.game,
+            c_value=self.c_value,
+            state=child_state,
+            parent=self,
+            action_taken=action
+        )
         self.children.append(child)
         return child
 
@@ -203,7 +194,12 @@ class MCTS:
         number of searches and the exploration constant.
     """
 
-    def __init__(self, game: Game, args: dict) -> None:
+    def __init__(
+        self,
+        game: Game,
+        num_searches: int = 100,
+        c_value: float = 1.0
+    ) -> None:
         """
         Initializes the MCTS with the specified game and configuration
         arguments.
@@ -215,9 +211,10 @@ class MCTS:
             searches and exploration constant.
         """
         self.game: Game = game
-        self.args: dict = args
+        self.num_searches: int = num_searches
+        self.c_value: float = c_value
 
-    def search(self, state):
+    def search(self, state: int):
         """
         Performs a Monte Carlo Tree Search from the given game state.
 
@@ -235,17 +232,23 @@ class MCTS:
             action's corresponding node.
         """
         # define root
-        root = Node(self.game, self.args, state)
+        root = Node(
+            game=self.game,
+            c_value=self.c_value,
+            state=state
+        )
 
         # selection
-        for search in range(self.args['num_searches']):
+        for _ in range(self.num_searches):
             # we want to go down as the node is fully expanded
             node = root
 
             while node.is_fully_expanded():
                 node = node.select()
 
-            value, is_terminal = self.game.get_value_and_terminated(node.state, node.action_taken)
+            value, is_terminal = self.game.get_value_and_terminated(
+                node.state, node.action_taken
+            )
             value = self.game.get_opponent_value(value)
 
             # check if the node is terminated and backpropagate

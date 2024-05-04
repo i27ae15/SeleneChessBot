@@ -109,14 +109,137 @@ class Game:
         self.is_game_terminated: bool = False
         self.is_game_drawn: bool = False
         self.zobrist_keys: dict = None
+        self.current_state: int = None
+
+        self.game_status: dict = {
+            PieceColor.WHITE: {
+                'value': 0
+            },
+            PieceColor.BLACK: {
+                'value': 0
+            }
+        }
 
         self._initialize_zobrist_keys()
 
+    @property
+    def action_size(self) -> int:
+        return len(self.get_legal_moves(self.player_turn, False, True))
+
+    @property
+    def white_value(self) -> float:
+        return self.game_status[PieceColor.WHITE]['value']
+
+    @property
+    def black_value(self) -> float:
+        return self.game_status[PieceColor.BLACK]['value']
+
+    @property
+    def castling_fen(self) -> str:
+        castling_str = []
+        castling_rights = self.board.castleling_rights
+
+        # Check White's castling rights
+        if castling_rights[PieceColor.WHITE][RookSide.KING]:
+            castling_str.append("K")
+        if castling_rights[PieceColor.WHITE][RookSide.QUEEN]:
+            castling_str.append("Q")
+
+        # Check Black's castling rights
+        if castling_rights[PieceColor.BLACK][RookSide.KING]:
+            castling_str.append("k")
+        if castling_rights[PieceColor.BLACK][RookSide.QUEEN]:
+            castling_str.append("q")
+
+        # If no castling rights are available, return "-"
+        if not castling_str:
+            return "-"
+        return "".join(castling_str)
+
+    @staticmethod
+    def generate_fen(
+        board: list[str],
+        active_color: PieceColor,
+        castling_rights: str,
+        en_passant_target: str | None,
+        halfmove_clock: int,
+        fullmove_number: int
+    ) -> str:
+
+        en_passant_target = en_passant_target or '-'
+
+        color = {
+            PieceColor.WHITE: 'w',
+            PieceColor.BLACK: 'b'
+        }
+
+        active_color: str = color[active_color]
+
+        fen_rows = []
+        for row in board:
+            empty_count = 0
+            fen_row = ""
+            for cell in row:
+                if cell == ".":  # Empty square
+                    empty_count += 1
+                else:
+                    if empty_count > 0:
+                        fen_row += str(empty_count)
+                        empty_count = 0
+                    fen_row += cell
+            if empty_count > 0:
+                fen_row += str(empty_count)
+            fen_rows.append(fen_row)
+
+        # Join all rows with '/' to form the piece placement part of the FEN
+        piece_placement = "/".join(fen_rows)
+
+        # Forming the complete FEN string
+        fen = f"{piece_placement} {active_color} {castling_rights} {en_passant_target} {halfmove_clock} {fullmove_number}"
+        return fen
+
+    def generate_current_fen(self) -> str:
+
+        pos_en = [self.white_possible_pawn_enp, self.black_possible_pawn_enp]
+        en_passant_target = pos_en[self.player_turn.value]
+        board_representation = self.board.get_board_representation(
+            use_colors=False,
+            upper_case_diff=True,
+            reverse=True
+        )
+
+        return self.generate_fen(
+            board=board_representation,
+            active_color=self.player_turn,
+            castling_rights=self.castling_fen,
+            en_passant_target=en_passant_target,
+            halfmove_clock=self.moves_for_f_rule,
+            fullmove_number=self.current_turn
+        )
+
+    def get_legal_moves(
+        self,
+        color: PieceColor,
+        show_in_algebraic: bool,
+        show_as_list: bool = False
+    ) -> dict:
+
+        legal_moves: dict = self.board.get_legal_moves(
+            color, show_in_algebraic
+        )
+
+        if not show_as_list:
+            return legal_moves
+
+        moves = []
+
+        for _, value in legal_moves.items():
+            for move in value:
+                moves.append(move)
+
+        return moves
+
     def start(self) -> None:
-
-        # There is a bug that allows to move the pieces when the king is in
-        # check
-
         while not self.is_game_terminated:
             text: str = control_state_manager(self)
             try:
@@ -157,7 +280,6 @@ class Game:
             piece_move=piece_move,
             pieces=pieces[piece_move.piece_name]
         )
-        self._add_board_state()
 
         # here, once we know the piece, we can take the file
         piece_move.piece_file = piece.algebraic_pos[0]
@@ -181,31 +303,7 @@ class Game:
         # manage the game_state
         self._manage_game_state(piece_move)
 
-    def _initialize_zobrist_keys(self):
-
-        if self.zobrist_keys:
-            return
-
-        keys = {}
-        pieces = ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k']
-        for piece in pieces:
-            keys[piece] = {}
-            for row in range(8):
-                for column in range(8):
-                    keys[piece][(row, column)] = random.getrandbits(64)
-
-        keys['castling'] = {
-            (PieceColor.WHITE, RookSide.KING): random.getrandbits(64),
-            (PieceColor.WHITE, RookSide.QUEEN): random.getrandbits(64),
-            (PieceColor.BLACK, RookSide.KING): random.getrandbits(64),
-            (PieceColor.BLACK, RookSide.QUEEN): random.getrandbits(64)
-        }
-        keys['en_passant'] = {
-            column: random.getrandbits(64) for column in range(8)
-        }  # Assuming column index for en passant
-        keys['side'] = random.getrandbits(64)
-
-        self.zobrist_keys = keys
+        self._add_board_state()
 
     def compute_board_hash(
         self,
@@ -244,6 +342,49 @@ class Game:
 
         return board_hash
 
+    def print_game_state(self):
+        """
+        Prints the current state of the game.
+
+        This method prints the current state of the game, including the
+        current player turn, the move history, and the board.
+        """
+
+        print(f'Player turn: {self.player_turn}')
+        print(f'white king in check: {self.board.white_king.is_in_check}')
+        print(f'black king in check: {self.board.black_king.is_in_check}')
+        print(f'is_game_terminated: {self.is_game_terminated}')
+        print(f'is_game_drawn: {self.is_game_drawn}')
+        print(f'moves_for_f_rule: {self.moves_for_f_rule}')
+
+    def _initialize_zobrist_keys(self):
+
+        if self.zobrist_keys:
+            return
+
+        random.seed(42)
+
+        keys = {}
+        pieces = ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k']
+        for piece in pieces:
+            keys[piece] = {}
+            for row in range(8):
+                for column in range(8):
+                    keys[piece][(row, column)] = random.getrandbits(64)
+
+        keys['castling'] = {
+            (PieceColor.WHITE, RookSide.KING): random.getrandbits(64),
+            (PieceColor.WHITE, RookSide.QUEEN): random.getrandbits(64),
+            (PieceColor.BLACK, RookSide.KING): random.getrandbits(64),
+            (PieceColor.BLACK, RookSide.QUEEN): random.getrandbits(64)
+        }
+        keys['en_passant'] = {
+            column: random.getrandbits(64) for column in range(8)
+        }  # Assuming column index for en passant
+        keys['side'] = random.getrandbits(64)
+
+        self.zobrist_keys = keys
+
     def _add_board_state(self):
 
         en_passant_column = (
@@ -260,29 +401,18 @@ class Game:
             en_passant_column=en_passant_column
         )
 
+        self.current_state = board_hash
+
         if board_hash in self.board_states:
             st = self.board_states[board_hash]
             self.board_states[board_hash] = st + 1
             if st + 1 >= 3:
                 self.is_game_terminated = True
                 self.is_game_drawn = True
+                self.game_status[PieceColor.WHITE]['value'] = 0
+                self.game_status[PieceColor.BLACK]['value'] = 0
         else:
             self.board_states[board_hash] = 1
-
-    def print_game_state(self):
-        """
-        Prints the current state of the game.
-
-        This method prints the current state of the game, including the
-        current player turn, the move history, and the board.
-        """
-
-        print(f'Player turn: {self.player_turn}')
-        print(f'white king in check: {self.board.white_king.is_in_check}')
-        print(f'black king in check: {self.board.black_king.is_in_check}')
-        print(f'is_game_terminated: {self.is_game_terminated}')
-        print(f'is_game_drawn: {self.is_game_drawn}')
-        print(f'moves_for_f_rule: {self.moves_for_f_rule}')
 
     def _clean_en_passant_state(self):
         """
@@ -536,7 +666,14 @@ class Game:
                 color=king.color,
                 is_king_in_check=True
             ):
-                print('the game is terminating here')
+                # check who won
+                if king.color == PieceColor.WHITE:
+                    self.game_status[PieceColor.BLACK]['value'] = float('inf')
+                    self.game_status[PieceColor.WHITE]['value'] = float('-inf')
+                else:
+                    self.game_status[PieceColor.WHITE]['value'] = float('inf')
+                    self.game_status[PieceColor.BLACK]['value'] = float('-inf')
+
                 self.is_game_terminated = True
 
         # check if there is a stale mate in the board
@@ -554,6 +691,10 @@ class Game:
                 color=king.color,
                 is_king_in_check=False
             ):
+
+                # this is a stalemate
+                self.game_status[PieceColor.WHITE]['value'] = 0
+                self.game_status[PieceColor.BLACK]['value'] = 0
                 self.is_game_terminated = True
 
     def _color_has_legal_moves(
