@@ -1,14 +1,14 @@
-import random
-
 from board import Board
 
 from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
 from core.debugger import control_state_manager
+from core.utils import INITIAL_BOARD_HASH, INITIAL_FEN
 
 from game.piece_move import PieceMove
 from game.models import GameState
+from game.apps import GameConfig
 
 
 class Game:
@@ -109,9 +109,11 @@ class Game:
 
         self.is_game_terminated: bool = False
         self.is_game_drawn: bool = False
-        self.zobrist_keys: dict = None
-        self.current_state: int = None
-        self.current_game_state: GameState = None
+        self.zobrist_keys: dict = GameConfig.hash.keys
+        self.current_board_hash: int = INITIAL_BOARD_HASH
+        self.current_game_state: GameState = GameState.objects.get(
+            board_hash=self.current_board_hash
+        )
 
         self.game_status: dict = {
             PieceColor.WHITE: {
@@ -122,7 +124,7 @@ class Game:
             }
         }
 
-        self._initialize_zobrist_keys()
+        self.current_fen: str = INITIAL_FEN
 
     @property
     def action_size(self) -> int:
@@ -198,7 +200,7 @@ class Game:
 
         # Forming the complete FEN string
         fen = f" {piece_placement} {active_color} {castling_rights} {en_passant_target} {halfmove_clock} {fullmove_number}"
-        return fen
+        return fen.strip()
 
     def generate_current_fen(self) -> str:
 
@@ -305,8 +307,6 @@ class Game:
         # manage the game_state
         self._manage_game_state(piece_move)
 
-        self._add_board_state()
-
         self._manage_board_state()
 
     def compute_board_hash(
@@ -365,12 +365,16 @@ class Game:
 
         # Check if this state exists in the database
 
-        game_state = GameState.objects.filter(state=self.current_state)
+        self._add_board_hash()
+        game_state = GameState.objects.filter(
+            board_hash=self.current_board_hash
+        )
 
         if not game_state:
+            self.current_fen = self.generate_current_fen()
             game_state = GameState.objects.create(
-                state=self.current_state,
-                fen=self.generate_current_fen(),
+                board_hash=self.current_board_hash,
+                fen=self.current_fen,
                 is_game_terminated=self.is_game_terminated,
                 white_value=self.white_value,
                 black_value=self.black_value,
@@ -378,40 +382,14 @@ class Game:
             )
 
         else:
-            game_state = game_state[0]
+            game_state: GameState = game_state[0]
+            self.current_fen = game_state.fen
+
             game_state.increment_visits()
 
         self.current_game_state = game_state
 
-    def _initialize_zobrist_keys(self):
-
-        if self.zobrist_keys:
-            return
-
-        random.seed(42)
-
-        keys = {}
-        pieces = ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k']
-        for piece in pieces:
-            keys[piece] = {}
-            for row in range(8):
-                for column in range(8):
-                    keys[piece][(row, column)] = random.getrandbits(64)
-
-        keys['castling'] = {
-            (PieceColor.WHITE, RookSide.KING): random.getrandbits(64),
-            (PieceColor.WHITE, RookSide.QUEEN): random.getrandbits(64),
-            (PieceColor.BLACK, RookSide.KING): random.getrandbits(64),
-            (PieceColor.BLACK, RookSide.QUEEN): random.getrandbits(64)
-        }
-        keys['en_passant'] = {
-            column: random.getrandbits(64) for column in range(8)
-        }  # Assuming column index for en passant
-        keys['side'] = random.getrandbits(64)
-
-        self.zobrist_keys = keys
-
-    def _add_board_state(self):
+    def _add_board_hash(self):
 
         en_passant_column = (
             self.black_possible_pawn_enp or self.white_possible_pawn_enp
@@ -427,7 +405,7 @@ class Game:
             en_passant_column=en_passant_column
         )
 
-        self.current_state = board_hash
+        self.current_board_hash = board_hash
 
         if board_hash in self.board_states:
             st = self.board_states[board_hash]

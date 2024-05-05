@@ -1,3 +1,5 @@
+import random
+
 from enum import Enum
 
 
@@ -57,3 +59,35 @@ ATTACKING_DIAGONALS = [
     PieceName.BISHOP,
     PieceName.QUEEN,
 ]
+
+
+class ZobristHash():
+
+    def __init__(self) -> None:
+        self.keys: dict = self._initialize_zobrist_keys()
+
+    def _initialize_zobrist_keys(self) -> dict:
+
+        random.seed(42)
+
+        keys = {}
+        pieces = ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k']
+        for piece in pieces:
+            keys[piece] = {}
+            for row in range(8):
+                for column in range(8):
+                    keys[piece][(row, column)] = random.getrandbits(64)
+
+        keys['castling'] = {
+            (PieceColor.WHITE, RookSide.KING): random.getrandbits(64),
+            (PieceColor.WHITE, RookSide.QUEEN): random.getrandbits(64),
+            (PieceColor.BLACK, RookSide.KING): random.getrandbits(64),
+            (PieceColor.BLACK, RookSide.QUEEN): random.getrandbits(64)
+        }
+        keys['en_passant'] = {
+            column: random.getrandbits(64) for column in range(8)
+        }  # Assuming column index for en passant
+        keys['side'] = random.getrandbits(64)
+
+        print('this is being called')
+        return keys

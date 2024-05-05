@@ -21,7 +21,7 @@ class GameState(models.Model):
         editable=False
     )
 
-    state: int = models.FloatField()
+    board_hash: float = models.FloatField()
 
     is_game_terminated: bool = models.BooleanField()
 
