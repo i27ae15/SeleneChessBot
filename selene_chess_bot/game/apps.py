@@ -13,4 +13,3 @@ class GameConfig(AppConfig):
             GameConfig.hash = ZobristHash()
 
         return super().ready()
-

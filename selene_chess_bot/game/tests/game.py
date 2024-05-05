@@ -1,4 +1,4 @@
-import unittest
+from django.test import TestCase
 
 from game.game import Game
 
@@ -7,7 +7,7 @@ from pieces.utilites import PieceColor
 from core.testing import print_starting, print_success
 
 
-class TestGame(unittest.TestCase):
+class TestGame(TestCase):
 
     def setUp(self):
         self.game = Game()
@@ -275,8 +275,28 @@ class TestGame(unittest.TestCase):
         print_starting()
         print(self.game.generate_current_fen())
 
+    def test_parse_fen(self):
 
-class TestSelfChessGame(unittest.TestCase):
+        print_starting()
+
+        fen_list = [
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "r1bq1rk1/ppp1bppp/2n2n2/3pp3/3P4/2PB1N2/PP3PPP/RNBQ1RK1 w - c6 0 10",
+            "6k1/5ppp/8/8/2B5/2P5/PP3PPP/6K1 b - - 0 30",
+            "rnb1kbnr/pppp1ppp/8/4p3/2B1P3/8/PPP2PPP/RNBQK1NR b KQkq - 0 3",
+            "rnbq1rk1/ppp2ppp/5n2/3pp3/3P4/5NP1/PPP1PPBP/RNBQ1RK1 w Kk - 4 6"
+        ]
+
+        for fen in fen_list:
+            game: Game = self.game.parse_fen(fen)
+            print('-' * 50)
+            game.board.print_board()
+            print('-' * 50)
+
+        print_success()
+
+
+class TestSelfChessGame(TestCase):
 
     def setUp(self) -> None:
         self.game: Game = Game()
@@ -285,7 +305,3 @@ class TestSelfChessGame(unittest.TestCase):
     def test_start(self):
 
         self.game.start()
-
-
-if __name__ == '__main__':
-    unittest.main()

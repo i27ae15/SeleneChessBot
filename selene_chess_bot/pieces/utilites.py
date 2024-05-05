@@ -38,6 +38,13 @@ class PieceName(Enum):
     QUEEN = 'Queen', 'Q'
     KING = 'King', 'K'
 
+    @staticmethod
+    def get_piece_from_string(piece_string) -> 'PieceName':
+        for piece in PieceName:
+            if piece_string in piece.value:
+                return piece
+        raise ValueError(f"Invalid piece string: {piece_string}")
+
 
 class RookSide(Enum):
     QUEEN = 0
@@ -89,5 +96,4 @@ class ZobristHash():
         }  # Assuming column index for en passant
         keys['side'] = random.getrandbits(64)
 
-        print('this is being called')
         return keys

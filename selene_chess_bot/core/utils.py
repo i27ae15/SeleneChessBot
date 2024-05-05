@@ -22,7 +22,7 @@ ALGEBRAIC_NOTATION = {
 }
 
 INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-INITIAL_BOARD_HASH = 1317592813748421116
+INITIAL_BOARD_HASH = 1317592813748421116  # for a random seed of 42
 
 
 def convert_to_algebraic_notation(row: int, column: int) -> str:

@@ -4,7 +4,7 @@ from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
 from core.debugger import control_state_manager
-from core.utils import INITIAL_BOARD_HASH, INITIAL_FEN
+from core.utils import INITIAL_BOARD_HASH, INITIAL_FEN, convert_from_algebraic_notation
 
 from game.piece_move import PieceMove
 from game.models import GameState
@@ -80,9 +80,16 @@ class Game:
             Manages potential en passant captures based on recent pawn moves.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        create_initial_board_setup: bool = True,
+        board_setup: list[list[str]] = None
+    ) -> None:
 
-        self.board: Board = Board()
+        self.board: Board = Board(
+            create_initial_board_set_up=create_initial_board_setup,
+            board_setup=board_setup
+        )
         self.moves: dict = {}
         self.moves_for_f_rule: int = 0
         self.board_states: dict[str] = dict()
@@ -162,7 +169,7 @@ class Game:
 
     @staticmethod
     def generate_fen(
-        board: list[str],
+        board: list[list[str]],
         active_color: PieceColor,
         castling_rights: str,
         en_passant_target: str | None,
@@ -201,6 +208,75 @@ class Game:
         # Forming the complete FEN string
         fen = f" {piece_placement} {active_color} {castling_rights} {en_passant_target} {halfmove_clock} {fullmove_number}"
         return fen.strip()
+
+    @staticmethod
+    def parse_fen(fen: str) -> 'Game':
+
+        parts = fen.split()
+        piece_placement = parts[0]
+        active_color = parts[1]
+        castling_fen = parts[2]
+        en_passant_target = parts[3]
+        halfmove_clock = int(parts[4])
+        fullmove_number = int(parts[5])
+
+        # Create the board array
+        board = []
+        rows = piece_placement.split('/')
+        for row in rows:
+            board_row = []
+            for char in row:
+                if char.isdigit():
+                    # Add empty squares
+                    board_row.extend(['.'] * int(char))
+                else:
+                    # Add a piece
+                    board_row.append(char)
+            board.append(board_row)
+
+        # Convert active color
+        active_color = (
+            PieceColor.WHITE if active_color == 'w' else PieceColor.BLACK
+        )
+
+        # Here we assume 'en_passant_target' is a string like 'e3' or '-'
+        en_passant_target = (
+            None if en_passant_target == '-' else en_passant_target
+        )
+
+        game = Game(
+            create_initial_board_setup=False,
+            board_setup=board,
+        )
+
+        game.player_turn = active_color
+
+        if en_passant_target:
+            square = convert_from_algebraic_notation(en_passant_target)
+            piece: Pawn = game.board.get_square_or_piece(
+                column=square[1],
+                row=square[0]
+            )
+            piece.can_be_captured_en_passant = True
+            game.white_possible_pawn_enp = piece
+
+        game.moves_for_f_rule = halfmove_clock
+        game.current_turn = fullmove_number
+
+        # Castling rights from FEN
+        castling_rights = {
+            PieceColor.WHITE: {
+                RookSide.KING: 'K' in castling_fen,
+                RookSide.QUEEN: 'Q' in castling_fen,
+            },
+            PieceColor.BLACK: {
+                RookSide.KING: 'k' in castling_fen,
+                RookSide.QUEEN: 'q' in castling_fen,
+            }
+        }
+
+        game.board.castleling_rights = castling_rights
+        return game
 
     def generate_current_fen(self) -> str:
 

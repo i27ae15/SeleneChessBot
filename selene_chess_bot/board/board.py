@@ -129,7 +129,8 @@ class Board:
 
     def __init__(
         self,
-        create_initial_board_set_up: bool = True
+        create_initial_board_set_up: bool = True,
+        board_setup: list[list[str]] = None
     ) -> None:
         """
         Initialize a new Board instance.
@@ -200,6 +201,9 @@ class Board:
 
         if create_initial_board_set_up:
             self.create_initial_board_set_up()
+
+        if board_setup:
+            self._setup_board(board_setup)
 
     @property
     def white_king(self) -> King:
@@ -719,7 +723,7 @@ class Board:
             show_in_algebraic_notation=show_in_algebraic_notation
         )
 
-        if perspective == PieceColor.WHITE:
+        if perspective == PieceColor.BLACK:
             board_representation.reverse()
 
         for row in board_representation:
@@ -857,6 +861,50 @@ class Board:
 
         return get_board_representation
 
+    def _setup_board(self, board_setup: list[list[str]]):
+
+        """
+
+        A board setupt that should looks like this
+
+        'board': [
+            ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+            ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['.', '.', '.', '.', '.', '.', '.', '.'],
+            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+        ]
+
+        Where the minuscule letters are black pieces and the capital letters
+        are white pieces
+        """
+
+        if self._is_initial_board_set_up:
+            raise ValueError(
+                'The initial board set up has already been created.'
+            )
+
+        self.create_empty_board()
+        for row_index, row in enumerate(board_setup):
+            for column_index, piece in enumerate(row):
+                if piece != '.':
+                    piece_color = (
+                        PieceColor.WHITE if piece.isupper()
+                        else PieceColor.BLACK
+                    )
+                    piece = piece.upper()
+                    self.add_piece(
+                        piece=PieceName.get_piece_from_string(piece),
+                        piece_color=piece_color,
+                        row=row_index,
+                        column=column_index
+                    )
+
+        self._is_initial_board_set_up = True
+
     def _create_piece(
         self,
         piece_name: PieceName,
@@ -921,13 +969,13 @@ class Board:
             self.add_piece(
                 piece=PieceName.PAWN,
                 piece_color=PieceColor.WHITE,
-                row=1,
+                row=6,
                 column=i
             )
             self.add_piece(
                 piece=PieceName.PAWN,
                 piece_color=PieceColor.BLACK,
-                row=6,
+                row=1,
                 column=i
             )
 
@@ -944,26 +992,26 @@ class Board:
         self.add_piece(
             piece=PieceName.KNIGHT,
             piece_color=PieceColor.WHITE,
-            row=0,
+            row=7,
             column=1
-        )
-        self.add_piece(
-            piece=PieceName.KNIGHT,
-            piece_color=PieceColor.WHITE,
-            row=0,
-            column=6
         )
 
         self.add_piece(
             piece=PieceName.KNIGHT,
-            piece_color=PieceColor.BLACK,
+            piece_color=PieceColor.WHITE,
             row=7,
+            column=6
+        )
+        self.add_piece(
+            piece=PieceName.KNIGHT,
+            piece_color=PieceColor.BLACK,
+            row=0,
             column=1
         )
         self.add_piece(
             piece=PieceName.KNIGHT,
             piece_color=PieceColor.BLACK,
-            row=7,
+            row=0,
             column=6
         )
 
@@ -980,26 +1028,26 @@ class Board:
         self.add_piece(
             piece=PieceName.BISHOP,
             piece_color=PieceColor.WHITE,
-            row=0,
+            row=7,
             column=2
         )
         self.add_piece(
             piece=PieceName.BISHOP,
             piece_color=PieceColor.WHITE,
-            row=0,
+            row=7,
             column=5
         )
 
         self.add_piece(
             piece=PieceName.BISHOP,
             piece_color=PieceColor.BLACK,
-            row=7,
+            row=0,
             column=2
         )
         self.add_piece(
             piece=PieceName.BISHOP,
             piece_color=PieceColor.BLACK,
-            row=7,
+            row=0,
             column=5
         )
 
@@ -1018,14 +1066,14 @@ class Board:
         self.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.WHITE,
-            row=0,
+            row=7,
             column=0,
             additional_information={'rook_side': RookSide.QUEEN}
         )
         self.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.WHITE,
-            row=0,
+            row=7,
             column=7,
             additional_information={'rook_side': RookSide.KING}
         )
@@ -1033,14 +1081,14 @@ class Board:
         self.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.BLACK,
-            row=7,
+            row=0,
             column=0,
             additional_information={'rook_side': RookSide.QUEEN}
         )
         self.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.BLACK,
-            row=7,
+            row=0,
             column=7,
             additional_information={'rook_side': RookSide.KING}
         )
@@ -1058,14 +1106,14 @@ class Board:
         self.add_piece(
             piece=PieceName.QUEEN,
             piece_color=PieceColor.WHITE,
-            row=0,
+            row=7,
             column=3
         )
 
         self.add_piece(
             piece=PieceName.QUEEN,
             piece_color=PieceColor.BLACK,
-            row=7,
+            row=0,
             column=3
         )
 
@@ -1082,14 +1130,14 @@ class Board:
         self.add_piece(
             piece=PieceName.KING,
             piece_color=PieceColor.WHITE,
-            row=0,
+            row=7,
             column=4
         )
 
         self.add_piece(
             piece=PieceName.KING,
             piece_color=PieceColor.BLACK,
-            row=7,
+            row=0,
             column=4
         )
 
