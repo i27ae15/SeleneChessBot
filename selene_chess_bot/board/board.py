@@ -484,7 +484,7 @@ class Board:
     def get_legal_moves(
         self,
         color: PieceColor,
-        show_in_algebraic_notation: bool = False
+        show_in_algebraic_notation: bool = False,
     ) -> list[tuple[int, int]]:
 
         """
@@ -510,8 +510,8 @@ class Board:
         for piece_key in pieces:
             for piece in pieces[piece_key]:
                 piece: Piece
-                name = f'{piece.name.value}_{piece.algebraic_pos}'
-                legal_moves[name] = piece.calculate_legal_moves(
+                # name = f'{piece.name.value[1]}_{piece.algebraic_pos}'
+                legal_moves[piece] = piece.calculate_legal_moves(
                     show_in_algebraic_notation=show_in_algebraic_notation
                 )
 
@@ -723,7 +723,7 @@ class Board:
             show_in_algebraic_notation=show_in_algebraic_notation
         )
 
-        if perspective == PieceColor.BLACK:
+        if perspective == PieceColor.WHITE:
             board_representation.reverse()
 
         for row in board_representation:
@@ -969,13 +969,13 @@ class Board:
             self.add_piece(
                 piece=PieceName.PAWN,
                 piece_color=PieceColor.WHITE,
-                row=6,
+                row=1,
                 column=i
             )
             self.add_piece(
                 piece=PieceName.PAWN,
                 piece_color=PieceColor.BLACK,
-                row=1,
+                row=6,
                 column=i
             )
 
@@ -992,26 +992,26 @@ class Board:
         self.add_piece(
             piece=PieceName.KNIGHT,
             piece_color=PieceColor.WHITE,
-            row=7,
+            row=0,
             column=1
         )
 
         self.add_piece(
             piece=PieceName.KNIGHT,
             piece_color=PieceColor.WHITE,
-            row=7,
+            row=0,
             column=6
         )
         self.add_piece(
             piece=PieceName.KNIGHT,
             piece_color=PieceColor.BLACK,
-            row=0,
+            row=7,
             column=1
         )
         self.add_piece(
             piece=PieceName.KNIGHT,
             piece_color=PieceColor.BLACK,
-            row=0,
+            row=7,
             column=6
         )
 
@@ -1028,26 +1028,26 @@ class Board:
         self.add_piece(
             piece=PieceName.BISHOP,
             piece_color=PieceColor.WHITE,
-            row=7,
+            row=0,
             column=2
         )
         self.add_piece(
             piece=PieceName.BISHOP,
             piece_color=PieceColor.WHITE,
-            row=7,
+            row=0,
             column=5
         )
 
         self.add_piece(
             piece=PieceName.BISHOP,
             piece_color=PieceColor.BLACK,
-            row=0,
+            row=7,
             column=2
         )
         self.add_piece(
             piece=PieceName.BISHOP,
             piece_color=PieceColor.BLACK,
-            row=0,
+            row=7,
             column=5
         )
 
@@ -1066,14 +1066,14 @@ class Board:
         self.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.WHITE,
-            row=7,
+            row=0,
             column=0,
             additional_information={'rook_side': RookSide.QUEEN}
         )
         self.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.WHITE,
-            row=7,
+            row=0,
             column=7,
             additional_information={'rook_side': RookSide.KING}
         )
@@ -1081,14 +1081,14 @@ class Board:
         self.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.BLACK,
-            row=0,
+            row=7,
             column=0,
             additional_information={'rook_side': RookSide.QUEEN}
         )
         self.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.BLACK,
-            row=0,
+            row=7,
             column=7,
             additional_information={'rook_side': RookSide.KING}
         )
@@ -1106,14 +1106,14 @@ class Board:
         self.add_piece(
             piece=PieceName.QUEEN,
             piece_color=PieceColor.WHITE,
-            row=7,
+            row=0,
             column=3
         )
 
         self.add_piece(
             piece=PieceName.QUEEN,
             piece_color=PieceColor.BLACK,
-            row=0,
+            row=7,
             column=3
         )
 
@@ -1130,14 +1130,14 @@ class Board:
         self.add_piece(
             piece=PieceName.KING,
             piece_color=PieceColor.WHITE,
-            row=7,
+            row=0,
             column=4
         )
 
         self.add_piece(
             piece=PieceName.KING,
             piece_color=PieceColor.BLACK,
-            row=0,
+            row=7,
             column=4
         )
 

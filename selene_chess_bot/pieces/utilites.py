@@ -20,6 +20,10 @@ class PieceColor(Enum):
         else:
             return PieceColor.WHITE
 
+    @staticmethod
+    def choices():
+        return [(piece.value, piece.name) for piece in PieceColor]
+
 
 class PieceValue(Enum):
     PAWN = 1

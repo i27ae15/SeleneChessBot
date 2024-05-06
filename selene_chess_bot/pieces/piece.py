@@ -520,7 +520,7 @@ class Piece(ABC):
         direction: int,
         piece_to_find: 'Piece',
         show_in_algebraic_notation: bool = False
-    ) -> list[tuple[int, int], str]:
+    ) -> list[tuple[int, int], str] | bool:
 
         """
         This will look if, at the end of the direction, there is the instance of the
@@ -559,6 +559,7 @@ class Piece(ABC):
                                     )
                             direction = alg_list
                         return direction
+        return False
 
     def calculate_legal_moves(
         self,
@@ -620,6 +621,7 @@ class Piece(ABC):
             # we now need to get the direction from where the piece is
             # attacking the king
 
+            direction = []
             if piece.name in directions_to_scan.keys():
                 direction = directions_to_scan[piece.name]
                 direction = king.scan_direction_for_piece_at_end(
@@ -628,17 +630,18 @@ class Piece(ABC):
                     show_in_algebraic_notation=show_in_algebraic_notation
                 )
 
-            for move in piece_legal_moves:
-                if isinstance(move, Piece):
-                    if move == piece:
-                        possible_legal_moves.append(move)
-                else:
+            if direction:
+                for move in piece_legal_moves:
+                    if isinstance(move, Piece):
+                        if move == piece:
+                            possible_legal_moves.append(move)
+                    else:
 
-                    if move in direction:
-                        possible_legal_moves.append(move)
+                        if move in direction:
+                            possible_legal_moves.append(move)
 
-                    if move == piece.position or move == piece.algebraic_pos:
-                        possible_legal_moves.append(move)
+                        if move == piece.position or move == piece.algebraic_pos:
+                            possible_legal_moves.append(move)
 
             return possible_legal_moves
 

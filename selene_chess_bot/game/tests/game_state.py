@@ -59,9 +59,15 @@ class TestGameModel(TestCase):
         self.assertEqual(initial_position.children.count(), 16)
 
 
+class TestGameModelSimulation(TestCase):
 
+    def test_game_simulation(self):
 
+        parent: GameState = GameState.objects.get(fen=INITIAL_FEN)
+        game: Game = Game.parse_fen(parent.fen)
 
+        child_game_state = parent.expand(game)
+        child_game_state.simulate(Game)
 
-
-
+        # print('Parent:', parent.id)
+        # print('Children:', parent.children.count())

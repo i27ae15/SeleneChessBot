@@ -4,7 +4,9 @@ from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
 from core.debugger import control_state_manager
-from core.utils import INITIAL_BOARD_HASH, INITIAL_FEN, convert_from_algebraic_notation
+from core.utils import (
+    INITIAL_FEN, convert_from_algebraic_notation
+)
 
 from game.piece_move import PieceMove
 from game.models import GameState
@@ -83,9 +85,12 @@ class Game:
     def __init__(
         self,
         create_initial_board_setup: bool = True,
-        board_setup: list[list[str]] = None
+        board_setup: list[list[str]] = None,
+        get_game_state: bool = True,
+        player_turn: PieceColor = PieceColor.WHITE,
+        current_turn: int = 1
     ) -> None:
-
+        self.initial_board_setup = create_initial_board_setup
         self.board: Board = Board(
             create_initial_board_set_up=create_initial_board_setup,
             board_setup=board_setup
@@ -107,9 +112,9 @@ class Game:
 
         """
 
-        self.player_turn: PieceColor = PieceColor.WHITE
+        self.player_turn: PieceColor = player_turn
 
-        self.current_turn: int = 1
+        self.current_turn: int = current_turn
 
         self.white_possible_pawn_enp: Pawn | None = None
         self.black_possible_pawn_enp: Pawn | None = None
@@ -117,12 +122,17 @@ class Game:
         self.is_game_terminated: bool = False
         self.is_game_drawn: bool = False
         self.zobrist_keys: dict = GameConfig.hash.keys
-        self.current_board_hash: int = INITIAL_BOARD_HASH
+        self.current_board_hash: bytes = self.compute_board_hash(
+            current_side=self.player_turn,
+            board=self.board,
+            castling_rights=self.board.castleling_rights,
+            en_passant_column=None
+        )
         self.current_game_state: GameState = GameState.objects.get(
             board_hash=self.current_board_hash
-        )
+        ) if get_game_state else None
 
-        self.game_status: dict = {
+        self.game_values: dict = {
             PieceColor.WHITE: {
                 'value': 0
             },
@@ -131,7 +141,7 @@ class Game:
             }
         }
 
-        self.current_fen: str = INITIAL_FEN
+        self.current_fen: str = self.generate_initial_fen()
 
     @property
     def action_size(self) -> int:
@@ -139,11 +149,11 @@ class Game:
 
     @property
     def white_value(self) -> float:
-        return self.game_status[PieceColor.WHITE]['value']
+        return self.game_values[PieceColor.WHITE]['value']
 
     @property
     def black_value(self) -> float:
-        return self.game_status[PieceColor.BLACK]['value']
+        return self.game_values[PieceColor.BLACK]['value']
 
     @property
     def castling_fen(self) -> str:
@@ -210,7 +220,13 @@ class Game:
         return fen.strip()
 
     @staticmethod
-    def parse_fen(fen: str) -> 'Game':
+    def parse_fen(fen: str, reverse_piece_placement: bool = True) -> 'Game':
+
+        """
+        NOTE: For how we have setup the board, in order to get the correct
+        board representation, we need to reverse the FEN where the pieces
+        are placed. Being the first row the 1th row in the board
+        """
 
         parts = fen.split()
         piece_placement = parts[0]
@@ -234,6 +250,9 @@ class Game:
                     board_row.append(char)
             board.append(board_row)
 
+        if reverse_piece_placement:
+            board.reverse()
+
         # Convert active color
         active_color = (
             PieceColor.WHITE if active_color == 'w' else PieceColor.BLACK
@@ -247,6 +266,8 @@ class Game:
         game = Game(
             create_initial_board_setup=False,
             board_setup=board,
+            player_turn=active_color,
+            current_turn=fullmove_number
         )
 
         game.player_turn = active_color
@@ -278,6 +299,12 @@ class Game:
         game.board.castleling_rights = castling_rights
         return game
 
+    def generate_initial_fen(self) -> str:
+        if self.initial_board_setup:
+            return INITIAL_FEN
+
+        return self.generate_current_fen()
+
     def generate_current_fen(self) -> str:
 
         pos_en = [self.white_possible_pawn_enp, self.black_possible_pawn_enp]
@@ -302,7 +329,7 @@ class Game:
         color: PieceColor,
         show_in_algebraic: bool,
         show_as_list: bool = False
-    ) -> dict:
+    ) -> dict | list[str]:
 
         legal_moves: dict = self.board.get_legal_moves(
             color, show_in_algebraic
@@ -313,9 +340,10 @@ class Game:
 
         moves = []
 
-        for _, value in legal_moves.items():
+        for piece, value in legal_moves.items():
+            piece: Piece
             for move in value:
-                moves.append(move)
+                moves.append(f'{piece.name.value[1]}{move}')
 
         return moves
 
@@ -383,7 +411,7 @@ class Game:
         # manage the game_state
         self._manage_game_state(piece_move)
 
-        self._manage_board_state()
+        self._manage_board_state(piece_move)
 
     def compute_board_hash(
         self,
@@ -420,7 +448,7 @@ class Game:
         if current_side == PieceColor.BLACK:
             board_hash ^= self.zobrist_keys['side']
 
-        return board_hash
+        return board_hash.to_bytes(8, byteorder='big', signed=False)
 
     def print_game_state(self):
         """
@@ -436,8 +464,9 @@ class Game:
         print(f'is_game_terminated: {self.is_game_terminated}')
         print(f'is_game_drawn: {self.is_game_drawn}')
         print(f'moves_for_f_rule: {self.moves_for_f_rule}')
+        print(f'values: {self.game_values}')
 
-    def _manage_board_state(self):
+    def _manage_board_state(self, move: PieceMove):
 
         # Check if this state exists in the database
 
@@ -447,17 +476,32 @@ class Game:
         )
 
         if not game_state:
+
+            print('new game object created')
+
             self.current_fen = self.generate_current_fen()
+
             game_state = GameState.objects.create(
                 board_hash=self.current_board_hash,
                 fen=self.current_fen,
                 is_game_terminated=self.is_game_terminated,
                 white_value=self.white_value,
                 black_value=self.black_value,
-                parent=self.current_game_state
+                parent=self.current_game_state,
+                move_taken=move.move,
+                expandable_moves=self.get_legal_moves(
+                    color=self.player_turn,
+                    show_in_algebraic=True,
+                    show_as_list=True
+                ),
+                player_turn=self.player_turn.value,
+                current_turn=self.current_turn
             )
 
         else:
+
+            print('game object already exists')
+
             game_state: GameState = game_state[0]
             self.current_fen = game_state.fen
 
@@ -489,8 +533,8 @@ class Game:
             if st + 1 >= 3:
                 self.is_game_terminated = True
                 self.is_game_drawn = True
-                self.game_status[PieceColor.WHITE]['value'] = 0
-                self.game_status[PieceColor.BLACK]['value'] = 0
+                self.game_values[PieceColor.WHITE]['value'] = 0
+                self.game_values[PieceColor.BLACK]['value'] = 0
         else:
             self.board_states[board_hash] = 1
 
@@ -748,11 +792,11 @@ class Game:
             ):
                 # check who won
                 if king.color == PieceColor.WHITE:
-                    self.game_status[PieceColor.BLACK]['value'] = float('inf')
-                    self.game_status[PieceColor.WHITE]['value'] = float('-inf')
+                    self.game_values[PieceColor.BLACK]['value'] = float('inf')
+                    self.game_values[PieceColor.WHITE]['value'] = float('-inf')
                 else:
-                    self.game_status[PieceColor.WHITE]['value'] = float('inf')
-                    self.game_status[PieceColor.BLACK]['value'] = float('-inf')
+                    self.game_values[PieceColor.WHITE]['value'] = float('inf')
+                    self.game_values[PieceColor.BLACK]['value'] = float('-inf')
 
                 self.is_game_terminated = True
 
@@ -773,8 +817,8 @@ class Game:
             ):
 
                 # this is a stalemate
-                self.game_status[PieceColor.WHITE]['value'] = 0
-                self.game_status[PieceColor.BLACK]['value'] = 0
+                self.game_values[PieceColor.WHITE]['value'] = 0
+                self.game_values[PieceColor.BLACK]['value'] = 0
                 self.is_game_terminated = True
 
     def _color_has_legal_moves(
