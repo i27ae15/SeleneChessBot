@@ -88,7 +88,8 @@ class Game:
         board_setup: list[list[str]] = None,
         get_game_state: bool = True,
         player_turn: PieceColor = PieceColor.WHITE,
-        current_turn: int = 1
+        current_turn: int = 1,
+        en_passant_target: str | None = None
     ) -> None:
         self.initial_board_setup = create_initial_board_setup
         self.board: Board = Board(
@@ -122,12 +123,17 @@ class Game:
         self.is_game_terminated: bool = False
         self.is_game_drawn: bool = False
         self.zobrist_keys: dict = GameConfig.hash.keys
+
+        if en_passant_target:
+            self.set_en_passant_pawn(en_passant_target)
+
         self.current_board_hash: bytes = self.compute_board_hash(
             current_side=self.player_turn,
             board=self.board,
             castling_rights=self.board.castleling_rights,
-            en_passant_column=None
+            en_passant_pos=en_passant_target
         )
+
         self.current_game_state: GameState = GameState.objects.get(
             board_hash=self.current_board_hash
         ) if get_game_state else None
@@ -267,20 +273,11 @@ class Game:
             create_initial_board_setup=False,
             board_setup=board,
             player_turn=active_color,
-            current_turn=fullmove_number
+            current_turn=fullmove_number,
+            en_passant_target=en_passant_target
         )
 
         game.player_turn = active_color
-
-        if en_passant_target:
-            square = convert_from_algebraic_notation(en_passant_target)
-            piece: Pawn = game.board.get_square_or_piece(
-                column=square[1],
-                row=square[0]
-            )
-            piece.can_be_captured_en_passant = True
-            game.white_possible_pawn_enp = piece
-
         game.moves_for_f_rule = halfmove_clock
         game.current_turn = fullmove_number
 
@@ -307,8 +304,15 @@ class Game:
 
     def generate_current_fen(self) -> str:
 
-        pos_en = [self.white_possible_pawn_enp, self.black_possible_pawn_enp]
-        en_passant_target = pos_en[self.player_turn.value]
+        en_passant_column = (
+            self.black_possible_pawn_enp or self.white_possible_pawn_enp
+        )
+
+        en_passant_target = None
+
+        if en_passant_column:
+            en_passant_target = en_passant_column.algebraic_pos
+
         board_representation = self.board.get_board_representation(
             use_colors=False,
             upper_case_diff=True,
@@ -418,7 +422,7 @@ class Game:
         board: Board,
         current_side: PieceColor,
         castling_rights: dict,
-        en_passant_column: dict
+        en_passant_pos: str
     ) -> int:
 
         board_hash = 0
@@ -441,14 +445,33 @@ class Game:
                     board_hash ^= self.zobrist_keys['castling'][(side, right)]
 
         # Include en passant possibility
-        if en_passant_column is not None:
-            board_hash ^= self.zobrist_keys['en_passant'][en_passant_column]
+        if en_passant_pos is not None:
+            print('en_passant_pos:', en_passant_pos)
+            board_hash ^= self.zobrist_keys['en_passant'][int(en_passant_pos[1])]
 
         # Include the side to move
         if current_side == PieceColor.BLACK:
             board_hash ^= self.zobrist_keys['side']
 
         return board_hash.to_bytes(8, byteorder='big', signed=False)
+
+    def set_en_passant_pawn(self, en_passant_target: str) -> None:
+
+        print('here')
+
+        square = convert_from_algebraic_notation(en_passant_target)
+        piece: Pawn = self.board.get_square_or_piece(
+            column=square[1],
+            row=square[0]
+        )
+        piece.can_be_captured_en_passant = True
+
+        if piece.color == PieceColor.WHITE:
+            self.white_possible_pawn_enp = piece
+        else:
+            self.black_possible_pawn_enp = piece
+
+        print(self.white_possible_pawn_enp, self.black_possible_pawn_enp)
 
     def print_game_state(self):
         """
@@ -511,18 +534,18 @@ class Game:
 
     def _add_board_hash(self):
 
-        en_passant_column = (
+        en_passant_pos = (
             self.black_possible_pawn_enp or self.white_possible_pawn_enp
         )
 
-        if en_passant_column:
-            en_passant_column = en_passant_column.column
+        if en_passant_pos:
+            en_passant_pos = en_passant_pos.algebraic_pos
 
         board_hash = self.compute_board_hash(
             current_side=self.player_turn,
             board=self.board,
             castling_rights=self.board.castleling_rights,
-            en_passant_column=en_passant_column
+            en_passant_pos=en_passant_pos
         )
 
         self.current_board_hash = board_hash

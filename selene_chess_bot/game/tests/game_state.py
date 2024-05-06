@@ -4,6 +4,7 @@ from core.utils import INITIAL_FEN
 
 from game.models import GameState
 from game.game import Game
+from core.testing import print_starting, print_success
 
 
 class TestGameModel(TestCase):
@@ -61,13 +62,32 @@ class TestGameModel(TestCase):
 
 class TestGameModelSimulation(TestCase):
 
+    def atest_initial_parsing(self):
+
+        print_starting()
+
+        parent: GameState = GameState.objects.get(fen=INITIAL_FEN)
+        game: Game = Game.parse_fen(parent.fen)
+
+        self.assertEqual(game.current_game_state.id, parent.id)
+
+        print_success()
+
     def test_game_simulation(self):
 
         parent: GameState = GameState.objects.get(fen=INITIAL_FEN)
         game: Game = Game.parse_fen(parent.fen)
 
+        print('-' * 50)
+        print('expanding parent')
         child_game_state = parent.expand(game)
+        game.board.print_board()
+        print('-' * 50)
+
+        print('-' * 50)
+        print('simulating child')
         child_game_state.simulate(Game)
+        print('-' * 50)
 
         # print('Parent:', parent.id)
         # print('Children:', parent.children.count())

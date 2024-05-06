@@ -129,6 +129,7 @@ class GameState(models.Model):
             raise False  # No more moves to expand
 
         move: str = self.get_untried_move()
+        move = 'Ph4'
 
         print(f"Taken: {move}")
 
@@ -140,6 +141,9 @@ class GameState(models.Model):
         """
         Game would be the pointer to the game object.
         """
+
+        print('fen:', self.fen)
+
         game_instance = game.parse_fen(self.fen)
         current_game_state: GameState = game_instance.current_game_state
 
@@ -210,6 +214,7 @@ class GameState(models.Model):
                 )
 
                 print('black moves:', blm)
+                break
 
             current_game_state = game_instance.current_game_state
 
