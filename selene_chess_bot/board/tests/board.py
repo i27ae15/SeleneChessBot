@@ -19,12 +19,16 @@ class TestBoard(unittest.TestCase):
         print('pieces on board')
         pieces_on_board = board.pieces_on_board[PieceColor.WHITE]
         for key in pieces_on_board:
-            print(key.name, [piece.algebraic_pos for piece in pieces_on_board[key]])
+            print(
+                key.name, [
+                    piece.algebraic_pos for piece in pieces_on_board[key]
+                ]
+            )
         print('-' * 50)
 
         print_success()
 
-    def atest_print_attacked_w_squares(self):
+    def test_print_attacked_w_squares(self):
 
         print_starting()
 
@@ -33,7 +37,7 @@ class TestBoard(unittest.TestCase):
 
         print_success()
 
-    def atest_print_attacked_squares_by_w_king(self):
+    def test_print_attacked_squares_by_w_king(self):
 
         print_starting()
 
@@ -43,7 +47,7 @@ class TestBoard(unittest.TestCase):
         )
         print_success()
 
-    def atest_print_attacked_squares_by_w_queen(self):
+    def test_print_attacked_squares_by_w_queen(self):
 
         print_starting()
 
@@ -53,7 +57,7 @@ class TestBoard(unittest.TestCase):
         )
         print_success()
 
-    def atest_print_attacked_squares_by_w_rooks(self):
+    def test_print_attacked_squares_by_w_rooks(self):
 
         print_starting()
 
@@ -63,7 +67,7 @@ class TestBoard(unittest.TestCase):
         )
         print_success()
 
-    def atest_print_attacked_squares_by_w_bishops(self):
+    def test_print_attacked_squares_by_w_bishops(self):
 
         print_starting()
 
@@ -73,7 +77,7 @@ class TestBoard(unittest.TestCase):
         )
         print_success()
 
-    def atest_print_attacked_b_squares(self):
+    def test_print_attacked_b_squares(self):
 
         print_starting()
 

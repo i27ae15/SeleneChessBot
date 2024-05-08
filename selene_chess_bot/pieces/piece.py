@@ -344,9 +344,11 @@ class Piece(ABC):
 
         for position in positions:
             if diagonals[position]:
-                if isinstance(diagonals[position][-1], Piece):
-                    if diagonals[position][-1].color != self.color:
-                        pieces_attacking_me.append(diagonals[position][-1])
+                last_pos = diagonals[position][-1]
+                if isinstance(last_pos, Piece):
+                    if last_pos.color != self.color:
+                        if last_pos.name in ATTACKING_DIAGONALS:
+                            pieces_attacking_me.append(diagonals[position][-1])
 
         # and finally calculate the knights
 
@@ -598,7 +600,13 @@ class Piece(ABC):
         king: Piece = self.board.get_piece(
             piece_name=PieceName.KING,
             color=self.color
-        )[0]
+        )
+
+        if not king:
+            return piece_legal_moves
+
+        king: Piece = king[0]
+
         if king.check_if_in_check():
 
             # Check first if there is any move that the piece can block the

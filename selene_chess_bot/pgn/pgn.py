@@ -59,6 +59,7 @@ class PGN:
         self.game: Game = Game()
         self.debug: bool = debug
         self._wait_for_move: int = False
+        self.raw_moves: str | dict = moves
         self.pgn: str = self.convert_to_pgn(moves)
 
     def convert_to_pgn(self, moves: str | dict) -> str:
@@ -99,6 +100,8 @@ class PGN:
         # this looks horrible, we should make it more elegant
         splited_moves = splited_moves[1:]
 
+        is_valid_pgn = True
+
         for index, move in enumerate(splited_moves):
 
             # now, we have to cut the string in two parts
@@ -108,28 +111,40 @@ class PGN:
             if self.debug:
                 _str = f'{index + 1}. {white_move} {black_move}'
                 print(_str)
-            if not self._execute_move_with_debug(white_move, PieceColor.WHITE):
-                print(
-                    'White move not valid:',
-                    white_move,
-                    'at move number', index + 1
-                )
-                break
 
-            if black_move:
-                if not self._execute_move_with_debug(
-                    black_move,
-                    PieceColor.BLACK
-                ):
-                    print(
-                        'Black move not valid:',
-                        black_move,
-                        'at move number', index + 1
-                    )
+            current_moves = [white_move, black_move]
+            color = [PieceColor.WHITE, PieceColor.BLACK]
+
+            for i, move in enumerate(current_moves):
+                if not move:
+                    continue
+                executed, message = self._execute_move_with_debug(
+                    move,
+                    color[i]
+                )
+
+                if not executed:
+                    is_valid_pgn = False
+                    if message:
+                        print(message)
+                    else:
+                        message = ['White', 'Black']
+                        print(
+                            f'{message[i]} move not valid:',
+                            current_moves[i],
+                            'at move number', index + 1
+                        )
                     break
 
+            if not is_valid_pgn:
+                break
+
         if self.debug:
-            print('PGN is valid')
+            if is_valid_pgn:
+                print('PGN is valid')
+            if not is_valid_pgn:
+                print('PGN is not valid')
+                print('pgn', self.raw_moves)
             print('Press enter to finish or write a command ')
             debug_at_end_of_moves(self)
 
@@ -185,12 +200,28 @@ class PGN:
 
         except ValueError:
             print('error in move', move)
+
         return white_move, black_move
 
     @debug_before_move_decorator
     def _execute_move_with_debug(self, move: str, *args) -> bool:
         try:
             self.game.move_piece(move)
-            return True
+            return True, None
         except ValueError:
-            return False
+            return False, None
+        except IndexError:
+
+            str_error = """
+                Index error, probably because the PGN as string has been
+                passed with the moves separated by a space between the
+                move number and the move itself.
+
+                Wrong way:
+                1. e4 e5 2. Nf3 Nc6
+
+                Correct way:
+                1.e4 e5 2.Nf3 Nc6
+            """
+
+            return False, str_error

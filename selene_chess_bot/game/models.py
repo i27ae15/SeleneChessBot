@@ -1,6 +1,8 @@
 import math
 import uuid
 import numpy as np
+import json
+import os
 
 from typing import Any
 
@@ -141,9 +143,6 @@ class GameState(models.Model):
         """
         Game would be the pointer to the game object.
         """
-
-        print('fen:', self.fen)
-
         game_instance = game.parse_fen(self.fen)
         current_game_state: GameState = game_instance.current_game_state
 
@@ -151,6 +150,7 @@ class GameState(models.Model):
             return self.game_values
 
         while True:
+
             try:
                 valid_moves = current_game_state.expandable_moves
                 move = np.random.choice(valid_moves)
@@ -164,59 +164,97 @@ class GameState(models.Model):
 
                 if game_instance.is_game_terminated:
 
-                    game_instance.print_game_state()
-
-                    print('-' * 50)
-
-                    wlm = game_instance.get_legal_moves(
-                        color=PieceColor.BLACK,
-                        show_in_algebraic=True,
-                        show_as_list=True
-                    )
-
-                    print('white moves:', wlm)
-
-                    print('-' * 50)
-
-                    blm = game_instance.get_legal_moves(
-                        color=PieceColor.WHITE,
-                        show_in_algebraic=True,
-                        show_as_list=True
-                    )
-
-                    print('black moves:', blm)
+                    file_path = 'completed simulations.json'
+                    self.save_simulation_data(file_path, game_instance)
 
                     return game_instance.game_values[game_instance.player_turn]
+
             except Exception as e:
+
+                # Let's create a JSON file where we can store the data from the game.
+
                 print('-' * 50)
                 print('error occurred')
                 print(e)
                 print('-' * 50)
 
-                game_instance.print_game_state()
+                file_path = 'simulation_errors.json'
+                self.save_simulation_data(file_path, game_instance, e)
+                print('Error occurred, saving to file')
 
-                print('-' * 50)
-
-                wlm = game_instance.get_legal_moves(
-                    color=PieceColor.BLACK,
-                    show_in_algebraic=True,
-                    show_as_list=True
-                )
-
-                print('white moves:', wlm)
-
-                print('-' * 50)
-
-                blm = game_instance.get_legal_moves(
-                    color=PieceColor.WHITE,
-                    show_in_algebraic=True,
-                    show_as_list=True
-                )
-
-                print('black moves:', blm)
                 break
 
             current_game_state = game_instance.current_game_state
+
+    def save_simulation_data(
+        self,
+        file_path: dict,
+        game_instance: Any,
+        error: Any = None
+    ) -> None:
+
+        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+            with open(file_path, 'r') as f:
+                data: dict = json.load(f)
+        else:
+            data = {
+                'data': []
+            }
+
+        data_to_append = {
+            'game_state': {
+                'white_king_in_check': game_instance.board.white_king.is_in_check,
+                'black_king_in_check': game_instance.board.black_king.is_in_check,
+                'is_game_terminated': game_instance.is_game_terminated,
+                'is_game_drawn': game_instance.is_game_drawn,
+                'moves_for_f_rule': game_instance.moves_for_f_rule,
+                'fen': game_instance.current_fen,
+            },
+            'moves': game_instance.moves,
+        }
+
+        if error:
+            data_to_append['error'] = str(error)
+
+        values = game_instance.game_values
+
+        data_to_append['game_values'] = {
+            'white': values[PieceColor.WHITE],
+            'black': values[PieceColor.BLACK]
+        }
+        turns = ['white', 'black']
+        data_to_append['player_turn'] = turns[game_instance.player_turn.value]
+
+        wlm = None
+        try:
+            wlm = game_instance.get_legal_moves(
+                color=PieceColor.BLACK,
+                show_in_algebraic=True,
+                show_as_list=True
+            )
+        except Exception as e:
+            print('Error getting white moves:', e)
+            wlm = 'Error getting white moves: ' + str(e)
+
+        data_to_append['wlm'] = wlm
+
+        blm = None
+        try:
+            blm = game_instance.get_legal_moves(
+                color=PieceColor.WHITE,
+                show_in_algebraic=True,
+                show_as_list=True
+            )
+        except Exception as e:
+            print('Error getting black moves:', e)
+            blm = 'Error getting black moves: ' + str(e)
+
+        data_to_append['blm'] = blm
+        data['data'].append(data_to_append)
+
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=4)
+            print('Data saved to file')
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         super().save(*args, **kwargs)

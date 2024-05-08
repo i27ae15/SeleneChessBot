@@ -595,7 +595,7 @@ class Board:
             list[Piece] | list: A list of pieces of the specified type and
             color.
         """
-        return self.pieces_on_board[color][piece_name]
+        return self.pieces_on_board[color].get(piece_name, [])
 
     def is_position_empty(
         self,

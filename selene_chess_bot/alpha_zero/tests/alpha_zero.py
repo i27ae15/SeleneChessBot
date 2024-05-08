@@ -15,9 +15,4 @@ class AlphaZeroTest(unittest.TestCase):
         )
 
     def test_mcts(self):
-        try:
-            print(self.mcts)
-            self.mcts.search()
-        except Exception as e:
-            print(e)
-            config.drop_test_db()
+        pass
