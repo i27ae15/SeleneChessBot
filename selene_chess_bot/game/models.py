@@ -19,7 +19,8 @@ class GameState(models.Model):
     """
     This also should act as the node in the AlphaZero tree.
 
-    The Json for the expandable_moves and explored_moves would be in the following format:
+    The Json for the expandable_moves and explored_moves would be in the
+    following format:
 
     {
         'moves': ['Pe4', 'Pe5', 'Pd4', 'Pd5']

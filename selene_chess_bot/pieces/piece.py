@@ -638,18 +638,17 @@ class Piece(ABC):
                     show_in_algebraic_notation=show_in_algebraic_notation
                 )
 
-            if direction:
-                for move in piece_legal_moves:
-                    if isinstance(move, Piece):
-                        if move == piece:
-                            possible_legal_moves.append(move)
-                    else:
+            for move in piece_legal_moves:
+                if isinstance(move, Piece):
+                    if move == piece:
+                        possible_legal_moves.append(move)
+                else:
 
-                        if move in direction:
-                            possible_legal_moves.append(move)
+                    if move in direction:
+                        possible_legal_moves.append(move)
 
-                        if move == piece.position or move == piece.algebraic_pos:
-                            possible_legal_moves.append(move)
+                    if move == piece.position or move == piece.algebraic_pos:
+                        possible_legal_moves.append(move)
 
             return possible_legal_moves
 

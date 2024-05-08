@@ -446,7 +446,9 @@ class Game:
 
         # Include en passant possibility
         if en_passant_pos is not None:
-            board_hash ^= self.zobrist_keys['en_passant'][int(en_passant_pos[1])]
+            board_hash ^= self.zobrist_keys['en_passant'][
+                int(en_passant_pos[1])
+            ]
 
         # Include the side to move
         if current_side == PieceColor.BLACK:
@@ -499,7 +501,7 @@ class Game:
 
         if not game_state:
 
-            # print('new game object created')
+            print('new game object created')
 
             self.current_fen = self.generate_current_fen()
 
@@ -520,9 +522,11 @@ class Game:
                 current_turn=self.current_turn
             )
 
+            print(GameState.objects.all().count())
+
         else:
 
-            # print('game object already exists')
+            print('game object already exists')
 
             game_state: GameState = game_state[0]
             self.current_fen = game_state.fen

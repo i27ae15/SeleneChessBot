@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.test.runner import DiscoverRunner
 
 from core.utils import INITIAL_FEN
 

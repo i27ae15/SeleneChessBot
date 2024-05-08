@@ -203,10 +203,14 @@ class PieceMove:
                 self.piece_file = self._abr_move[1]
 
         if self.piece_name == PieceName.PAWN:
+            # TODO:
             # We cannot put the file here because this can be an
             # en passant move, so the file should be put later
             if '=' in self.move:
+                self.piece_file = self._abr_move[0]
                 self.square = self._abr_move[:2]
+            else:
+                self.piece_file = self._abr_move[0]
 
         self.square_pos = convert_from_algebraic_notation(self.square)
 
