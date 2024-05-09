@@ -5,6 +5,8 @@ from core.utils import convert_from_algebraic_notation
 
 from board import Board
 
+from game.exceptions import InvalidMoveError
+
 
 class PieceMove:
     """
@@ -144,7 +146,7 @@ class PieceMove:
                     self.piece_name = piece
                     break
             else:
-                raise ValueError('Invalid move')
+                raise InvalidMoveError()
 
     def get_castleling_square(self) -> str:
         """

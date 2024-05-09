@@ -1,8 +1,10 @@
+from core.debugger import debug_before_move_decorator, debug_at_end_of_moves
+
 from game.game import Game
+from game.exceptions import InvalidMoveError
 
 from pieces.utilites import PieceColor
 
-from core.debugger import debug_before_move_decorator, debug_at_end_of_moves
 
 
 class PGN:
@@ -208,7 +210,7 @@ class PGN:
         try:
             self.game.move_piece(move)
             return True, None
-        except ValueError:
+        except InvalidMoveError:
             return False, None
         except IndexError:
 

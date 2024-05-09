@@ -1,10 +1,13 @@
 from django.test import TestCase
 
-from game.game import Game
+from core.testing import print_starting, print_success
 
 from pieces.utilites import PieceColor
 
-from core.testing import print_starting, print_success
+from game.game import Game
+from game.exceptions import InvalidMoveError
+
+
 
 
 class TestGame(TestCase):
@@ -160,7 +163,7 @@ class TestGame(TestCase):
         self.game.move_piece('Pd4')
         self.game.move_piece('Pd5')
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidMoveError):
             self.game.move_piece('Pd5')
 
         print_success()
@@ -172,7 +175,7 @@ class TestGame(TestCase):
         self.game.move_piece('Pd4')
         self.game.move_piece('Pd5')
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidMoveError):
             self.game.move_piece('Ld5')
 
         print_success()

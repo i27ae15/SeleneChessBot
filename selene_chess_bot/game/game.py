@@ -1,34 +1,19 @@
-from typing import TypedDict
+
+from core.debugger import control_state_manager
+from core.utils import convert_from_algebraic_notation
+from core.types import (
+    BoardStates, MoveDict, BoardRepresentation
+)
 
 from board import Board
 
 from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
-from core.debugger import control_state_manager
-from core.utils import convert_from_algebraic_notation
-
-from game.piece_move import PieceMove
-from game.models import GameState
 from game.apps import GameConfig
-
-
-class MoveDict(TypedDict):
-
-    """
-
-        Moves dict will look like this:
-
-        {
-            #N: [Move 1, Move 2]
-        }
-
-        Where the first element of the list if the move for white and the
-        second for the black player
-
-    """
-
-    move_number: list[str, str]
+from game.models import GameState
+from game.piece_move import PieceMove
+from game.exceptions import InvalidMoveError
 
 
 class Game:
@@ -103,17 +88,12 @@ class Game:
     def __init__(
         self,
         current_turn: int = 1,
-        board_setup: list[list[str]] = None,
         en_passant_target: str | None = None,
+        board_setup: BoardRepresentation = None,
         player_turn: PieceColor = PieceColor.WHITE,
     ) -> None:
 
         """
-        TODO: Check if we can create a game state for the initial state of the
-            game, either this was initialize with a board setup or not
-            TODO: Test
-        TODO: Create custom exceptions for the game
-        TODO: Create custom dict types for the board states and other places
         TODO: Integrate better the Debugger class
         TODO: Convert the matrix of the board setup to a numpy array
         """
@@ -122,7 +102,7 @@ class Game:
         self.debug: bool = False
 
         # Board
-        self.board_states: dict[bytes] = dict()
+        self.board_states: BoardStates = dict()
         self.board: Board = Board(board_setup=board_setup)
         self.initial_board_setup: bool = lambda: False if board_setup else True
 
@@ -703,7 +683,7 @@ class Game:
             ):
                 return piece
 
-        raise ValueError('Invalid move')
+        raise InvalidMoveError()
 
     def _move_piece(self, piece: Piece, piece_move: PieceMove):
         """
@@ -724,10 +704,10 @@ class Game:
         if piece_move.is_castleling:
             # this mean that the piece is the king
             if not piece.castle(side=piece_move.castleling_side):
-                raise ValueError('Invalid move')
+                raise InvalidMoveError()
         else:
             if not piece.move_to(piece_move.square):
-                raise ValueError('Invalid move')
+                raise InvalidMoveError()
 
     def _color_has_legal_moves(
         self,
