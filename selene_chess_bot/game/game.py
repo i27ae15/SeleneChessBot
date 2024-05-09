@@ -1,18 +1,16 @@
+from typing import TypedDict
+
 from board import Board
 
 from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
 from core.debugger import control_state_manager
-from core.utils import (
-    INITIAL_FEN, convert_from_algebraic_notation
-)
+from core.utils import convert_from_algebraic_notation
 
 from game.piece_move import PieceMove
 from game.models import GameState
 from game.apps import GameConfig
-
-from typing import TypedDict
 
 
 class MoveDict(TypedDict):
@@ -104,12 +102,22 @@ class Game:
 
     def __init__(
         self,
-        current_turn: int = 1,
+        current_turn: int = 0,
         get_game_state: bool = True,
         board_setup: list[list[str]] = None,
         en_passant_target: str | None = None,
         player_turn: PieceColor = PieceColor.WHITE,
     ) -> None:
+
+        """
+        TODO: Check when we have to add the current_turn
+        TODO: Check if we can create a game state for the initial state of the
+            game, either this was initialize with a board setup or not
+        TODO: Create custom exceptions for the game
+        TODO: Create custom dict types for the board states and other places
+        TODO: Integrate better the Debugger class
+        TODO: Convert the matrix of the board setup to a numpy array
+        """
 
         self.board: Board = Board(board_setup=board_setup)
 
@@ -128,19 +136,19 @@ class Game:
 
         self.is_game_terminated: bool = False
         self.is_game_drawn: bool = False
-        self.zobrist_keys: dict = GameConfig.hash.keys
 
-        self.current_board_hash: bytes = self.compute_board_hash(
+        self.current_board_hash: bytes = self.compute_game_state_hash(
             board=self.board,
             current_side=self.player_turn,
             en_passant_pos=en_passant_target,
             castling_rights=self.board.castleling_rights,
         )
 
-        self.current_game_state: GameState = GameState.objects.get(
-            board_hash=self.current_board_hash
-        ) if get_game_state else None
+        self.current_game_state: GameState = None
+        self.current_fen: str = str()
+        self._initialize_game_state(get_game_state=get_game_state)
 
+        # NOTE: This dict could be simplified
         self.game_values: dict = {
             PieceColor.WHITE: {
                 'value': 0
@@ -150,7 +158,7 @@ class Game:
             }
         }
 
-        self.current_fen: str = self.generate_initial_fen()
+    #  ---------------------------- PROPERTIES ----------------------------
 
     @property
     def action_size(self) -> int:
@@ -185,6 +193,8 @@ class Game:
         if not castling_str:
             return "-"
         return "".join(castling_str)
+
+    #  ---------------------------- STATIC METHODS ----------------------------
 
     @staticmethod
     def generate_fen(
@@ -350,16 +360,75 @@ class Game:
         game.board.castleling_rights = castling_rights
         return game
 
-    def generate_initial_fen(self) -> str:
+    @staticmethod
+    def compute_game_state_hash(
+        board: Board,
+        current_side: PieceColor,
+        castling_rights: dict,
+        en_passant_pos: str
+    ) -> bytes:
 
         """
-        Generates the FEN string for the initial board setup.
+        Computes a unique hash value for a given chess board configuration
+        using Zobrist hashing, which is helpful for board state comparison in
+        chess engines and databases.
+
+        This hash includes piece positions, castling rights, en passant
+        possibilities, and the current side to move. The resulting hash can be
+        used to quickly check for repeated board states or to store positions
+        in a lookup table.
+
+        Args:
+            board (Board): The board object containing the current state of the
+                chess game.
+
+            current_side (PieceColor): The current player's color
+                (WHITE or BLACK).
+
+            castling_rights (dict): A dictionary detailing castling
+                availability for both colors and each rook side.
+
+            en_passant_pos (str): The position of a potential en passant
+                capture, or None if no such capture is possible.
+
+        Returns:
+            int: An integer hash of the board state. This integer is
+                represented in 8 bytes using big-endian byte order.
         """
 
-        if self.initial_board_setup:
-            return INITIAL_FEN
+        board_hash = 0
+        zobrist_keys = GameConfig.hash.keys
 
-        return self.generate_current_fen()
+        # Iterate through each piece on the board and XOR its key
+        for row in range(8):
+            for column in range(8):
+                piece = board.get_square_or_piece(row, column)
+                if isinstance(piece, Piece):
+                    piece: Piece
+                    piece_key = zobrist_keys[piece.name.value[1]][
+                        (row, column)
+                    ]
+                    board_hash ^= piece_key
+
+        # Include castling rights
+        for side, rights in castling_rights.items():
+            for right, enabled in rights.items():
+                if enabled:
+                    board_hash ^= zobrist_keys['castling'][(side, right)]
+
+        # Include en passant possibility
+        if en_passant_pos is not None:
+            board_hash ^= zobrist_keys['en_passant'][
+                int(en_passant_pos[1])
+            ]
+
+        # Include the side to move
+        if current_side == PieceColor.BLACK:
+            board_hash ^= zobrist_keys['side']
+
+        return board_hash.to_bytes(8, byteorder='big', signed=False)
+
+    # ---------------------------- PUBLIC METHODS ----------------------------
 
     def generate_current_fen(self) -> str:
         """
@@ -425,8 +494,6 @@ class Game:
                 each representing a move in algebraic notation.
         """
 
-        print('legal moves are being called')
-
         legal_moves: dict = self.board.get_legal_moves(
             color, show_in_algebraic
         )
@@ -442,19 +509,6 @@ class Game:
                 moves.append(f'{piece.name.value[1]}{move}')
 
         return moves
-
-    def start(self) -> None:
-        """
-        Starts the game loop, allowing players to make moves until the game
-        """
-        while not self.is_game_terminated:
-            text: str = control_state_manager(self)
-            try:
-                self.move_piece(text)
-            except ValueError:
-                print('Invalid move')
-            except Exception as e:
-                print(e)
 
     def move_piece(self, move: str) -> None:
         """
@@ -513,73 +567,6 @@ class Game:
 
         self._manage_board_state(piece_move)
 
-    def compute_board_hash(
-        self,
-        board: Board,
-        current_side: PieceColor,
-        castling_rights: dict,
-        en_passant_pos: str
-    ) -> int:
-
-        """
-        Computes a unique hash value for a given chess board configuration using
-        Zobrist hashing, which is helpful for board state comparison in chess
-        engines and databases.
-
-        This hash includes piece positions, castling rights, en passant
-        possibilities, and the current side to move. The resulting hash can be
-        used to quickly check for repeated board states or to store positions
-        in a lookup table.
-
-        Args:
-            board (Board): The board object containing the current state of the
-                chess game.
-
-            current_side (PieceColor): The current player's color
-                (WHITE or BLACK).
-
-            castling_rights (dict): A dictionary detailing castling
-                availability for both colors and each rook side.
-
-            en_passant_pos (str): The position of a potential en passant
-                capture, or None if no such capture is possible.
-
-        Returns:
-            int: An integer hash of the board state. This integer is
-                represented in 8 bytes using big-endian byte order.
-        """
-
-        board_hash = 0
-
-        # Iterate through each piece on the board and XOR its key
-        for row in range(8):
-            for column in range(8):
-                piece = board.get_square_or_piece(row, column)
-                if isinstance(piece, Piece):
-                    piece: Piece
-                    piece_key = self.zobrist_keys[piece.name.value[1]][
-                        (row, column)
-                    ]
-                    board_hash ^= piece_key
-
-        # Include castling rights
-        for side, rights in castling_rights.items():
-            for right, enabled in rights.items():
-                if enabled:
-                    board_hash ^= self.zobrist_keys['castling'][(side, right)]
-
-        # Include en passant possibility
-        if en_passant_pos is not None:
-            board_hash ^= self.zobrist_keys['en_passant'][
-                int(en_passant_pos[1])
-            ]
-
-        # Include the side to move
-        if current_side == PieceColor.BLACK:
-            board_hash ^= self.zobrist_keys['side']
-
-        return board_hash.to_bytes(8, byteorder='big', signed=False)
-
     def print_game_state(self):
         """
         Prints the current state of the game.
@@ -596,112 +583,44 @@ class Game:
         print(f'moves_for_f_rule: {self.moves_for_f_rule}')
         print(f'values: {self.game_values}')
 
+    def start(self) -> None:
+        """
+        Starts the game loop, allowing players to make moves until the game
+        """
+        while not self.is_game_terminated:
+            text: str = control_state_manager(self)
+            try:
+                self.move_piece(text)
+            except ValueError:
+                print('Invalid move')
+            except Exception as e:
+                print(e)
+
+    # ---------------------------- PRIVATE METHODS ----------------------------
+
+    # ----------------------------- INITIALIZERS ------------------------------
+
     def _initialize_en_passant_pawns(self, en_passant_target: str | None):
         if en_passant_target:
             self._set_en_passant_pawn(en_passant_target)
 
-    def _set_en_passant_pawn(self, en_passant_target: str) -> None:
+    def _initialize_game_state(self, get_game_state: bool):
+        if not get_game_state:
+            self.current_fen = self.generate_current_fen()
+            return
 
-        square = convert_from_algebraic_notation(en_passant_target)
-        piece: Pawn = self.board.get_square_or_piece(
-            column=square[1],
-            row=square[0]
-        )
-        piece.can_be_captured_en_passant = True
-
-        if piece.color == PieceColor.WHITE:
-            self.white_possible_pawn_enp = piece
-        else:
-            self.black_possible_pawn_enp = piece
-
-    def _manage_board_state(self, move: PieceMove):
-
-        # TODO: Check if the current turn should be
-        # incremented here or in the _manage_game_state method
-        # Check if this state exists in the database
-
-        self._add_board_hash()
-        game_state = GameState.objects.filter(
+        # TODO: Check if we should create a game state
+        # for the initial state of the game, either this
+        # was initialize with a board setup or not
+        self.current_game_state = GameState.objects.get(
             board_hash=self.current_board_hash
         )
+        self.current_game_state.increment_visits()
 
-        if not game_state:
+        self.current_turn = self.current_game_state.current_turn
+        self.current_fen = self.current_game_state.fen
 
-            print('new game object created')
-
-            self.current_fen = self.generate_current_fen()
-
-            game_state = GameState.objects.create(
-                board_hash=self.current_board_hash,
-                fen=self.current_fen,
-                is_game_terminated=self.is_game_terminated,
-                white_value=self.white_value,
-                black_value=self.black_value,
-                parent=self.current_game_state,
-                move_taken=move.move,
-                expandable_moves=self.get_legal_moves(
-                    color=self.player_turn,
-                    show_in_algebraic=True,
-                    show_as_list=True
-                ),
-                player_turn=self.player_turn.value,
-                current_turn=self.current_turn
-            )
-
-            print(GameState.objects.all().count())
-
-        else:
-
-            print('game object already exists')
-
-            game_state: GameState = game_state[0]
-            self.current_fen = game_state.fen
-
-            game_state.increment_visits()
-
-        self.current_game_state = game_state
-
-    def _add_board_hash(self):
-        """
-        Computes the current board state's hash and records it in the game
-        history. This method is essential for detecting threefold repetition,
-        which can lead to a draw.
-
-        The hash includes the position of pieces, castling rights, en passant
-        possibilities, and the current side to move. If a particular board
-        configuration appears three times, the game is automatically drawn
-        according to chess rules.
-
-        This function updates the game's state including termination
-        conditions and the outcome (draw or ongoing game).
-        """
-
-        en_passant_pos = (
-            self.black_possible_pawn_enp or self.white_possible_pawn_enp
-        )
-
-        if en_passant_pos:
-            en_passant_pos = en_passant_pos.algebraic_pos
-
-        board_hash = self.compute_board_hash(
-            current_side=self.player_turn,
-            board=self.board,
-            castling_rights=self.board.castleling_rights,
-            en_passant_pos=en_passant_pos
-        )
-
-        self.current_board_hash = board_hash
-
-        if board_hash in self.board_states:
-            st = self.board_states[board_hash]
-            self.board_states[board_hash] = st + 1
-            if st + 1 >= 3:
-                self.is_game_terminated = True
-                self.is_game_drawn = True
-                self.game_values[PieceColor.WHITE]['value'] = 0
-                self.game_values[PieceColor.BLACK]['value'] = 0
-        else:
-            self.board_states[board_hash] = 1
+    # --------------------------------------------------------------------------
 
     def _clean_en_passant_state(self):
         """
@@ -728,78 +647,6 @@ class Game:
                 self.white_possible_pawn_enp = None
             elif self.player_turn == PieceColor.BLACK:
                 self.black_possible_pawn_enp = None
-
-    def _manage_en_passant_pawns(self, piece: Piece, piece_move: PieceMove):
-        """
-        Manages pawns that can be captured en passant.
-
-        This method updates the tracking of pawns eligible for en passant
-        capture, based on the most recent move. It first clears the current
-        en passant status and then sets up new pawns for en passant if
-        applicable.
-
-        Parameters:
-            piece (Piece): The piece that has just been moved, potentially
-            a pawn.
-            piece_move (PieceMove): The move that has just been executed.
-        """
-
-        self._clean_en_passant_state()
-
-        # if the piece is a pawn, track for en passant
-        if piece_move.piece_name == PieceName.PAWN:
-            piece: Pawn
-            # if the move is a double move, track the pawn
-            if piece_move.square[-1] in '45' and piece.first_move:
-
-                if self.player_turn == PieceColor.WHITE:
-                    self.white_possible_pawn_enp = piece
-                elif self.player_turn == PieceColor.BLACK:
-                    self.black_possible_pawn_enp = piece
-
-                piece.can_be_captured_en_passant = True
-
-    def _manage_coronation(self, piece: Piece, piece_move: PieceMove):
-        """
-        Manages the coronation of a pawn.
-
-        This method handles the coronation of a pawn into a queen. It checks
-        if the move is a pawn move that reaches the last row of the board,
-        and if so, it replaces the pawn with a queen.
-
-        Parameters:
-            piece (Piece): The piece that has just been moved, potentially
-            a pawn.
-
-            piece_move (PieceMove): The move that has just been executed.
-        """
-
-        if isinstance(piece, Pawn) and piece_move.coronation_into:
-            piece.coronate(piece_move.coronation_into)
-
-    def _manage_fifty_moves_rule(self, piece_move: PieceMove):
-        """
-        Manages the 50 moves rule.
-
-        This method manages the 50 moves rule, which states that a game is
-        drawn if no capture has been made and no pawn has been moved in the
-        last 50 moves. It tracks the number of moves since the last capture
-        or pawn move and resets the counter if either of these conditions are
-        met.
-
-        Parameters:
-            piece_move (PieceMove): The move that has just been executed.
-        """
-
-        if piece_move.piece_name == PieceName.PAWN:
-            self.moves_for_f_rule = 0
-        elif piece_move.is_capture:
-            self.moves_for_f_rule = 0
-        else:
-            self.moves_for_f_rule += 1
-
-        if self.moves_for_f_rule >= 100:
-            self.is_game_terminated = True
 
     def _get_movable_piece(
         self,
@@ -883,109 +730,6 @@ class Game:
             if not piece.move_to(piece_move.square):
                 raise ValueError('Invalid move')
 
-    def _manage_game_state(self, piece_move: PieceMove):
-        """
-        Manages the state of the game after a move is made.
-
-        This method updates the game's move history and player turns. It
-        ensures that the moves are recorded correctly and manages the
-        transition between turns. It also increments the turn counter when
-        it's time for the White player to move again.
-
-        Parameters:
-            piece_move (PieceMove): The move that has just been executed.
-        """
-
-        self._manage_check_detection()
-        self._manage_game_termination()
-
-        # check if the move is valid
-        if self.current_turn not in self.moves:
-            self.moves[self.current_turn] = []
-
-        self.player_turn = self.player_turn.opposite()
-        self.moves[self.current_turn].append(piece_move.move)
-
-        if self.player_turn == PieceColor.WHITE:
-            self.current_turn += 1
-
-        self.board._attacked_squares_by_white_checked = False
-        self.board._attacked_squares_by_black_checked = False
-
-    def _manage_check_detection(self):
-        """
-        Manages the detection of check and checkmate.
-
-        This method checks if the move has caused a check or checkmate. If
-        so, it raises an error, indicating the end of the game.
-
-        Parameters:
-            piece_move (PieceMove): The move that has just been executed.
-
-        Raises:
-            ValueError: If the move has caused a check or checkmate.
-        """
-
-        self.board.white_king.check_if_in_check()
-        self.board.black_king.check_if_in_check()
-
-    def _manage_game_termination(self) -> bool:
-        """
-        Manages the termination of the game.
-
-        This method checks if the move has caused the game to end, either
-        through checkmate or stalemate. If so, it raises an error, indicating
-        the end of the game.
-
-        Parameters:
-            piece_move (PieceMove): The move that has just been executed.
-
-        Raises:
-            ValueError: If the move has caused the game to end.
-        """
-
-        king: King = self.board.get_piece(
-            piece_name=PieceName.KING,
-            color=self.player_turn.opposite()
-        )[0]
-
-        if king.is_in_check:
-            # check if there are legal moves in the board for the color
-            if not self._color_has_legal_moves(
-                color=king.color,
-                is_king_in_check=True
-            ):
-                # check who won
-                if king.color == PieceColor.WHITE:
-                    self.game_values[PieceColor.BLACK]['value'] = float('inf')
-                    self.game_values[PieceColor.WHITE]['value'] = float('-inf')
-                else:
-                    self.game_values[PieceColor.WHITE]['value'] = float('inf')
-                    self.game_values[PieceColor.BLACK]['value'] = float('-inf')
-
-                self.is_game_terminated = True
-
-        # check if there is a stale mate in the board
-        # the minimum pieces that are required for a stalemate are 8]
-
-        n_pieces = [
-            self.board.n_white_pieces,
-            self.board.n_black_pieces
-        ]
-
-        n_pieces = n_pieces[king.color.value]
-
-        if not king.is_in_check and n_pieces <= 8:
-            if not self._color_has_legal_moves(
-                color=king.color,
-                is_king_in_check=False
-            ):
-
-                # this is a stalemate
-                self.game_values[PieceColor.WHITE]['value'] = 0
-                self.game_values[PieceColor.BLACK]['value'] = 0
-                self.is_game_terminated = True
-
     def _color_has_legal_moves(
         self,
         color: PieceColor,
@@ -1026,17 +770,22 @@ class Game:
     def _check_legal_moves_when_king_is_not_in_check(
         self,
         color: PieceColor
-    ):
+    ) -> bool:
+        # TODO: Create docstring
         for piece_key in self.board.pieces_on_board[color]:
             for piece in self.board.pieces_on_board[color][piece_key]:
                 piece: Piece
                 if piece.calculate_legal_moves():
                     return True
 
+        return False
+
     def _check_legal_moves_when_king_is_in_check(
         self,
         king: King
     ) -> bool:
+
+        # TODO: Create docstring
 
         # if the king does not have legal moves, we need to check if there is a
         # piece that can protect the king from being attacked
@@ -1062,8 +811,7 @@ class Game:
                 )
 
                 if pos_to_cap:
-                    # this mean checkmate
-                    # was not pos and return False
+                    # this mean checkmate was not pos and return False
                     return True
 
             else:
@@ -1101,7 +849,9 @@ class Game:
         self,
         attacking_piece: Piece,
         king: King
-    ):
+    ) -> bool:
+
+        # TODO: Create docstring
 
         pieces = self.board.pieces_on_board[king.color]
 
@@ -1118,6 +868,8 @@ class Game:
         attacking_piece: Piece,
         king: King
     ) -> bool:
+
+        # TODO: Create docstring
 
         # first check if the king is being double attacked
         # if so, we can not block the attack
@@ -1188,3 +940,285 @@ class Game:
                         return True
 
         return False
+
+    # ----------------------------- MANAGERS ------------------------------
+
+    def _manage_game_termination(self):
+        """
+        Manages the termination of the game.
+
+        This method checks if the move has caused the game to end, either
+        through checkmate or stalemate. If so, it raises an error, indicating
+        the end of the game.
+
+        Parameters:
+            piece_move (PieceMove): The move that has just been executed.
+
+        Raises:
+            ValueError: If the move has caused the game to end.
+        """
+
+        king: King = self.board.get_piece(
+            piece_name=PieceName.KING,
+            color=self.player_turn.opposite()
+        )[0]
+
+        if king.is_in_check:
+            # check if there are legal moves in the board for the color
+            if not self._color_has_legal_moves(
+                color=king.color,
+                is_king_in_check=True
+            ):
+                # check who won
+                if king.color == PieceColor.WHITE:
+                    self.game_values[PieceColor.BLACK]['value'] = float('inf')
+                    self.game_values[PieceColor.WHITE]['value'] = float('-inf')
+                else:
+                    self.game_values[PieceColor.WHITE]['value'] = float('inf')
+                    self.game_values[PieceColor.BLACK]['value'] = float('-inf')
+
+                self.is_game_terminated = True
+
+        # check if there is a stale mate in the board
+        # the minimum pieces that are required for a stalemate are 8]
+
+        n_pieces = [
+            self.board.n_white_pieces,
+            self.board.n_black_pieces
+        ]
+
+        n_pieces = n_pieces[king.color.value]
+
+        if not king.is_in_check and n_pieces <= 8:
+            if not self._color_has_legal_moves(
+                color=king.color,
+                is_king_in_check=False
+            ):
+
+                # this is a stalemate
+                self.game_values[PieceColor.WHITE]['value'] = 0
+                self.game_values[PieceColor.BLACK]['value'] = 0
+                self.is_game_terminated = True
+
+    def _manage_check_detection(self):
+        """
+        Manages the detection of check and checkmate.
+
+        This method checks if the move has caused a check or checkmate. If
+        so, it raises an error, indicating the end of the game.
+
+        Parameters:
+            piece_move (PieceMove): The move that has just been executed.
+
+        Raises:
+            ValueError: If the move has caused a check or checkmate.
+        """
+
+        self.board.white_king.check_if_in_check()
+        self.board.black_king.check_if_in_check()
+
+    def _manage_en_passant_pawns(self, piece: Piece, piece_move: PieceMove):
+        """
+        Manages pawns that can be captured en passant.
+
+        This method updates the tracking of pawns eligible for en passant
+        capture, based on the most recent move. It first clears the current
+        en passant status and then sets up new pawns for en passant if
+        applicable.
+
+        Parameters:
+            piece (Piece): The piece that has just been moved, potentially
+            a pawn.
+            piece_move (PieceMove): The move that has just been executed.
+        """
+
+        self._clean_en_passant_state()
+
+        # if the piece is a pawn, track for en passant
+        if piece_move.piece_name == PieceName.PAWN:
+            piece: Pawn
+            # if the move is a double move, track the pawn
+            if piece_move.square[-1] in '45' and piece.first_move:
+
+                if self.player_turn == PieceColor.WHITE:
+                    self.white_possible_pawn_enp = piece
+                elif self.player_turn == PieceColor.BLACK:
+                    self.black_possible_pawn_enp = piece
+
+                piece.can_be_captured_en_passant = True
+
+    def _manage_coronation(self, piece: Piece, piece_move: PieceMove):
+        """
+        Manages the coronation of a pawn.
+
+        This method handles the coronation of a pawn into a queen. It checks
+        if the move is a pawn move that reaches the last row of the board,
+        and if so, it replaces the pawn with a queen.
+
+        Parameters:
+            piece (Piece): The piece that has just been moved, potentially
+            a pawn.
+
+            piece_move (PieceMove): The move that has just been executed.
+        """
+
+        if isinstance(piece, Pawn) and piece_move.coronation_into:
+            piece.coronate(piece_move.coronation_into)
+
+    def _manage_fifty_moves_rule(self, piece_move: PieceMove):
+        """
+        Manages the 50 moves rule.
+
+        This method manages the 50 moves rule, which states that a game is
+        drawn if no capture has been made and no pawn has been moved in the
+        last 50 moves. It tracks the number of moves since the last capture
+        or pawn move and resets the counter if either of these conditions are
+        met.
+
+        Parameters:
+            piece_move (PieceMove): The move that has just been executed.
+        """
+
+        if piece_move.piece_name == PieceName.PAWN:
+            self.moves_for_f_rule = 0
+        elif piece_move.is_capture:
+            self.moves_for_f_rule = 0
+        else:
+            self.moves_for_f_rule += 1
+
+        if self.moves_for_f_rule >= 100:
+            self.is_game_terminated = True
+
+    def _manage_game_state(self, piece_move: PieceMove):
+        """
+        Manages the state of the game after a move is made.
+
+        This method updates the game's move history and player turns. It
+        ensures that the moves are recorded correctly and manages the
+        transition between turns. It also increments the turn counter when
+        it's time for the White player to move again.
+
+        Parameters:
+            piece_move (PieceMove): The move that has just been executed.
+        """
+
+        self._manage_check_detection()
+        self._manage_game_termination()
+
+        # check if the move is valid
+        if self.current_turn not in self.moves:
+            self.moves[self.current_turn] = []
+
+        self.player_turn = self.player_turn.opposite()
+        self.moves[self.current_turn].append(piece_move.move)
+
+        if self.player_turn == PieceColor.WHITE:
+            self.current_turn += 1
+
+        self.board._attacked_squares_by_white_checked = False
+        self.board._attacked_squares_by_black_checked = False
+
+    def _manage_board_state(self, move: PieceMove):
+
+        # TODO: Check if the current turn should be
+        # incremented here or in the _manage_game_state method
+        # Check if this state exists in the database
+
+        self._set_current_game_state_hash()
+        game_state = GameState.objects.filter(
+            board_hash=self.current_board_hash
+        )
+
+        if not game_state:
+
+            print('new game object created')
+
+            self.current_fen = self.generate_current_fen()
+
+            game_state = GameState.objects.create(
+                board_hash=self.current_board_hash,
+                fen=self.current_fen,
+                is_game_terminated=self.is_game_terminated,
+                white_value=self.white_value,
+                black_value=self.black_value,
+                parent=self.current_game_state,
+                move_taken=move.move,
+                expandable_moves=self.get_legal_moves(
+                    color=self.player_turn,
+                    show_in_algebraic=True,
+                    show_as_list=True
+                ),
+                player_turn=self.player_turn.value,
+                current_turn=self.current_turn
+            )
+
+            print(GameState.objects.all().count())
+
+        else:
+
+            print('game object already exists')
+
+            game_state: GameState = game_state[0]
+            self.current_fen = game_state.fen
+
+            game_state.increment_visits()
+
+        self.current_game_state = game_state
+
+    # ---------------------------- SETTER METHODS ----------------------------
+
+    def _set_current_game_state_hash(self):
+        """
+        Computes the current board state's hash and records it in the game
+        history. This method is essential for detecting threefold repetition,
+        which can lead to a draw.
+
+        The hash includes the position of pieces, castling rights, en passant
+        possibilities, and the current side to move. If a particular board
+        configuration appears three times, the game is automatically drawn
+        according to chess rules.
+
+        This function updates the game's state including termination
+        conditions and the outcome (draw or ongoing game).
+        """
+
+        en_passant_pos = (
+            self.black_possible_pawn_enp or self.white_possible_pawn_enp
+        )
+
+        if en_passant_pos:
+            en_passant_pos = en_passant_pos.algebraic_pos
+
+        board_hash = self.compute_game_state_hash(
+            current_side=self.player_turn,
+            board=self.board,
+            castling_rights=self.board.castleling_rights,
+            en_passant_pos=en_passant_pos
+        )
+
+        self.current_board_hash = board_hash
+
+        if board_hash in self.board_states:
+            st = self.board_states[board_hash]
+            self.board_states[board_hash] = st + 1
+            if st + 1 >= 3:
+                self.is_game_terminated = True
+                self.is_game_drawn = True
+                self.game_values[PieceColor.WHITE]['value'] = 0
+                self.game_values[PieceColor.BLACK]['value'] = 0
+        else:
+            self.board_states[board_hash] = 1
+
+    def _set_en_passant_pawn(self, en_passant_target: str) -> None:
+
+        square = convert_from_algebraic_notation(en_passant_target)
+        piece: Pawn = self.board.get_square_or_piece(
+            column=square[1],
+            row=square[0]
+        )
+        piece.can_be_captured_en_passant = True
+
+        if piece.color == PieceColor.WHITE:
+            self.white_possible_pawn_enp = piece
+        else:
+            self.black_possible_pawn_enp = piece
