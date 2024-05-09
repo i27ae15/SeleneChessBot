@@ -129,7 +129,6 @@ class Board:
 
     def __init__(
         self,
-        create_initial_board_set_up: bool = True,
         board_setup: list[list[str]] = None
     ) -> None:
         """
@@ -199,10 +198,10 @@ class Board:
 
         self._is_initial_board_set_up: bool = False
 
-        if create_initial_board_set_up:
+        if not board_setup:
             self.create_initial_board_set_up()
 
-        if board_setup:
+        elif board_setup:
             self._setup_board(board_setup)
 
     @property

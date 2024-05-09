@@ -108,15 +108,12 @@ class Game:
         get_game_state: bool = True,
         board_setup: list[list[str]] = None,
         en_passant_target: str | None = None,
-        create_initial_board_setup: bool = True,
         player_turn: PieceColor = PieceColor.WHITE,
     ) -> None:
 
-        self.initial_board_setup: bool = create_initial_board_setup
-        self.board: Board = Board(
-            create_initial_board_set_up=create_initial_board_setup,
-            board_setup=board_setup
-        )
+        self.board: Board = Board(board_setup=board_setup)
+
+        self.initial_board_setup: bool = lambda: False if board_setup else True
         self.moves: MoveDict = {}
         self.moves_for_f_rule: int = 0
         self.board_states: dict[str] = dict()
@@ -127,13 +124,11 @@ class Game:
 
         self.white_possible_pawn_enp: Pawn | None = None
         self.black_possible_pawn_enp: Pawn | None = None
+        self._initialize_en_passant_pawns(en_passant_target)
 
         self.is_game_terminated: bool = False
         self.is_game_drawn: bool = False
         self.zobrist_keys: dict = GameConfig.hash.keys
-
-        if en_passant_target:
-            self._set_en_passant_pawn(en_passant_target)
 
         self.current_board_hash: bytes = self.compute_board_hash(
             board=self.board,
@@ -333,7 +328,6 @@ class Game:
         )
 
         game = Game(
-            create_initial_board_setup=False,
             board_setup=board,
             player_turn=active_color,
             current_turn=fullmove_number,
@@ -586,22 +580,6 @@ class Game:
 
         return board_hash.to_bytes(8, byteorder='big', signed=False)
 
-    def _set_en_passant_pawn(self, en_passant_target: str) -> None:
-
-        square = convert_from_algebraic_notation(en_passant_target)
-        piece: Pawn = self.board.get_square_or_piece(
-            column=square[1],
-            row=square[0]
-        )
-        piece.can_be_captured_en_passant = True
-
-        if piece.color == PieceColor.WHITE:
-            self.white_possible_pawn_enp = piece
-        else:
-            self.black_possible_pawn_enp = piece
-
-        print(self.white_possible_pawn_enp, self.black_possible_pawn_enp)
-
     def print_game_state(self):
         """
         Prints the current state of the game.
@@ -617,6 +595,24 @@ class Game:
         print(f'is_game_drawn: {self.is_game_drawn}')
         print(f'moves_for_f_rule: {self.moves_for_f_rule}')
         print(f'values: {self.game_values}')
+
+    def _initialize_en_passant_pawns(self, en_passant_target: str | None):
+        if en_passant_target:
+            self._set_en_passant_pawn(en_passant_target)
+
+    def _set_en_passant_pawn(self, en_passant_target: str) -> None:
+
+        square = convert_from_algebraic_notation(en_passant_target)
+        piece: Pawn = self.board.get_square_or_piece(
+            column=square[1],
+            row=square[0]
+        )
+        piece.can_be_captured_en_passant = True
+
+        if piece.color == PieceColor.WHITE:
+            self.white_possible_pawn_enp = piece
+        else:
+            self.black_possible_pawn_enp = piece
 
     def _manage_board_state(self, move: PieceMove):
 
