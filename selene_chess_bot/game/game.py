@@ -102,38 +102,43 @@ class Game:
 
     def __init__(
         self,
-        current_turn: int = 0,
-        get_game_state: bool = True,
+        current_turn: int = 1,
         board_setup: list[list[str]] = None,
         en_passant_target: str | None = None,
         player_turn: PieceColor = PieceColor.WHITE,
     ) -> None:
 
         """
-        TODO: Check when we have to add the current_turn
         TODO: Check if we can create a game state for the initial state of the
             game, either this was initialize with a board setup or not
+            TODO: Test
         TODO: Create custom exceptions for the game
         TODO: Create custom dict types for the board states and other places
         TODO: Integrate better the Debugger class
         TODO: Convert the matrix of the board setup to a numpy array
         """
 
-        self.board: Board = Board(board_setup=board_setup)
-
-        self.initial_board_setup: bool = lambda: False if board_setup else True
-        self.moves: MoveDict = {}
-        self.moves_for_f_rule: int = 0
-        self.board_states: dict[str] = dict()
+        # Debug
         self.debug: bool = False
 
-        self.player_turn: PieceColor = player_turn
-        self.current_turn: int = current_turn
+        # Board
+        self.board_states: dict[bytes] = dict()
+        self.board: Board = Board(board_setup=board_setup)
+        self.initial_board_setup: bool = lambda: False if board_setup else True
 
+        # Moves ---------------------------------------------------
+        self.moves: MoveDict = {}
+        self.moves_for_f_rule: int = 0
+
+        self.current_turn: int = current_turn
+        self.player_turn: PieceColor = player_turn
+
+        # En passant ----------------------------------------------
         self.white_possible_pawn_enp: Pawn | None = None
         self.black_possible_pawn_enp: Pawn | None = None
         self._initialize_en_passant_pawns(en_passant_target)
 
+        # Game state ----------------------------------------------
         self.is_game_terminated: bool = False
         self.is_game_drawn: bool = False
 
@@ -146,17 +151,13 @@ class Game:
 
         self.current_game_state: GameState = None
         self.current_fen: str = str()
-        self._initialize_game_state(get_game_state=get_game_state)
 
-        # NOTE: This dict could be simplified
         self.game_values: dict = {
-            PieceColor.WHITE: {
-                'value': 0
-            },
-            PieceColor.BLACK: {
-                'value': 0
-            }
+            PieceColor.WHITE: 0,
+            PieceColor.BLACK: 0
         }
+
+        self._initialize_game_state()
 
     #  ---------------------------- PROPERTIES ----------------------------
 
@@ -166,11 +167,11 @@ class Game:
 
     @property
     def white_value(self) -> float:
-        return self.game_values[PieceColor.WHITE]['value']
+        return self.game_values[PieceColor.WHITE]
 
     @property
     def black_value(self) -> float:
-        return self.game_values[PieceColor.BLACK]['value']
+        return self.game_values[PieceColor.BLACK]
 
     @property
     def castling_fen(self) -> str:
@@ -197,7 +198,7 @@ class Game:
     #  ---------------------------- STATIC METHODS ----------------------------
 
     @staticmethod
-    def generate_fen(
+    def create_fen(
         board: list[list[str]],
         active_color: PieceColor,
         castling_rights: str,
@@ -430,7 +431,7 @@ class Game:
 
     # ---------------------------- PUBLIC METHODS ----------------------------
 
-    def generate_current_fen(self) -> str:
+    def create_current_fen(self) -> str:
         """
         Take the current board state to generate the FEN representation of the
         board.
@@ -451,7 +452,7 @@ class Game:
             reverse=True
         )
 
-        return self.generate_fen(
+        return self.create_fen(
             board=board_representation,
             active_color=self.player_turn,
             castling_rights=self.castling_fen,
@@ -543,7 +544,7 @@ class Game:
             pieces=pieces[piece_move.piece_name]
         )
 
-        # here, once we know the piece, we can take the file
+        # Once we know the piece, we can take the file
         piece_move.piece_file = piece.algebraic_pos[0]
 
         # move the piece
@@ -560,12 +561,7 @@ class Game:
             new_position=piece_move.square
         )
 
-        self._manage_fifty_moves_rule(piece_move)
-
-        # manage the game_state
         self._manage_game_state(piece_move)
-
-        self._manage_board_state(piece_move)
 
     def print_game_state(self):
         """
@@ -604,20 +600,23 @@ class Game:
         if en_passant_target:
             self._set_en_passant_pawn(en_passant_target)
 
-    def _initialize_game_state(self, get_game_state: bool):
-        if not get_game_state:
-            self.current_fen = self.generate_current_fen()
-            return
+    def _initialize_game_state(self):
 
-        # TODO: Check if we should create a game state
-        # for the initial state of the game, either this
-        # was initialize with a board setup or not
-        self.current_game_state = GameState.objects.get(
-            board_hash=self.current_board_hash
-        )
-        self.current_game_state.increment_visits()
+        # First, we need to check if the state that is being passed already
+        # exists in the database
 
-        self.current_turn = self.current_game_state.current_turn
+        try:
+            self.current_game_state = GameState.objects.get(
+                board_hash=self.current_board_hash
+            )
+            self.current_game_state.increment_visits()
+        except GameState.DoesNotExist:
+            # if the game state does not exist, we need to create it
+            self.current_game_state = self._create_current_game_state_obj()
+
+        # We do this here, in case the current_game_state already exists in
+        # the db so we don't the current_fen is not intilizaed in the
+        # _create_current_game_state_obj
         self.current_fen = self.current_game_state.fen
 
     # --------------------------------------------------------------------------
@@ -943,7 +942,7 @@ class Game:
 
     # ----------------------------- MANAGERS ------------------------------
 
-    def _manage_game_termination(self):
+    def _manage_game_termination(self, piece_move: PieceMove):
         """
         Manages the termination of the game.
 
@@ -958,6 +957,10 @@ class Game:
             ValueError: If the move has caused the game to end.
         """
 
+        if self._manage_fifty_moves_rule(piece_move):
+            return
+
+        self._manage_check_detection()
         king: King = self.board.get_piece(
             piece_name=PieceName.KING,
             color=self.player_turn.opposite()
@@ -971,13 +974,14 @@ class Game:
             ):
                 # check who won
                 if king.color == PieceColor.WHITE:
-                    self.game_values[PieceColor.BLACK]['value'] = float('inf')
-                    self.game_values[PieceColor.WHITE]['value'] = float('-inf')
+                    self.game_values[PieceColor.BLACK] = float('inf')
+                    self.game_values[PieceColor.WHITE] = float('-inf')
                 else:
-                    self.game_values[PieceColor.WHITE]['value'] = float('inf')
-                    self.game_values[PieceColor.BLACK]['value'] = float('-inf')
+                    self.game_values[PieceColor.WHITE] = float('inf')
+                    self.game_values[PieceColor.BLACK] = float('-inf')
 
                 self.is_game_terminated = True
+                return
 
         # check if there is a stale mate in the board
         # the minimum pieces that are required for a stalemate are 8]
@@ -995,9 +999,9 @@ class Game:
                 is_king_in_check=False
             ):
 
-                # this is a stalemate
-                self.game_values[PieceColor.WHITE]['value'] = 0
-                self.game_values[PieceColor.BLACK]['value'] = 0
+                # This is a stalemate
+                self.game_values[PieceColor.WHITE] = 0
+                self.game_values[PieceColor.BLACK] = 0
                 self.is_game_terminated = True
 
     def _manage_check_detection(self):
@@ -1065,7 +1069,7 @@ class Game:
         if isinstance(piece, Pawn) and piece_move.coronation_into:
             piece.coronate(piece_move.coronation_into)
 
-    def _manage_fifty_moves_rule(self, piece_move: PieceMove):
+    def _manage_fifty_moves_rule(self, piece_move: PieceMove) -> bool:
         """
         Manages the 50 moves rule.
 
@@ -1089,6 +1093,26 @@ class Game:
         if self.moves_for_f_rule >= 100:
             self.is_game_terminated = True
 
+        return self.is_game_terminated
+
+    def _manage_game_state_obj(self):
+
+        game_state = GameState.objects.filter(
+            board_hash=self.current_board_hash
+        )
+
+        if not game_state:
+            game_state = self._create_current_game_state_obj()
+        else:
+            print('game object already exists')
+
+            game_state: GameState = game_state[0]
+            game_state.increment_visits()
+
+            self.current_fen = game_state.fen
+
+        self.current_game_state = game_state
+
     def _manage_game_state(self, piece_move: PieceMove):
         """
         Manages the state of the game after a move is made.
@@ -1102,8 +1126,7 @@ class Game:
             piece_move (PieceMove): The move that has just been executed.
         """
 
-        self._manage_check_detection()
-        self._manage_game_termination()
+        self._manage_game_termination(piece_move=piece_move)
 
         # check if the move is valid
         if self.current_turn not in self.moves:
@@ -1117,57 +1140,12 @@ class Game:
 
         self.board._attacked_squares_by_white_checked = False
         self.board._attacked_squares_by_black_checked = False
-
-    def _manage_board_state(self, move: PieceMove):
-
-        # TODO: Check if the current turn should be
-        # incremented here or in the _manage_game_state method
-        # Check if this state exists in the database
-
         self._set_current_game_state_hash()
-        game_state = GameState.objects.filter(
-            board_hash=self.current_board_hash
-        )
-
-        if not game_state:
-
-            print('new game object created')
-
-            self.current_fen = self.generate_current_fen()
-
-            game_state = GameState.objects.create(
-                board_hash=self.current_board_hash,
-                fen=self.current_fen,
-                is_game_terminated=self.is_game_terminated,
-                white_value=self.white_value,
-                black_value=self.black_value,
-                parent=self.current_game_state,
-                move_taken=move.move,
-                expandable_moves=self.get_legal_moves(
-                    color=self.player_turn,
-                    show_in_algebraic=True,
-                    show_as_list=True
-                ),
-                player_turn=self.player_turn.value,
-                current_turn=self.current_turn
-            )
-
-            print(GameState.objects.all().count())
-
-        else:
-
-            print('game object already exists')
-
-            game_state: GameState = game_state[0]
-            self.current_fen = game_state.fen
-
-            game_state.increment_visits()
-
-        self.current_game_state = game_state
+        self._manage_game_state_obj()
 
     # ---------------------------- SETTER METHODS ----------------------------
 
-    def _set_current_game_state_hash(self):
+    def _set_current_game_state_hash(self) -> None:
         """
         Computes the current board state's hash and records it in the game
         history. This method is essential for detecting threefold repetition,
@@ -1202,10 +1180,11 @@ class Game:
             st = self.board_states[board_hash]
             self.board_states[board_hash] = st + 1
             if st + 1 >= 3:
+                # Threefold repetition
                 self.is_game_terminated = True
                 self.is_game_drawn = True
-                self.game_values[PieceColor.WHITE]['value'] = 0
-                self.game_values[PieceColor.BLACK]['value'] = 0
+                self.game_values[PieceColor.WHITE] = 0
+                self.game_values[PieceColor.BLACK] = 0
         else:
             self.board_states[board_hash] = 1
 
@@ -1222,3 +1201,38 @@ class Game:
             self.white_possible_pawn_enp = piece
         else:
             self.black_possible_pawn_enp = piece
+
+    def _create_current_game_state_obj(self) -> GameState:
+        """
+        Creates a new game state object for the current game state.
+
+        This method creates a new game state object to represent the current
+        state of the game. It initializes the game state with the current board
+        hash, the current player turn, and the current FEN string.
+
+        Returns:
+            GameState: The newly created game state object.
+        """
+
+        self.current_fen = self.create_current_fen()
+        expandable_moves = self.get_legal_moves(
+            color=self.player_turn,
+            show_in_algebraic=True,
+            show_as_list=True
+        )
+
+        self.current_game_state = GameState.objects.create(
+            fen=self.current_fen,
+            white_value=self.white_value,
+            black_value=self.black_value,
+            parent=self.current_game_state,  # This could be None
+            expandable_moves=expandable_moves,
+            player_turn=self.player_turn.value,
+            board_hash=self.current_board_hash,
+            is_game_terminated=self.is_game_terminated
+        )
+
+        # We dont have to increment the visits since the visits are intialized
+        # to 1
+
+        return self.current_game_state

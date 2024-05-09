@@ -37,31 +37,30 @@ class GameState(models.Model):
         blank=True
     )
 
-    id = models.UUIDField(
+    id: str = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False
     )
 
-    board_hash = models.BinaryField()
+    board_hash: bytes = models.BinaryField(unique=True)
 
     is_game_terminated: bool = models.BooleanField()
 
     white_value: float = models.FloatField()
     black_value: float = models.FloatField()
 
-    fen: str = models.CharField(max_length=255)
+    # NOTE: The fen is necessar to be able to create a game instance
+    # NOTE: Note that the current turn in the fen can vary
+    fen: str = models.CharField(max_length=255, unique=True)
 
     player_turn: int = models.IntegerField(
         choices=PieceColor.choices
     )
-    current_turn: int = models.IntegerField()
 
     num_visits: int = models.IntegerField(default=1)
     expandable_moves: list = models.JSONField()
     explored_moves: list = models.JSONField(default=list)
-
-    move_taken: str = models.CharField(max_length=255)
 
     @property
     def player_turn_obj(self) -> PieceColor:
