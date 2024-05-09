@@ -67,8 +67,8 @@ class PieceMove:
     def __init__(
         self,
         move: str,
-        player_turn: PieceColor,
         board: Board,
+        player_turn: PieceColor,
     ) -> None:
         """
         Initializes the PieceMove instance with the given move and player's
@@ -215,6 +215,10 @@ class PieceMove:
         self.square_pos = convert_from_algebraic_notation(self.square)
 
     def set_coronation(self):
+        """
+        Determines if the move involves a pawn coronation and sets the
+        corresponding piece.
+        """
         if self.piece_name == PieceName.PAWN:
             if self.square[1] == '8' or self.square[1] == '1':
                 piece_to = self._abr_move[-1]
@@ -224,6 +228,9 @@ class PieceMove:
                         return
 
     def set_is_capture(self):
+        """
+        Determines if the move involves a capture and sets the corresponding
+        """
 
         piece = self.board.get_square_or_piece(
             row=self.square_pos[0],

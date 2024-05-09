@@ -12,6 +12,26 @@ from game.piece_move import PieceMove
 from game.models import GameState
 from game.apps import GameConfig
 
+from typing import TypedDict
+
+
+class MoveDict(TypedDict):
+
+    """
+
+        Moves dict will look like this:
+
+        {
+            #N: [Move 1, Move 2]
+        }
+
+        Where the first element of the list if the move for white and the
+        second for the black player
+
+    """
+
+    move_number: list[str, str]
+
 
 class Game:
 
@@ -84,37 +104,25 @@ class Game:
 
     def __init__(
         self,
-        create_initial_board_setup: bool = True,
-        board_setup: list[list[str]] = None,
-        get_game_state: bool = True,
-        player_turn: PieceColor = PieceColor.WHITE,
         current_turn: int = 1,
-        en_passant_target: str | None = None
+        get_game_state: bool = True,
+        board_setup: list[list[str]] = None,
+        en_passant_target: str | None = None,
+        create_initial_board_setup: bool = True,
+        player_turn: PieceColor = PieceColor.WHITE,
     ) -> None:
-        self.initial_board_setup = create_initial_board_setup
+
+        self.initial_board_setup: bool = create_initial_board_setup
         self.board: Board = Board(
             create_initial_board_set_up=create_initial_board_setup,
             board_setup=board_setup
         )
-        self.moves: dict = {}
+        self.moves: MoveDict = {}
         self.moves_for_f_rule: int = 0
         self.board_states: dict[str] = dict()
         self.debug: bool = False
 
-        """
-        The dict will look like this:
-
-        {
-            #N: [Move 1, Move 2]
-        }
-
-        Where the first element of the list if the move for white and the
-        second for the black player
-
-        """
-
         self.player_turn: PieceColor = player_turn
-
         self.current_turn: int = current_turn
 
         self.white_possible_pawn_enp: Pawn | None = None
@@ -125,13 +133,13 @@ class Game:
         self.zobrist_keys: dict = GameConfig.hash.keys
 
         if en_passant_target:
-            self.set_en_passant_pawn(en_passant_target)
+            self._set_en_passant_pawn(en_passant_target)
 
         self.current_board_hash: bytes = self.compute_board_hash(
-            current_side=self.player_turn,
             board=self.board,
+            current_side=self.player_turn,
+            en_passant_pos=en_passant_target,
             castling_rights=self.board.castleling_rights,
-            en_passant_pos=en_passant_target
         )
 
         self.current_game_state: GameState = GameState.objects.get(
@@ -193,6 +201,39 @@ class Game:
         fullmove_number: int
     ) -> str:
 
+        """
+        Generates the FEN (Forsyth-Edwards Notation) representation of a
+        chess board.
+
+        FEN is a standard notation that describes the particular position
+        of a game in progress. This method constructs the FEN string based
+        on the current state of the game.
+
+        Args:
+            board (list[list[str]]): A 2D list representing the board
+                setup, where each string represents a piece or an empty
+                square ('.').
+
+            active_color (PieceColor): The color of the player to move
+                next, using an enum (PieceColor.WHITE or PieceColor.BLACK).
+
+            castling_rights (str): A string indicating the current castling
+                availability (e.g., 'KQkq', 'Kq').
+
+            en_passant_target (str | None): The square where en passant is
+                possible, or None if there is no target. Defaults to '-'
+                if None.
+
+            halfmove_clock (int): The number of half-moves since the last
+                capture or pawn advance (used for the fifty-move rule).
+
+            fullmove_number (int): The number of the full move. It
+                increments after Black's move.
+
+        Returns:
+            str: A string representing the chess board in FEN format.
+        """
+
         en_passant_target = en_passant_target or '-'
 
         color = {
@@ -229,9 +270,31 @@ class Game:
     def parse_fen(fen: str, reverse_piece_placement: bool = True) -> 'Game':
 
         """
+        Parses a FEN string to initialize a game state in a chess game.
+
+        FEN (Forsyth-Edwards Notation) is a standard notation that describes a
+        specific game position. The method initializes a 'Game' object
+        reflecting the game state described by the FEN string. Optionally, it
+        can reverse the board representation to match a board setup where the
+        first row is the bottom of the board in the game's context.
+
+        Args:
+            fen (str): The FEN string representing a chess game position.
+            reverse_piece_placement (bool, optional): If True, the piece
+                placement from the FEN will be reversed in the board setup.
+                This is necessary if the board's 1st row should represent the
+                8th rank in standard chess notation. Defaults to True.
+
+        Returns:
+            Game: An initialized game state corresponding to the FEN string.
+
+        Note:
+            This function assumes the Game class handles game state management,
+            including piece placement, turn management, and castling rights.
+
         NOTE: For how we have setup the board, in order to get the correct
-        board representation, we need to reverse the FEN where the pieces
-        are placed. Being the first row the 1th row in the board
+            board representation, we need to reverse the FEN where the pieces
+            are placed. Being the first row the 1th row in the board
         """
 
         parts = fen.split()
@@ -274,12 +337,9 @@ class Game:
             board_setup=board,
             player_turn=active_color,
             current_turn=fullmove_number,
-            en_passant_target=en_passant_target
+            en_passant_target=en_passant_target,
         )
-
-        game.player_turn = active_color
         game.moves_for_f_rule = halfmove_clock
-        game.current_turn = fullmove_number
 
         # Castling rights from FEN
         castling_rights = {
@@ -297,12 +357,21 @@ class Game:
         return game
 
     def generate_initial_fen(self) -> str:
+
+        """
+        Generates the FEN string for the initial board setup.
+        """
+
         if self.initial_board_setup:
             return INITIAL_FEN
 
         return self.generate_current_fen()
 
     def generate_current_fen(self) -> str:
+        """
+        Take the current board state to generate the FEN representation of the
+        board.
+        """
 
         en_passant_column = (
             self.black_possible_pawn_enp or self.white_possible_pawn_enp
@@ -335,6 +404,35 @@ class Game:
         show_as_list: bool = False
     ) -> dict | list[str]:
 
+        """
+        Retrieves all legal moves for a given player color from the current
+        chess board state.
+
+        This method can return the moves either as a dictionary where each key
+        is a piece and the value is a list of legal moves for that piece, or
+        as a flat list of moves in algebraic notation, depending on the
+        specified parameters.
+
+        Args:
+            color (PieceColor): The color of the pieces for which to get the
+                legal moves.
+
+            show_in_algebraic (bool): If True, moves are returned in algebraic
+                notation. Otherwise, moves are presented in a simpler format.
+
+            show_as_list (bool, optional): If True, the method returns a list
+                of all possible moves in a flat structure. If False, moves are
+                returned as a dictionary grouped by piece. Defaults to False.
+
+        Returns:
+            dict | list[str]: If show_as_list is False, returns a dictionary
+                where keys are pieces and values are lists of strings
+                representing the moves. If True, returns a list of strings
+                each representing a move in algebraic notation.
+        """
+
+        print('legal moves are being called')
+
         legal_moves: dict = self.board.get_legal_moves(
             color, show_in_algebraic
         )
@@ -352,6 +450,9 @@ class Game:
         return moves
 
     def start(self) -> None:
+        """
+        Starts the game loop, allowing players to make moves until the game
+        """
         while not self.is_game_terminated:
             text: str = control_state_manager(self)
             try:
@@ -379,6 +480,7 @@ class Game:
         Raises:
             ValueError: If the move is determined to be invalid or illegal in
             the current game state.
+
         """
 
         piece_move = PieceMove(
@@ -425,6 +527,34 @@ class Game:
         en_passant_pos: str
     ) -> int:
 
+        """
+        Computes a unique hash value for a given chess board configuration using
+        Zobrist hashing, which is helpful for board state comparison in chess
+        engines and databases.
+
+        This hash includes piece positions, castling rights, en passant
+        possibilities, and the current side to move. The resulting hash can be
+        used to quickly check for repeated board states or to store positions
+        in a lookup table.
+
+        Args:
+            board (Board): The board object containing the current state of the
+                chess game.
+
+            current_side (PieceColor): The current player's color
+                (WHITE or BLACK).
+
+            castling_rights (dict): A dictionary detailing castling
+                availability for both colors and each rook side.
+
+            en_passant_pos (str): The position of a potential en passant
+                capture, or None if no such capture is possible.
+
+        Returns:
+            int: An integer hash of the board state. This integer is
+                represented in 8 bytes using big-endian byte order.
+        """
+
         board_hash = 0
 
         # Iterate through each piece on the board and XOR its key
@@ -456,9 +586,7 @@ class Game:
 
         return board_hash.to_bytes(8, byteorder='big', signed=False)
 
-    def set_en_passant_pawn(self, en_passant_target: str) -> None:
-
-        print('here')
+    def _set_en_passant_pawn(self, en_passant_target: str) -> None:
 
         square = convert_from_algebraic_notation(en_passant_target)
         piece: Pawn = self.board.get_square_or_piece(
@@ -492,6 +620,8 @@ class Game:
 
     def _manage_board_state(self, move: PieceMove):
 
+        # TODO: Check if the current turn should be
+        # incremented here or in the _manage_game_state method
         # Check if this state exists in the database
 
         self._add_board_hash()
@@ -536,6 +666,19 @@ class Game:
         self.current_game_state = game_state
 
     def _add_board_hash(self):
+        """
+        Computes the current board state's hash and records it in the game
+        history. This method is essential for detecting threefold repetition,
+        which can lead to a draw.
+
+        The hash includes the position of pieces, castling rights, en passant
+        possibilities, and the current side to move. If a particular board
+        configuration appears three times, the game is automatically drawn
+        according to chess rules.
+
+        This function updates the game's state including termination
+        conditions and the outcome (draw or ongoing game).
+        """
 
         en_passant_pos = (
             self.black_possible_pawn_enp or self.white_possible_pawn_enp
@@ -924,7 +1067,7 @@ class Game:
 
                 if pos_to_cap:
                     # this mean checkmate
-                    # this was not pos and return False
+                    # was not pos and return False
                     return True
 
             else:

@@ -4,7 +4,7 @@ import numpy as np
 import json
 import os
 
-from typing import Any
+from typing import Any, Callable
 
 from django.db import models
 
@@ -76,7 +76,7 @@ class GameState(models.Model):
         self.save()
 
     def is_fully_expanded(self) -> bool:
-        return len(self.expandable_moves) == len(self.children.all())
+        return len(self.expandable_moves) == self.children.all().count()
 
     def select(self) -> 'GameState':
         """
@@ -95,7 +95,7 @@ class GameState(models.Model):
 
     def get_ucb(self, child: 'GameState', side: PieceColor) -> float:
         """
-        Calculates the UCB1 value for the node.
+        Calculates the UCB value for the node.
         """
 
         values = {
@@ -172,7 +172,8 @@ class GameState(models.Model):
 
             except Exception as e:
 
-                # Let's create a JSON file where we can store the data from the game.
+                # Let's create a JSON file where we can store the data from
+                # the game.
 
                 print('-' * 50)
                 print('error occurred')
@@ -190,7 +191,7 @@ class GameState(models.Model):
     def save_simulation_data(
         self,
         file_path: dict,
-        game_instance: Any,
+        game_instance: Callable,
         error: Any = None
     ) -> None:
 
@@ -202,10 +203,13 @@ class GameState(models.Model):
                 'data': []
             }
 
+        white_king_in_check = game_instance.board.white_king.is_in_check
+        black_king_in_check = game_instance.board.black_king.is_in_check
+
         data_to_append = {
             'game_state': {
-                'white_king_in_check': game_instance.board.white_king.is_in_check,
-                'black_king_in_check': game_instance.board.black_king.is_in_check,
+                'white_king_in_check': white_king_in_check,
+                'black_king_in_check': black_king_in_check,
                 'is_game_terminated': game_instance.is_game_terminated,
                 'is_game_drawn': game_instance.is_game_drawn,
                 'moves_for_f_rule': game_instance.moves_for_f_rule,
