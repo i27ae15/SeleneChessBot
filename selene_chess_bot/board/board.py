@@ -602,6 +602,8 @@ class Board:
         column: int | str
     ) -> bool:
         """
+        TODO: Check that row and column can be only integers or strings
+
         Check if a given board position is empty.
 
         Parameters:
@@ -611,6 +613,9 @@ class Board:
         Returns:
             bool: True if the position is empty, False otherwise.
         """
+
+        if row > 7 or column > 7:
+            return False
 
         return self.board[row][column] is None
 

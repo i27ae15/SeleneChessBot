@@ -104,7 +104,9 @@ class PieceMove:
 
         self.coronation_into: PieceName | None = None
 
-        self._abr_move: str = move.replace('x', '').replace('+', '')
+        self._abr_move: str = None
+        self._set_abreviate_move(move)
+
         self.set_move_information()
 
     def set_piece(self):
@@ -205,9 +207,10 @@ class PieceMove:
                 self.piece_file = self._abr_move[1]
 
         if self.piece_name == PieceName.PAWN:
-            # TODO:
+            # TODO: Check this, it may be wrong
             # We cannot put the file here because this can be an
             # en passant move, so the file should be put later
+
             if '=' in self.move:
                 self.piece_file = self._abr_move[0]
                 self.square = self._abr_move[:2]
@@ -268,6 +271,24 @@ class PieceMove:
         self.set_coronation()
 
         self.set_is_capture()
+
+    def _set_abreviate_move(self, move: str):
+        """
+        Cleans the move string to remove special characters.
+
+        This method removes special characters from the move string, such as
+        'x' for captures and '+' for check. The cleaned string is stored in
+        the `_abr_move` attribute.
+
+        Returns:
+            str: The cleaned move string.
+        """
+
+        move = move.replace('x', '').replace('+', '')
+        if move[0] == 'P':  # pawn move
+            move = move[1:]
+
+        self._abr_move = move
 
     def __str__(self):
         print('-' * 50)

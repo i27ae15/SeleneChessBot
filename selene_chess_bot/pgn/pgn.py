@@ -6,7 +6,6 @@ from game.exceptions import InvalidMoveError
 from pieces.utilites import PieceColor
 
 
-
 class PGN:
 
     """

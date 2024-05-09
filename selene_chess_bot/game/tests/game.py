@@ -8,8 +8,6 @@ from game.game import Game
 from game.exceptions import InvalidMoveError
 
 
-
-
 class TestGame(TestCase):
 
     def setUp(self):
@@ -231,7 +229,7 @@ class TestGame(TestCase):
         # check if the pawn can capture en passant
 
         self.assertIn('e3', legal_moves)
-        self.game.move_piece('Pe3')
+        self.game.move_piece('Pdxe3')
 
         self.game.board.print_board()
 
@@ -248,11 +246,9 @@ class TestGame(TestCase):
         self.game.move_piece('Nc6')
 
         self.game.move_piece('Qf7')
-        self.game.move_piece('Pa5')
 
-        self.game.move_piece('Ph4')
-
-        self.game.board.print_board()
+        with self.assertRaises(InvalidMoveError):
+            self.game.move_piece('Pa5')
 
         print_success()
 
@@ -276,7 +272,8 @@ class TestGame(TestCase):
     def test_generate_fen(self):
 
         print_starting()
-        print(self.game.generate_current_fen())
+        print(self.game.create_current_fen())
+        print_success()
 
     def test_parse_fen(self):
 

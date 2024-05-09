@@ -674,6 +674,8 @@ class Game:
                 if piece.row != piece_move.row:
                     continue
 
+            # TODO: Check if the column is given
+
             # if we are here, we have found the piece (two pieces can be in
             # the same file) or we do not have a file, so calculate the legal
             # moves for the piece and check if the move is in the legal moves
@@ -1084,8 +1086,6 @@ class Game:
         if not game_state:
             game_state = self._create_current_game_state_obj()
         else:
-            print('game object already exists')
-
             game_state: GameState = game_state[0]
             game_state.increment_visits()
 
