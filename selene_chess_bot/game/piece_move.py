@@ -1,7 +1,7 @@
+from core.utils import convert_from_algebraic_notation
+
 from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece
-
-from core.utils import convert_from_algebraic_notation
 
 from board import Board
 
@@ -87,29 +87,62 @@ class PieceMove:
             making the move.
         """
 
+        # Move ---------------------
         self.move: str = move
-        self.player_turn: PieceColor = player_turn
-        self.is_castleling: bool = False
-        self.castleling_side: RookSide | None = None
-        self.row: int | None = None
+        self._abr_move: str = None
 
-        self.piece_abbreviation: str | None = None
-        self.piece_name: PieceName | None = None
+        # Piece ---------------------
+        self.is_capture: bool = False
         self.piece_file: str | None = None
+        self.piece_name: PieceName | None = None
+        self.piece_abbreviation: str | None = None
+        self.coronation_into: PieceName | None = None
+
+        # Square ---------------------
+        self.row: int | None = None
         self.square: str | None = None
         self.square_pos: tuple[int, int] | None = None
 
-        self.is_capture: bool = False
+        # Player ---------------------
+        self.is_castleling: bool = False
+        self.player_turn: PieceColor = player_turn
+        self.castleling_side: RookSide | None = None
+
+        # Board ---------------------
         self.board: Board = board
 
-        self.coronation_into: PieceName | None = None
+        # Initialize the move information
+        self._set_abreviate_move()
+        self._set_move_information()
 
-        self._abr_move: str = None
-        self._set_abreviate_move(move)
+    # ---------------------------- SETTER METHODS -----------------------------
 
-        self.set_move_information()
+    def _set_move_information(self):
+        """
+        Parses the move string to extract and set detailed move information.
 
-    def set_piece(self):
+        This method is a comprehensive handler that sets the piece type, the
+        target square, and other move-specific details. It is responsible for
+        ensuring that all relevant attributes of the move are accurately
+        determined and set.
+
+        Raises:
+            ValueError: If the move notation is invalid or cannot be parsed.
+        """
+        # if we haven't get the piece yet, let's get it here
+        self._set_piece()
+
+        # we now have to get the square where the piece is being move to
+        # and the pos of the piece if given
+        self._set_square_and_pos()
+
+        # see if the piece is being coronated
+        self._set_coronation()
+
+        # see if the move is a capture
+        self._set_is_capture()
+
+    def _set_piece(self):
         """
         Determines and sets the type of piece involved in the move.
 
@@ -150,28 +183,7 @@ class PieceMove:
             else:
                 raise InvalidMoveError()
 
-    def get_castleling_square(self) -> str:
-        """
-        Calculates and returns the target square for a castling move.
-
-        This method is called when the move is identified as a castling move
-        ('O-O' or 'O-O-O'). It determines the target square based on the
-        player's color and the side of the castling.
-
-        Returns:
-            str: The algebraic notation of the target square for the castling
-            move.
-        """
-
-        if self.move == 'O-O':
-            self.castleling_side = RookSide.KING
-            return 'g1' if self.player_turn == PieceColor.WHITE else 'g8'
-
-        if self.move == 'O-O-O':
-            self.castleling_side = RookSide.QUEEN
-            return 'c1' if self.player_turn == PieceColor.WHITE else 'c8'
-
-    def set_square_and_pos(self):
+    def _set_square_and_pos(self):
         """
         Determines and sets the target square and, if applicable, the piece's
         file.
@@ -186,7 +198,7 @@ class PieceMove:
         """
 
         if self._abr_move == 'O-O' or self._abr_move == 'O-O-O':
-            self.square = self.get_castleling_square()
+            self.square = self._get_castleling_square()
             self.square_pos = convert_from_algebraic_notation(self.square)
             return
 
@@ -219,7 +231,7 @@ class PieceMove:
 
         self.square_pos = convert_from_algebraic_notation(self.square)
 
-    def set_coronation(self):
+    def _set_coronation(self):
         """
         Determines if the move involves a pawn coronation and sets the
         corresponding piece.
@@ -232,9 +244,9 @@ class PieceMove:
                         self.coronation_into = piece_name
                         return
 
-    def set_is_capture(self):
+    def _set_is_capture(self):
         """
-        Determines if the move involves a capture and sets the corresponding
+        Determines if the move involves a capture
         """
 
         piece = self.board.get_square_or_piece(
@@ -247,32 +259,7 @@ class PieceMove:
                 self.is_capture = True
             return
 
-    def set_move_information(self):
-        """
-        Parses the move string to extract and set detailed move information.
-
-        This method is a comprehensive handler that sets the piece type, the
-        target square, and other move-specific details. It is responsible for
-        ensuring that all relevant attributes of the move are accurately
-        determined and set.
-
-        Raises:
-            ValueError: If the move notation is invalid or cannot be parsed.
-        """
-        # if we haven't get the piece yet, let's get it here
-        self.set_piece()
-
-        # view if the coronation if being given in the move
-
-        # we now have to get the square where the piece is being move to
-        # and the pos of the piece if given
-        self.set_square_and_pos()
-
-        self.set_coronation()
-
-        self.set_is_capture()
-
-    def _set_abreviate_move(self, move: str):
+    def _set_abreviate_move(self):
         """
         Cleans the move string to remove special characters.
 
@@ -284,11 +271,32 @@ class PieceMove:
             str: The cleaned move string.
         """
 
-        move = move.replace('x', '').replace('+', '')
+        move = self.move.replace('x', '').replace('+', '')
         if move[0] == 'P':  # pawn move
             move = move[1:]
 
         self._abr_move = move
+
+    def _get_castleling_square(self) -> str:
+        """
+        Calculates and returns the target square for a castling move.
+
+        This method is called when the move is identified as a castling move
+        ('O-O' or 'O-O-O'). It determines the target square based on the
+        player's color and the side of the castling.
+
+        Returns:
+            str: The algebraic notation of the target square for the castling
+            move.
+        """
+
+        if self.move == 'O-O':
+            self.castleling_side = RookSide.KING
+            return 'g1' if self.player_turn == PieceColor.WHITE else 'g8'
+
+        if self.move == 'O-O-O':
+            self.castleling_side = RookSide.QUEEN
+            return 'c1' if self.player_turn == PieceColor.WHITE else 'c8'
 
     def __str__(self):
         print('-' * 50)

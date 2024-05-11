@@ -1,22 +1,36 @@
-# FILEPATH: /c:/Users/andre/Desktop/selene_chess/tests/test_piece_move.py
 import unittest
-
-from selene_chess_bot.game.piece_move import PieceMove
-
-from pieces.utilites import PieceColor, PieceName
 
 from core.testing import print_starting, print_success
 
+from game.piece_move import PieceMove
+from game.exceptions import InvalidMoveError
+
+from pieces.utilites import PieceColor, PieceName
+
+from board.board import Board
+
 
 class TestPieceMove(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.board = Board()
+        return super().setUp()
+
+    def tearDown(self) -> None:
+        self.board = Board()
+        return super().tearDown()
 
     def test_moving_pawn(self):
 
         print_starting()
 
-        piece_move = PieceMove('e4', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='e4',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.PAWN)
+        self.assertEqual(piece_move.piece_name, PieceName.PAWN)
         self.assertEqual(piece_move.piece_abbreviation, 'P')
         self.assertEqual(piece_move._abr_move, 'e4')
         self.assertEqual(piece_move.square, 'e4')
@@ -28,9 +42,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('Nf3', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='Nf3',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.KNIGHT)
+        self.assertEqual(piece_move.piece_name, PieceName.KNIGHT)
         self.assertEqual(piece_move.piece_abbreviation, 'N')
         self.assertEqual(piece_move._abr_move, 'Nf3')
         self.assertEqual(piece_move.square, 'f3')
@@ -42,9 +60,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('Bc4', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='Bc4',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.BISHOP)
+        self.assertEqual(piece_move.piece_name, PieceName.BISHOP)
         self.assertEqual(piece_move.piece_abbreviation, 'B')
         self.assertEqual(piece_move._abr_move, 'Bc4')
         self.assertEqual(piece_move.square, 'c4')
@@ -56,9 +78,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('Ra1', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='Ra1',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.ROOK)
+        self.assertEqual(piece_move.piece_name, PieceName.ROOK)
         self.assertEqual(piece_move.piece_abbreviation, 'R')
         self.assertEqual(piece_move._abr_move, 'Ra1')
         self.assertEqual(piece_move.square, 'a1')
@@ -70,9 +96,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('Qd2', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='Qd2',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.QUEEN)
+        self.assertEqual(piece_move.piece_name, PieceName.QUEEN)
         self.assertEqual(piece_move.piece_abbreviation, 'Q')
         self.assertEqual(piece_move._abr_move, 'Qd2')
         self.assertEqual(piece_move.square, 'd2')
@@ -84,9 +114,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('Ke2', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='Ke2',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_name, PieceName.KING)
         self.assertEqual(piece_move.piece_abbreviation, 'K')
         self.assertEqual(piece_move._abr_move, 'Ke2')
         self.assertEqual(piece_move.square, 'e2')
@@ -98,9 +132,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('Nxe4', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='Nxe4',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.KNIGHT)
+        self.assertEqual(piece_move.piece_name, PieceName.KNIGHT)
         self.assertEqual(piece_move.piece_abbreviation, 'N')
         self.assertEqual(piece_move._abr_move, 'Ne4')
         self.assertEqual(piece_move.square, 'e4')
@@ -112,9 +150,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('Ngf3', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='Ngf3',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.KNIGHT)
+        self.assertEqual(piece_move.piece_name, PieceName.KNIGHT)
         self.assertEqual(piece_move.piece_abbreviation, 'N')
         self.assertEqual(piece_move._abr_move, 'Ngf3')
         self.assertEqual(piece_move.square, 'f3')
@@ -126,8 +168,12 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        with self.assertRaises(ValueError):
-            PieceMove('jkn', PieceColor.WHITE)
+        with self.assertRaises(InvalidMoveError):
+            PieceMove(
+                move='jkn',
+                player_turn=PieceColor.WHITE,
+                board=self.board
+            )
 
         print_success()
 
@@ -135,9 +181,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('O-O', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='O-O',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_name, PieceName.KING)
         self.assertEqual(piece_move.piece_abbreviation, 'K')
         self.assertEqual(piece_move._abr_move, 'O-O')
         self.assertEqual(piece_move.square, 'g1')
@@ -149,9 +199,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('O-O-O', PieceColor.WHITE)
+        piece_move = PieceMove(
+            move='O-O-O',
+            player_turn=PieceColor.WHITE,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_name, PieceName.KING)
         self.assertEqual(piece_move.piece_abbreviation, 'K')
         self.assertEqual(piece_move._abr_move, 'O-O-O')
         self.assertEqual(piece_move.square, 'c1')
@@ -163,9 +217,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('O-O', PieceColor.BLACK)
+        piece_move = PieceMove(
+            move='O-O',
+            player_turn=PieceColor.BLACK,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_name, PieceName.KING)
         self.assertEqual(piece_move.piece_abbreviation, 'K')
         self.assertEqual(piece_move._abr_move, 'O-O')
         self.assertEqual(piece_move.square, 'g8')
@@ -177,9 +235,13 @@ class TestPieceMove(unittest.TestCase):
 
         print_starting()
 
-        piece_move = PieceMove('O-O-O', PieceColor.BLACK)
+        piece_move = PieceMove(
+            move='O-O-O',
+            player_turn=PieceColor.BLACK,
+            board=self.board
+        )
 
-        self.assertEqual(piece_move.piece, PieceName.KING)
+        self.assertEqual(piece_move.piece_name, PieceName.KING)
         self.assertEqual(piece_move.piece_abbreviation, 'K')
         self.assertEqual(piece_move._abr_move, 'O-O-O')
         self.assertEqual(piece_move.square, 'c8')
