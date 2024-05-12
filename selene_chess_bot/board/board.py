@@ -1,11 +1,17 @@
+from colorama import Fore, Style
+
 from core.utils import convert_from_algebraic_notation, ALGEBRAIC_NOTATION
+from core.types import BoardRepresentation, PositionT
 
 from pieces import Piece, Pawn, Rook, Bishop, Knight, Queen, King
 from pieces.utilites import (
     PieceColor, PieceName, RookSide, NO_TRASPASS_KING_PIECES
 )
 
-from colorama import Fore, Style
+from board.exceptions import (
+    BoardAlreadyInitializedError, KingAlreadyOnBoardError,
+    SpaceAlreadyOccupiedError
+)
 
 
 class Board:
@@ -129,7 +135,7 @@ class Board:
 
     def __init__(
         self,
-        board_setup: list[list[str]] = None
+        board_setup: BoardRepresentation = None
     ) -> None:
         """
         Initialize a new Board instance.
@@ -166,7 +172,7 @@ class Board:
                 is done.
         """
 
-        self.board: list[list[Piece | None]] = []
+        self.board: BoardRepresentation = []
         self.white_pieces: dict[list[Piece]] = dict()
         self.black_pieces: dict[list[Piece]] = dict()
 
@@ -198,11 +204,9 @@ class Board:
 
         self._is_initial_board_set_up: bool = False
 
-        if not board_setup:
-            self.create_initial_board_set_up()
+        self._initialize_board(board_setup)
 
-        elif board_setup:
-            self._setup_board(board_setup)
+    #  ---------------------------- PROPERTIES ----------------------------
 
     @property
     def white_king(self) -> King:
@@ -232,11 +236,13 @@ class Board:
             color=PieceColor.BLACK
         )[0]
 
+    #  ---------------------------- STATIC METHODS ----------------------------
+
     @staticmethod
     def is_position_on_board(
-        position: tuple[int, int],
         row: int | None = None,
-        column: int | None = None
+        column: int | None = None,
+        position: PositionT | None = None,
     ) -> bool:
         """
         Check if a specified position is on the chessboard.
@@ -268,28 +274,29 @@ class Board:
 
         return True
 
-    def decrement_piece_count(self, color: PieceColor):
+    @staticmethod
+    def create_empty_board() -> BoardRepresentation:
         """
-        Decrement the count of pieces for a given color.
+        Creates an empty chessboard.
 
-        Parameters:
-            color (PieceColor): The color for which to decrement the count.
+        Initializes a board as a 2D list with None values, representing an
+        empty square on the chessboard.
         """
 
-        if color == PieceColor.WHITE:
-            self.n_white_pieces -= 1
-        elif color == PieceColor.BLACK:
-            self.n_black_pieces -= 1
+        board = [[None for _ in range(8)] for _ in range(8)]
+        return board
+
+    # ---------------------------- PUBLIC METHODS ----------------------------
 
     def add_piece(
         self,
         piece: Piece | PieceName,
-        piece_color: PieceColor = None,
         row: int | str | None = None,
+        piece_color: PieceColor = None,
         column: int | str | None = None,
+        additional_information: dict = None,
         algebraic_notation: str | None = None,
         check_if_position_is_empty: bool = True,
-        additional_information: dict = None
     ) -> Piece:
         """
         Add a chess piece to the board at a specified position.
@@ -345,9 +352,7 @@ class Board:
 
             if is_king:
                 if self.pieces_on_board[king_color].get(PieceName.KING):
-                    raise ValueError(
-                        f'The {king_color.name} king is already on the board.'
-                    )
+                    raise KingAlreadyOnBoardError(king_color.name)
 
         if algebraic_notation:
             row, column = convert_from_algebraic_notation(algebraic_notation)
@@ -358,10 +363,7 @@ class Board:
 
         if check_if_position_is_empty:
             if not self.is_position_empty(row=row, column=column):
-                raise ValueError(
-                    'The position you are trying to add the piece to is '
-                    'already occupied.'
-                )
+                raise SpaceAlreadyOccupiedError()
 
         if isinstance(piece, PieceName):
             if not piece_color:
@@ -385,20 +387,10 @@ class Board:
             pieces_on_board[piece.name] = []
 
         # NOTE: could this be referencing to the piece.name instance of the
-        # Sobject?
+        # object?
         pieces_on_board[piece.name].append(piece)
 
         return piece
-
-    def create_empty_board(self):
-        """
-        Create an empty chessboard.
-
-        Initializes the board as a 2D list with None values, representing an
-        empty square on the chessboard.
-        """
-
-        self.board = [[None for _ in range(8)] for _ in range(8)]
 
     def clean_board(self):
         """
@@ -417,42 +409,26 @@ class Board:
         }
         self.create_empty_board()
 
-    def create_initial_board_set_up(self) -> list[list[Piece | None]]:
+    def decrement_piece_count(self, color: PieceColor):
         """
-        Set up the initial arrangement of chess pieces on the board.
+        Decrement the count of pieces for a given color.
 
-        Arranges the chess pieces in their standard starting positions. This
-        includes setting up pawns, knights, bishops, rooks, queens, and kings
-        for both white and black.
-
-        Returns:
-            list[list[Piece | None]]: The chessboard with the initial setup.
-
-        Raises:
-            ValueError: If the initial setup has already been created.
+        Parameters:
+            color (PieceColor): The color for which to decrement the count.
         """
 
-        if self._is_initial_board_set_up:
-            raise ValueError(
-                'The initial board set up has already been created.'
-            )
+        if color == PieceColor.WHITE:
+            self.n_white_pieces -= 1
+        elif color == PieceColor.BLACK:
+            self.n_black_pieces -= 1
 
-        self.create_empty_board()
-
-        self._create_initial_pawn_set_up()
-        self._create_initial_knight_set_up()
-        self._create_initial_bishop_set_up()
-        self._create_initial_rook_set_up()
-        self._create_initial_queen_set_up()
-        self._create_initial_king_set_up()
-
-        self._is_initial_board_set_up = True
+    # ---------------------------- GETTER METHODS ----------------------------
 
     def get_square_or_piece(
         self,
         row: int,
         column: int
-    ) -> 'tuple[int, int] | Piece':
+    ) -> 'PositionT | Piece':
 
         """
         Determine if a square on the chessboard is empty or occupied by a
@@ -472,7 +448,7 @@ class Board:
             square is not on the board.
         """
 
-        move_or_piece: tuple[int, int] | Piece | None = []
+        move_or_piece: PositionT | Piece | None = []
         if self.board[row][column] is None:
             move_or_piece = (row, column)
         else:
@@ -509,7 +485,6 @@ class Board:
         for piece_key in pieces:
             for piece in pieces[piece_key]:
                 piece: Piece
-                # name = f'{piece.name.value[1]}_{piece.algebraic_pos}'
                 legal_moves[piece] = piece.calculate_legal_moves(
                     show_in_algebraic_notation=show_in_algebraic_notation
                 )
@@ -595,183 +570,6 @@ class Board:
             color.
         """
         return self.pieces_on_board[color].get(piece_name, [])
-
-    def is_position_empty(
-        self,
-        row: int | str,
-        column: int | str
-    ) -> bool:
-        """
-        TODO: Check that row and column can be only integers or strings
-
-        Check if a given board position is empty.
-
-        Parameters:
-            row (int | str): The row index or algebraic row to check.
-            column (int | str): The column index or algebraic column to check.
-
-        Returns:
-            bool: True if the position is empty, False otherwise.
-        """
-
-        if row > 7 or column > 7:
-            return False
-
-        return self.board[row][column] is None
-
-    def print_attacked_squares(
-        self,
-        traspass_king: bool = False,
-        piece_name: PieceName | None = None,
-        show_in_algebraic_notation: bool = True,
-        perspective: PieceColor = PieceColor.WHITE,
-    ):
-        """
-        Print the squares attacked from a specified perspective.
-
-        Displays the squares currently under attack from the perspective of a
-        specified color or specific piece.
-
-        Parameters:
-            perspective (PieceColor, optional): The color perspective to use.
-                Default is PieceColor.WHITE.
-            piece_name (PieceName | None, optional): Specific piece type to
-                focus on. Default is None.
-        """
-
-        attacked_squares = list()
-
-        # there is somethign wrong is we call the function like this
-        if not piece_name:
-            attacked_squares = self.get_attacked_squares(
-                color=perspective,
-                traspass_king=traspass_king,
-            )
-
-        else:
-            pieces = self.get_piece(
-                piece_name=piece_name,
-                color=perspective
-            )
-
-            for piece in pieces:
-                extra_var = dict()
-                if piece.name not in NO_TRASPASS_KING_PIECES:
-                    extra_var['traspass_king'] = traspass_king
-
-                piece: Piece
-                attacked_squares += piece.get_attacked_squares(**extra_var)
-
-        self.print_board(
-            perspective=perspective,
-            special_color_on=attacked_squares,
-            show_in_algebraic_notation=show_in_algebraic_notation
-        )
-
-    def remove_castleling_rights(self, color: PieceColor):
-        """
-        Remove castling rights for a given color.
-
-        Parameters:
-            color (PieceColor): The color for which to remove castling rights.
-        """
-        self.castleling_rights[color][RookSide.KING] = False
-        self.castleling_rights[color][RookSide.QUEEN] = False
-
-    def remove_piece(self, piece: Piece):
-        """
-        Remove a piece from the board.
-
-        This method removes a piece from the board, updating the internal
-        representation and the tracking dictionaries. It also removes the
-        piece from the list of attacked squares for its color.
-
-        Parameters:
-            piece (Piece): The piece to remove.
-        """
-
-        self.board[piece.row][piece.column] = None
-        self.pieces_on_board[piece.color][piece.name].remove(piece)
-
-    def print_board(
-        self,
-        special_color: str = Fore.RED,
-        show_in_algebraic_notation: bool = False,
-        perspective: PieceColor = PieceColor.WHITE,
-        special_color_on: tuple[tuple[int, int]] | None = None,
-    ):
-        """
-        Print the chessboard from a specified perspective.
-
-        This method displays the current state of the chessboard, optionally
-        highlighting specific squares in a different color. The board can be
-        viewed from either the white or black perspective.
-
-        Parameters:
-            perspective (PieceColor): The perspective from which to view
-                the board. Defaults to PieceColor.WHITE.
-            special_color_on (tuple[tuple[int, int]] | None): Tuples of
-                coordinates to highlight on the board. Defaults to None.
-            special_color (str): The color code (ANSI escape code) used for
-                highlighting. Defaults to Fore.RED.
-
-        Note:
-            The board is printed to the console, with each square represented
-            by either a '.' or the single-character representation of the
-            piece occupying it.
-        """
-
-        board_representation = self.get_board_representation(
-            special_color=special_color,
-            special_color_on=special_color_on,
-            show_in_algebraic_notation=show_in_algebraic_notation
-        )
-
-        if perspective == PieceColor.WHITE:
-            board_representation.reverse()
-
-        for row in board_representation:
-            print(' '.join(row))
-
-    def update_board(
-        self,
-        old_row: int,
-        old_column: int,
-        new_row: int,
-        new_column: int,
-        piece: Piece,
-        is_en_passant: bool = False
-    ):
-        """
-        Update the board state after a piece is moved.
-
-        This method moves a piece from its old position to a new position on
-        the board. It handles the removal of a pawn captured via en passant,
-        if applicable.
-
-        Parameters:
-            old_row (int): The row index of the piece's current position.
-            old_column (int): The column index of the piece's current position.
-            new_row (int): The row index of the piece's new position.
-            new_column (int): The column index of the piece's new position.
-            piece (Piece): The piece object that is being moved.
-            is_en_passant (bool, optional): Flag indicating whether the move
-                is an en passant capture. Defaults to False.
-
-        Note:
-            This method updates the internal board representation and does not
-            check the legality of the move.
-        """
-
-        self._manage_capture(
-            row=new_row,
-            column=new_column,
-            is_en_passant=is_en_passant,
-            piece_color=piece.color
-        )
-
-        self.board[old_row][old_column] = None
-        self.board[new_row][new_column] = piece
 
     def get_board_representation(
         self,
@@ -865,33 +663,235 @@ class Board:
 
         return get_board_representation
 
-    def _setup_board(self, board_setup: list[list[str]]):
+    # ---------------------------- CHECK METHODS ----------------------------
 
+    def is_position_empty(
+        self,
+        row: int,
+        column: int
+    ) -> bool:
+        """
+        Check if a given board position is empty.
+
+        Parameters:
+            row (int | str): The row index or algebraic row to check.
+            column (int | str): The column index or algebraic column to check.
+
+        Returns:
+            bool: True if the position is empty, False otherwise.
         """
 
-        A board setupt that should looks like this
+        if row > 7 or column > 7:
+            return False
 
-        'board': [
-            ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-            ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-            ['.', '.', '.', '.', '.', '.', '.', '.'],
-            ['.', '.', '.', '.', '.', '.', '.', '.'],
-            ['.', '.', '.', '.', '.', '.', '.', '.'],
-            ['.', '.', '.', '.', '.', '.', '.', '.'],
-            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-        ]
+        return self.board[row][column] is None
 
-        Where the minuscule letters are black pieces and the capital letters
-        are white pieces
+    def remove_castleling_rights(self, color: PieceColor):
+        """
+        Remove castling rights for a given color.
+
+        Parameters:
+            color (PieceColor): The color for which to remove castling rights.
+        """
+        self.castleling_rights[color][RookSide.KING] = False
+        self.castleling_rights[color][RookSide.QUEEN] = False
+
+    def remove_piece(self, piece: Piece):
+        """
+        Remove a piece from the board.
+
+        This method removes a piece from the board, updating the internal
+        representation and the tracking dictionaries. It also removes the
+        piece from the list of attacked squares for its color.
+
+        Parameters:
+            piece (Piece): The piece to remove.
         """
 
-        if self._is_initial_board_set_up:
-            raise ValueError(
-                'The initial board set up has already been created.'
+        self.board[piece.row][piece.column] = None
+        self.pieces_on_board[piece.color][piece.name].remove(piece)
+
+    def update_board(
+        self,
+        old_row: int,
+        old_column: int,
+        new_row: int,
+        new_column: int,
+        piece: Piece,
+        is_en_passant: bool = False
+    ):
+        """
+        Update the board state after a piece is moved.
+
+        This method moves a piece from its old position to a new position on
+        the board. It handles the removal of a pawn captured via en passant,
+        if applicable.
+
+        Parameters:
+            old_row (int): The row index of the piece's current position.
+            old_column (int): The column index of the piece's current position.
+            new_row (int): The row index of the piece's new position.
+            new_column (int): The column index of the piece's new position.
+            piece (Piece): The piece object that is being moved.
+            is_en_passant (bool, optional): Flag indicating whether the move
+                is an en passant capture. Defaults to False.
+
+        Note:
+            This method updates the internal board representation and does not
+            check the legality of the move.
+        """
+
+        self._manage_capture(
+            row=new_row,
+            column=new_column,
+            is_en_passant=is_en_passant,
+            piece_color=piece.color
+        )
+
+        self.board[old_row][old_column] = None
+        self.board[new_row][new_column] = piece
+
+    # ---------------------------- PRINT METHODS ----------------------------
+
+    def print_board(
+        self,
+        special_color: str = Fore.RED,
+        show_in_algebraic_notation: bool = False,
+        perspective: PieceColor = PieceColor.WHITE,
+        special_color_on: tuple[tuple[int, int]] | None = None,
+    ):
+        """
+        Print the chessboard from a specified perspective.
+
+        This method displays the current state of the chessboard, optionally
+        highlighting specific squares in a different color. The board can be
+        viewed from either the white or black perspective.
+
+        Parameters:
+            perspective (PieceColor): The perspective from which to view
+                the board. Defaults to PieceColor.WHITE.
+            special_color_on (tuple[tuple[int, int]] | None): Tuples of
+                coordinates to highlight on the board. Defaults to None.
+            special_color (str): The color code (ANSI escape code) used for
+                highlighting. Defaults to Fore.RED.
+
+        Note:
+            The board is printed to the console, with each square represented
+            by either a '.' or the single-character representation of the
+            piece occupying it.
+        """
+
+        board_representation = self.get_board_representation(
+            special_color=special_color,
+            special_color_on=special_color_on,
+            show_in_algebraic_notation=show_in_algebraic_notation
+        )
+
+        if perspective == PieceColor.WHITE:
+            board_representation.reverse()
+
+        for row in board_representation:
+            print(' '.join(row))
+
+    def print_attacked_squares(
+        self,
+        traspass_king: bool = False,
+        piece_name: PieceName | None = None,
+        show_in_algebraic_notation: bool = True,
+        perspective: PieceColor = PieceColor.WHITE,
+    ):
+        """
+        Print the squares attacked from a specified perspective.
+
+        Displays the squares currently under attack from the perspective of a
+        specified color or specific piece.
+
+        Parameters:
+            perspective (PieceColor, optional): The color perspective to use.
+                Default is PieceColor.WHITE.
+            piece_name (PieceName | None, optional): Specific piece type to
+                focus on. Default is None.
+        """
+
+        attacked_squares = list()
+
+        # there is somethign wrong is we call the function like this
+        if not piece_name:
+            attacked_squares = self.get_attacked_squares(
+                color=perspective,
+                traspass_king=traspass_king,
             )
 
-        self.create_empty_board()
+        else:
+            pieces = self.get_piece(
+                piece_name=piece_name,
+                color=perspective
+            )
+
+            for piece in pieces:
+                extra_var = dict()
+                if piece.name not in NO_TRASPASS_KING_PIECES:
+                    extra_var['traspass_king'] = traspass_king
+
+                piece: Piece
+                attacked_squares += piece.get_attacked_squares(**extra_var)
+
+        self.print_board(
+            perspective=perspective,
+            special_color_on=attacked_squares,
+            show_in_algebraic_notation=show_in_algebraic_notation
+        )
+
+    # ---------------------------- PRIVATE METHODS ----------------------------
+
+    # ----------------------------- INITIALIZERS ------------------------------
+
+    def _initialize_board(self, board_setup: BoardRepresentation):
+
+        if self._is_initial_board_set_up:
+            raise BoardAlreadyInitializedError()
+
+        self.board = self.create_empty_board()
+
+        if not board_setup:
+            self._set_initial_board_set_up()
+
+        elif board_setup:
+            self._set_personalized_board_set_up(board_setup)
+
+        self._is_initial_board_set_up = True
+
+    # ---------------------------- SETTER METHODS ----------------------------
+
+    def _set_initial_board_set_up(self) -> None:
+        """
+        Set up the initial arrangement of chess pieces on the board.
+
+        Arranges the chess pieces in their standard starting positions. This
+        includes setting up pawns, knights, bishops, rooks, queens, and kings
+        for both white and black.
+
+        Returns:
+            list[list[Piece | None]]: The chessboard with the initial setup.
+
+        Raises:
+            ValueError: If the initial setup has already been created.
+        """
+
+        self._create_initial_pawn_set_up()
+        self._create_initial_knight_set_up()
+        self._create_initial_bishop_set_up()
+        self._create_initial_rook_set_up()
+        self._create_initial_queen_set_up()
+        self._create_initial_king_set_up()
+
+    def _set_personalized_board_set_up(self, board_setup: BoardRepresentation):
+
+        """
+        Create the board setup from a given configuration.
+        """
+
+        self.board = self.create_empty_board()
         for row_index, row in enumerate(board_setup):
             for column_index, piece in enumerate(row):
                 if piece != '.':
@@ -907,12 +907,13 @@ class Board:
                         column=column_index
                     )
 
-        self._is_initial_board_set_up = True
+    # ----------------------------- HELPER METHODS ----------------------------
+    # ---------------------------- BOARD OPERATIONS ---------------------------
 
     def _create_piece(
         self,
-        piece_name: PieceName,
         color: PieceColor,
+        piece_name: PieceName,
         position: tuple[int, int],
         additional_information: dict = None
     ) -> Piece:
@@ -1145,6 +1146,8 @@ class Board:
             column=4
         )
 
+    # ----------------------------- MANAGERS ----------------------------------
+
     def _manage_capture(
         self,
         row: int,
@@ -1175,6 +1178,9 @@ class Board:
         # delete the piece from the pieces_on_board dictionary
         self.decrement_piece_count(piece.color)
         self.pieces_on_board[piece.color][piece.name].remove(piece)
+
+    # ---------------------------- DUNDER METHODS -----------------------------
+    # -------------------------------------------------------------------------
 
     def __str__(self) -> str:
         """

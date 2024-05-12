@@ -2,7 +2,8 @@ import unittest
 
 from core.testing import print_starting, print_success
 
-from board import Board
+from board.board import Board
+from board.exceptions import KingAlreadyOnBoardError
 
 from pieces.utilites import PieceName, PieceColor
 
@@ -84,6 +85,19 @@ class TestBoard(unittest.TestCase):
         board = Board()
         board.print_attacked_squares(perspective=PieceColor.BLACK)
 
+        print_success()
+
+    def test_more_than_one_king_on_board(self):
+
+        print_starting()
+
+        board: Board = Board()
+        with self.assertRaises(KingAlreadyOnBoardError):
+            board.add_piece(
+                piece=PieceName.KING,
+                piece_color=PieceColor.WHITE,
+                algebraic_notation='e1',
+            )
         print_success()
 
 
