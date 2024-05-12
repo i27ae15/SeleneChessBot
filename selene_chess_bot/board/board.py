@@ -240,9 +240,9 @@ class Board:
 
     @staticmethod
     def is_position_on_board(
+        position: PositionT | None = None,
         row: int | None = None,
         column: int | None = None,
-        position: PositionT | None = None,
     ) -> bool:
         """
         Check if a specified position is on the chessboard.
