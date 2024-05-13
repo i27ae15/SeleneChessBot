@@ -15,9 +15,13 @@ def initialize_game_state(sender, **kwargs):
     exist = GameState.objects.filter(fen=INITIAL_FEN).exists()
     if not exist:
 
-        Game()
+        g = Game()
+        g.current_game_state.num_visits = 0
+        g.current_game_state.save()
+
         # Create the initial game state
         # Within the game class, everythin is set up to create the inital
-        # GameState object
+        # GameState object, we just need to set the num_visits to 0 since they
+        # are initialized to 1
 
         print(f'{BColors.OKGREEN}Initial game state created.{BColors.ENDC}')

@@ -21,16 +21,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        self.test_from_real_games()
+        self.create_game_states()
 
-    def test_from_real_games(self):
+    def create_game_states(self):
 
-        User.objects.create_user(
+        User.objects.create_superuser(
             username='i27ae15',
             email='andresruse18@gmail.com',
             first_name='Andres',
             last_name='Ruse',
-            password='ruse18775'
+            password='ruse18775',
         )
 
         # Usage

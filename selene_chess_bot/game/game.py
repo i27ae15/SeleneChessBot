@@ -116,6 +116,7 @@ class Game:
         # En passant ----------------------------------------------
         self.white_possible_pawn_enp: Pawn | None = None
         self.black_possible_pawn_enp: Pawn | None = None
+
         self._initialize_en_passant_pawns(en_passant_target)
 
         # Game state ----------------------------------------------
@@ -152,6 +153,10 @@ class Game:
     @property
     def black_value(self) -> float:
         return self.game_values[PieceColor.BLACK]
+
+    @property
+    def possible_pawn_enp(self) -> Pawn | None:
+        return self.white_possible_pawn_enp or self.black_possible_pawn_enp
 
     @property
     def castling_fen(self) -> str:
@@ -558,6 +563,7 @@ class Game:
         print(f'is_game_drawn: {self.is_game_drawn}')
         print(f'moves_for_f_rule: {self.moves_for_f_rule}')
         print(f'values: {self.game_values}')
+        print(f'possible_pawn_enp: {self.possible_pawn_enp}')
 
     def start(self) -> None:
         """
@@ -613,9 +619,9 @@ class Game:
         en_passant_pawn: Pawn = None
 
         if self.player_turn == PieceColor.WHITE:
-            en_passant_pawn = self.white_possible_pawn_enp
-        elif self.player_turn == PieceColor.BLACK:
             en_passant_pawn = self.black_possible_pawn_enp
+        elif self.player_turn == PieceColor.BLACK:
+            en_passant_pawn = self.white_possible_pawn_enp
 
         # set the last pawn moved two squares to not be able to be captured
 
@@ -623,9 +629,9 @@ class Game:
             en_passant_pawn.can_be_captured_en_passant = False
 
             if self.player_turn == PieceColor.WHITE:
-                self.white_possible_pawn_enp = None
-            elif self.player_turn == PieceColor.BLACK:
                 self.black_possible_pawn_enp = None
+            elif self.player_turn == PieceColor.BLACK:
+                self.white_possible_pawn_enp = None
 
     def _get_movable_piece(
         self,
@@ -1027,9 +1033,9 @@ class Game:
             if piece_move.square[-1] in '45' and piece.first_move:
 
                 if self.player_turn == PieceColor.WHITE:
-                    self.white_possible_pawn_enp = piece
-                elif self.player_turn == PieceColor.BLACK:
                     self.black_possible_pawn_enp = piece
+                elif self.player_turn == PieceColor.BLACK:
+                    self.white_possible_pawn_enp = piece
 
                 piece.can_be_captured_en_passant = True
 
@@ -1175,12 +1181,13 @@ class Game:
             column=square[1],
             row=square[0]
         )
+
         piece.can_be_captured_en_passant = True
 
         if piece.color == PieceColor.WHITE:
-            self.white_possible_pawn_enp = piece
-        else:
             self.black_possible_pawn_enp = piece
+        else:
+            self.white_possible_pawn_enp = piece
 
     def _create_current_game_state_obj(self) -> GameState:
         """
