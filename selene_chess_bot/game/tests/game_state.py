@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.test.runner import DiscoverRunner
 
 from core.utils import INITIAL_FEN
 
@@ -59,6 +58,8 @@ class TestGameModel(TestCase):
         # counts its children
 
         self.assertEqual(initial_position.children.count(), 16)
+        
+        
 
 
 class TestGameModelSimulation(TestCase):

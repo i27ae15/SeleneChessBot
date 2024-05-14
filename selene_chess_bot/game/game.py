@@ -88,6 +88,7 @@ class Game:
     def __init__(
         self,
         current_turn: int = 1,
+        castling_rights: dict = None,
         en_passant_target: str | None = None,
         board_setup: BoardRepresentation = None,
         player_turn: PieceColor = PieceColor.WHITE,
@@ -103,7 +104,10 @@ class Game:
 
         # Board
         self.board_states: BoardStates = dict()
-        self.board: Board = Board(board_setup=board_setup)
+        self.board: Board = Board(
+            board_setup=board_setup,
+            castling_rights=castling_rights
+        )
         self.initial_board_setup: bool = lambda: False if board_setup else True
 
         # Moves ---------------------------------------------------
@@ -323,14 +327,6 @@ class Game:
             None if en_passant_target == '-' else en_passant_target
         )
 
-        game = Game(
-            board_setup=board,
-            player_turn=active_color,
-            current_turn=fullmove_number,
-            en_passant_target=en_passant_target,
-        )
-        game.moves_for_f_rule = halfmove_clock
-
         # Castling rights from FEN
         castling_rights = {
             PieceColor.WHITE: {
@@ -343,7 +339,15 @@ class Game:
             }
         }
 
-        game.board.castleling_rights = castling_rights
+        game = Game(
+            board_setup=board,
+            player_turn=active_color,
+            current_turn=fullmove_number,
+            castling_rights=castling_rights,
+            en_passant_target=en_passant_target,
+        )
+        game.moves_for_f_rule = halfmove_clock
+
         return game
 
     @staticmethod
@@ -1094,6 +1098,7 @@ class Game:
         else:
             game_state: GameState = game_state[0]
             game_state.increment_visits()
+            game_state.parents.add(self.current_game_state)
 
             self.current_fen = game_state.fen
 
@@ -1208,16 +1213,17 @@ class Game:
             show_as_list=True
         )
 
+        parent = self.current_game_state  # This could be None
         self.current_game_state = GameState.objects.create(
             fen=self.current_fen,
             white_value=self.white_value,
             black_value=self.black_value,
-            parent=self.current_game_state,  # This could be None
             expandable_moves=expandable_moves,
             player_turn=self.player_turn.value,
             board_hash=self.current_board_hash,
             is_game_terminated=self.is_game_terminated
         )
+        self.current_game_state.parents.add(parent)
 
         # We dont have to increment the visits since the visits are intialized
         # to 1

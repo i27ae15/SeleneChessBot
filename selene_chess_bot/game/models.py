@@ -3,13 +3,13 @@ import uuid
 import numpy as np
 import json
 import os
+import networkx as nx
 
 from typing import Any, Callable
 
 from django.db import models
 
 from pieces.utilites import PieceColor
-
 
 C_VALUE = 1.414
 
@@ -28,12 +28,10 @@ class GameState(models.Model):
 
     """
 
-    parent: 'GameState' = models.ForeignKey(
+    # A game State can have multiple parents and multiple children
+    parents = models.ManyToManyField(
         'GameState',
-        on_delete=models.CASCADE,
         related_name='children',
-        null=True,
-        default=None,
         blank=True
     )
 
@@ -65,6 +63,49 @@ class GameState(models.Model):
     @property
     def player_turn_obj(self) -> PieceColor:
         return PieceColor(self.player_turn)
+
+    @staticmethod
+    def create_tree_representation(
+        parent: 'GameState',
+        visited: set = None,
+        count_nodes: bool = False,
+        nx_graph: nx.DiGraph = None,
+        order_by: str = '-num_visits',
+    ) -> nx.DiGraph:
+        """
+        Create the nx.Diagraph tree code representation with a DFS on the tree.
+        """
+
+        if nx_graph is None:
+            nx_graph = nx.DiGraph()
+
+        if visited is None:
+            visited = set()
+
+        # Check if the current node has already been visited
+        if str(parent.board_hash) in visited:
+            return nx_graph
+
+        # Mark the current node as visited
+        visited.add(str(parent.board_hash))
+
+        if parent.children.all().count() == 0:
+            return nx_graph
+
+        children = parent.children.all().order_by(order_by)
+
+        for child in children:
+            child: GameState
+            nx_graph.add_edge(str(parent.board_hash), str(child.board_hash))
+            GameState.create_tree_representation(
+                parent=child,
+                visited=visited,
+                nx_graph=nx_graph,
+                order_by=order_by,
+                count_nodes=count_nodes,
+            )
+
+        return nx_graph
 
     def add_explored_move(self, move: str) -> None:
         self.explored_moves.append(move)

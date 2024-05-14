@@ -135,7 +135,8 @@ class Board:
 
     def __init__(
         self,
-        board_setup: BoardRepresentation = None
+        board_setup: BoardRepresentation = None,
+        castling_rights: dict[PieceColor, dict[RookSide, bool]] = None,
     ) -> None:
         """
         Initialize a new Board instance.
@@ -181,16 +182,7 @@ class Board:
             PieceColor.BLACK: self.black_pieces
         }
 
-        self.castleling_rights: dict[PieceColor] = {
-            PieceColor.WHITE: {
-                RookSide.KING: True,
-                RookSide.QUEEN: True,
-            },
-            PieceColor.BLACK: {
-                RookSide.KING: True,
-                RookSide.QUEEN: True,
-            }
-        }
+        self.castleling_rights: dict[PieceColor] = dict()
 
         self.n_white_pieces: int = 16
         self.n_black_pieces: int = 16
@@ -204,6 +196,7 @@ class Board:
 
         self._is_initial_board_set_up: bool = False
 
+        self._initialize_castling_rights(castling_rights)
         self._initialize_board(board_setup)
 
     #  ---------------------------- PROPERTIES ----------------------------
@@ -860,6 +853,33 @@ class Board:
             self._set_personalized_board_set_up(board_setup)
 
         self._is_initial_board_set_up = True
+
+    def _initialize_castling_rights(
+        self,
+        castling_rights: dict[PieceColor, dict[RookSide, bool]]
+    ):
+        """
+        Initialize the castling rights for both colors.
+
+        Parameters:
+            castling_rights (dict[PieceColor, dict[RookSide, bool]]): A
+                dictionary mapping each color to its castling rights.
+        """
+
+        if castling_rights:
+            self.castleling_rights = castling_rights
+            return
+
+        self.castleling_rights = {
+            PieceColor.WHITE: {
+                RookSide.KING: True,
+                RookSide.QUEEN: True,
+            },
+            PieceColor.BLACK: {
+                RookSide.KING: True,
+                RookSide.QUEEN: True,
+            }
+        }
 
     # ---------------------------- SETTER METHODS ----------------------------
 

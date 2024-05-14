@@ -9,7 +9,7 @@ from core.utils import INITIAL_FEN
 
 
 class Command(BaseCommand):
-    help = 'Create 15404 GameState Objects from MacKenzie.txt PGN file.'
+    help = 'Create 15401 GameState Objects from MacKenzie.txt PGN file.'
 
     def add_arguments(self, parser):
         # Optional: add any command line arguments here
@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
         file_path = 'pgn/tests/MacKenzie.txt'
         pgn_games = self.extract_pgn_to_variables(file_path)
-        game = pgn_games[4].replace('\n', ' ')
+        game = pgn_games[19].replace('\n', ' ')
 
         print('game', game)
         PGN(game)

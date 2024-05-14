@@ -61,6 +61,7 @@ class PGN:
         self.debug: bool = debug
         self._wait_for_move: int = False
         self.raw_moves: str | dict = moves
+        self.total_moves: int = 0
         self.pgn: str = self.convert_to_pgn(moves)
 
     def convert_to_pgn(self, moves: str | dict) -> str:
@@ -206,6 +207,7 @@ class PGN:
 
     @debug_before_move_decorator
     def _execute_move_with_debug(self, move: str, *args) -> bool:
+        self.total_moves += 1
         try:
             self.game.move_piece(move)
             return True, None

@@ -2,6 +2,7 @@
 from django.core.management.base import BaseCommand
 
 from core.utils import INITIAL_FEN
+from core.testing import print_starting, print_success
 
 from game.models import GameState
 from game.game import Game
@@ -15,6 +16,8 @@ class Command(BaseCommand):
         self.view_game()
 
     def view_game(self):
+
+        print_starting()
 
         save_games: list[GameState] = []
         parent = GameState.objects.get(fen=INITIAL_FEN)
@@ -31,6 +34,8 @@ class Command(BaseCommand):
             g.board.print_board()
             print('-' * 50)
         print('Number of game states:', len(save_games))
+
+        print_success()
 
     def test_first_game_state(self):
 
