@@ -454,7 +454,8 @@ class Game:
         self,
         color: PieceColor,
         show_in_algebraic: bool,
-        show_as_list: bool = False
+        show_as_list: bool = False,
+        show_as_ordered_dict: bool = False
     ) -> dict | list[str]:
 
         """
@@ -488,17 +489,63 @@ class Game:
             color, show_in_algebraic
         )
 
-        if not show_as_list:
+        if not show_as_list and not show_as_ordered_dict:
             return legal_moves
 
-        moves = []
+        if show_as_list:
+            moves = []
 
-        for piece, value in legal_moves.items():
-            piece: Piece
-            for move in value:
-                moves.append(f'{piece.name.value[1]}{move}')
+            for piece, value in legal_moves.items():
+                piece: Piece
+                for move in value:
+                    # check if the move is a capture
+                    square_or_piece = self.board.get_square_or_piece(
+                        *convert_from_algebraic_notation(move)
+                    )
 
-        return moves
+                    if piece.name == PieceName.KING:
+                        king: King = piece
+
+                        if king.can_castle_kingside:
+                            if move in ['c1', 'c8']:
+                                moves.append('O-O')
+                                continue
+
+                        if king.can_castle_queenside:
+                            if move in ['g1', 'g8']:
+                                moves.append('O-O-O')
+                            continue
+
+                    if not isinstance(square_or_piece, Piece):
+                        moves.append(f'{piece.name.value[1]}{move}')
+                        continue
+
+                    if piece.name == PieceName.PAWN:
+                        moves.append(f'{piece.algebraic_pos[0]}x{move}')
+                    else:
+                        moves.append(f'{piece.name.value[1]}x{move}')
+
+            return moves
+
+        if show_as_ordered_dict:
+
+            ordered_dict = dict()
+
+            for piece, value in legal_moves.items():
+                piece: Piece
+                piece_name = f'{piece.name.value[1]}_{piece.algebraic_pos}'
+
+                for move in value:
+                    if piece_name in ordered_dict:
+                        ordered_dict[piece_name]['moves'].append(move)
+                    else:
+                        ordered_dict[piece_name] = dict()
+                        ordered_dict[piece_name]['moves'] = [move]
+
+                    # add the algebraic position of the piece piece object
+                    ordered_dict[piece_name]['algebraic_pos'] = piece.algebraic_pos
+
+            return ordered_dict
 
     def move_piece(self, move: str) -> None:
         """
@@ -601,9 +648,6 @@ class Game:
             )
             self.current_game_state.increment_visits()
         except GameState.DoesNotExist:
-            print('-' * 50)
-            print('this is being reached')
-            print('-' * 50)
             # if the game state does not exist, we need to create it
             self.current_game_state = self._create_current_game_state_obj()
 
@@ -700,7 +744,7 @@ class Game:
             ):
                 return piece
 
-        raise InvalidMoveError()
+        raise InvalidMoveError('_get_movable_piece')
 
     def _move_piece(self, piece: Piece, piece_move: PieceMove):
         """
@@ -721,10 +765,10 @@ class Game:
         if piece_move.is_castleling:
             # this mean that the piece is the king
             if not piece.castle(side=piece_move.castleling_side):
-                raise InvalidMoveError()
+                raise InvalidMoveError('_move_piece.0')
         else:
             if not piece.move_to(piece_move.square):
-                raise InvalidMoveError()
+                raise InvalidMoveError('_move_piece.1')
 
     def _color_has_legal_moves(
         self,

@@ -86,7 +86,7 @@ class TestGameModelSimulation(TestCase):
 
         print('-' * 50)
         print('simulating child')
-        child_game_state.simulate(Game)
+        child_game_state.simulate(Game, delete_json=True)
         print('-' * 50)
 
         # print('Parent:', parent.id)

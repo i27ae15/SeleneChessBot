@@ -1,3 +1,4 @@
+import json
 from django.test import TestCase
 
 from core.testing import print_starting, print_success
@@ -294,6 +295,38 @@ class TestGame(TestCase):
             print('-' * 50)
 
         print_success()
+
+    def test_game_from_simulation(self):
+        file_path = 'simulation_errors.json'
+
+        with open(file_path, 'r') as file:
+            data: dict = json.load(file)['data']
+
+        moves: dict[str[list]] = data[0]['moves']
+        # where the number is the key and the value is the list of moves for
+        # that turn
+
+        # adding the first move that is not in the moves dictionary
+        moves['1'] = ['h4', moves['1'][0]]
+
+        for index, move in enumerate(moves):
+            for move_ in moves[move]:
+                print(f"{index + 1} Move: {move_}")
+                self.game.move_piece(move_)
+
+        self.game.board.print_board(show_in_algebraic_notation=True)
+        m = self.game.get_legal_moves(
+            show_in_algebraic=True,
+            color=PieceColor.WHITE,
+            show_as_list=True
+        )
+        print('-' * 50)
+        print(m)
+        self.game.move_piece('Kc1')
+        print('-' * 50)
+        self.game.board.print_board(show_in_algebraic_notation=True)
+
+        # Pe4 is the move that throws an error
 
 
 class TestSelfChessGame(TestCase):

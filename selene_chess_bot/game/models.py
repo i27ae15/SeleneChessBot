@@ -185,7 +185,7 @@ class GameState(models.Model):
         game_instance.move_piece(move)
         return game_instance.current_game_state
 
-    def simulate(self, game: Any):
+    def simulate(self, game: Any, delete_json: bool = False) -> float:
 
         """
         Game would be the pointer to the game object.
@@ -203,6 +203,8 @@ class GameState(models.Model):
                 move = np.random.choice(valid_moves)
 
                 print('-' * 50)
+                print('Current move:', game_instance.current_turn)
+                print('Player turn:', game_instance.player_turn)
                 print('Selected move:', move)
 
                 game_instance.move_piece(move)
@@ -224,12 +226,16 @@ class GameState(models.Model):
                 print('-' * 50)
                 print('error occurred')
                 print(e)
+                print('Saving to file')
                 print('-' * 50)
 
                 file_path = 'simulation_errors.json'
-                self.save_simulation_data(file_path, game_instance, e)
-                print('Error occurred, saving to file')
-
+                self.save_simulation_data(
+                    file_path=file_path,
+                    game_instance=game_instance,
+                    error=e,
+                    delete_json=delete_json
+                )
                 break
 
             current_game_state = game_instance.current_game_state
@@ -238,16 +244,20 @@ class GameState(models.Model):
         self,
         file_path: dict,
         game_instance: Callable,
+        delete_json: bool = False,
         error: Any = None
     ) -> None:
 
-        if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-            with open(file_path, 'r') as f:
-                data: dict = json.load(f)
+        if delete_json:
+            data = {'data': []}
         else:
-            data = {
-                'data': []
-            }
+            if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                with open(file_path, 'r') as f:
+                    data: dict = json.load(f)
+            else:
+                data = {
+                    'data': []
+                }
 
         white_king_in_check = game_instance.board.white_king.is_in_check
         black_king_in_check = game_instance.board.black_king.is_in_check
@@ -279,7 +289,7 @@ class GameState(models.Model):
         wlm = None
         try:
             wlm = game_instance.get_legal_moves(
-                color=PieceColor.BLACK,
+                color=PieceColor.WHITE,
                 show_in_algebraic=True,
                 show_as_list=True
             )
@@ -292,7 +302,7 @@ class GameState(models.Model):
         blm = None
         try:
             blm = game_instance.get_legal_moves(
-                color=PieceColor.WHITE,
+                color=PieceColor.BLACK,
                 show_in_algebraic=True,
                 show_as_list=True
             )

@@ -31,6 +31,14 @@ class King(Piece):
             board=board
         )
 
+    @property
+    def can_castle_kingside(self) -> bool:
+        return self._check_if_kingside_castleling_is_possible()
+
+    @property
+    def can_castle_queenside(self) -> bool:
+        return self._check_if_queenside_castleling_is_possible()
+
     def check_if_in_check(self) -> bool:
         if self.get_pieces_attacking_me():
             self.is_in_check = True
@@ -153,9 +161,8 @@ class King(Piece):
             )
 
         if show_in_algebraic_notation:
-            return [
-                convert_to_algebraic_notation(*move) for move in legal_moves
-            ]
+            for move in legal_moves:
+                legal_moves[legal_moves.index(move)] = convert_to_algebraic_notation(*move)
 
         return legal_moves
 
