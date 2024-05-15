@@ -53,7 +53,7 @@ class TestPGN(TestCase):
         for index, game in enumerate(pgn_games):
             g = game.replace('\n', ' ')
             print('game', index + 1)
-            total_moves += PGN(g).count
+            total_moves += PGN(g).total_moves
 
         print('total_moves', total_moves)
         print_success()
