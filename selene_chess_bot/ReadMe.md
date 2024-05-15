@@ -1,11 +1,9 @@
 
 NOTE:
 
-If you got this error when doing ```python manage.py``` shell:
+If you got this error when doing ```python manage.py shell```:
 
 ---------------------------------------------------------------------------
-BUG:
-
 ```
 IPython\terminal\interactiveshell.py", line 813, in prompt_for_code
     text = self.pt_app.prompt(
