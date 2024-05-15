@@ -226,6 +226,8 @@ class GameState(models.Model):
                 print('-' * 50)
                 print('error occurred')
                 print(e)
+                if e.__str__() == 'Invalid move at _move_piece.1':
+                    print('valid moves:', valid_moves)
                 print('Saving to file')
                 print('-' * 50)
 

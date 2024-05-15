@@ -316,13 +316,15 @@ class TestGame(TestCase):
 
         self.game.board.print_board(show_in_algebraic_notation=True)
         m = self.game.get_legal_moves(
-            show_in_algebraic=True,
             color=PieceColor.WHITE,
+            show_in_algebraic=True,
             show_as_list=True
         )
         print('-' * 50)
         print(m)
-        self.game.move_piece('Kc1')
+        print('expandable moves')
+        print(self.game.current_game_state.expandable_moves)
+        self.game.move_piece('Kg8')
         print('-' * 50)
         self.game.board.print_board(show_in_algebraic_notation=True)
 

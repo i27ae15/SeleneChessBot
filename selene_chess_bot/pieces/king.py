@@ -188,13 +188,16 @@ class King(Piece):
             ):
                 return False
 
-        # check if the square the king is moving to is under attack
+        # check if the squares the king is moving to is under attack
         attacked_squares = self.board.get_attacked_squares(
             self.color.opposite(),
             show_in_algebraic_notation=False
         )
 
         if (self.position[0], self.position[1] - 2) in attacked_squares:
+            return False
+
+        if (self.position[0], self.position[1] - 1) in attacked_squares:
             return False
 
         return True
@@ -227,6 +230,9 @@ class King(Piece):
         )
 
         if (self.position[0], self.position[1] + 2) in attacked_squares:
+            return False
+
+        if (self.position[0], self.position[1] + 1) in attacked_squares:
             return False
 
         return True

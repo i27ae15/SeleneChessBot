@@ -514,14 +514,36 @@ class Game:
                         if king.can_castle_queenside:
                             if move in ['g1', 'g8']:
                                 moves.append('O-O-O')
+                                continue
+
+                    if piece.name != PieceName.PAWN:
+                        if not isinstance(square_or_piece, Piece):
+                            moves.append(f'{piece.name.value[1]}{move}')
+
+                    elif piece.name == PieceName.PAWN:
+                        if isinstance(square_or_piece, Piece):
+                            moves.append(f'{piece.algebraic_pos[0]}x{move}')
                             continue
 
-                    if not isinstance(square_or_piece, Piece):
-                        moves.append(f'{piece.name.value[1]}{move}')
-                        continue
+                        # check if there is en passant
+                        if self.possible_pawn_enp:
 
-                    if piece.name == PieceName.PAWN:
-                        moves.append(f'{piece.algebraic_pos[0]}x{move}')
+                            row = self.possible_pawn_enp.row
+
+                            # add one or subtract one to the row based on the color of the pawn
+                            if self.possible_pawn_enp.color == PieceColor.WHITE:
+                                row -= 1
+                            else:
+                                row += 1
+
+                            possible_enp_square = (row, self.possible_pawn_enp.column)
+
+                            if square_or_piece == possible_enp_square:
+                                moves.append(f'{piece.algebraic_pos[0]}x{move}')
+                                continue
+
+                        moves.append(f'{piece.name.value[1]}{move}')
+
                     else:
                         moves.append(f'{piece.name.value[1]}x{move}')
 
