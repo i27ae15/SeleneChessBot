@@ -1,9 +1,7 @@
 import unittest
 
-from core.db import Base, config
-
-from alpha_zero import MCTS
-from game import Game
+from alpha_zero.mcts import MCTS
+from game.game import Game
 
 
 class AlphaZeroTest(unittest.TestCase):

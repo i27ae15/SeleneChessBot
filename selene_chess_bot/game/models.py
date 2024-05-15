@@ -111,6 +111,12 @@ class GameState(models.Model):
         self.explored_moves.append(move)
         self.save()
 
+    def add_parent(self, parent: 'GameState') -> None:
+        # Postgres does not allow to add a None value to a many to many
+        # field
+        if parent is not None:
+            self.parents.add(parent)
+
     def increment_visits(self):
         self.num_visits += 1
         self.save()

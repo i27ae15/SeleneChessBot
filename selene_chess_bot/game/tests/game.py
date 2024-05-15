@@ -303,5 +303,4 @@ class TestSelfChessGame(TestCase):
         return super().setUp()
 
     def test_start(self):
-
         self.game.start()

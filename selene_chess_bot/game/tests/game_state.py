@@ -58,8 +58,6 @@ class TestGameModel(TestCase):
         # counts its children
 
         self.assertEqual(initial_position.children.count(), 16)
-        
-        
 
 
 class TestGameModelSimulation(TestCase):

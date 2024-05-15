@@ -601,6 +601,9 @@ class Game:
             )
             self.current_game_state.increment_visits()
         except GameState.DoesNotExist:
+            print('-' * 50)
+            print('this is being reached')
+            print('-' * 50)
             # if the game state does not exist, we need to create it
             self.current_game_state = self._create_current_game_state_obj()
 
@@ -685,6 +688,8 @@ class Game:
                     continue
 
             # TODO: Check if the column is given
+            # NOTE: The column might be passed as the row, which will
+            # be performing without problems, but I am not sure about this
 
             # if we are here, we have found the piece (two pieces can be in
             # the same file) or we do not have a file, so calculate the legal
@@ -1223,7 +1228,8 @@ class Game:
             board_hash=self.current_board_hash,
             is_game_terminated=self.is_game_terminated
         )
-        self.current_game_state.parents.add(parent)
+
+        self.current_game_state.add_parent(parent)
 
         # We dont have to increment the visits since the visits are intialized
         # to 1

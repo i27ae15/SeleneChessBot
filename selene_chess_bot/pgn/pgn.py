@@ -207,7 +207,6 @@ class PGN:
 
     @debug_before_move_decorator
     def _execute_move_with_debug(self, move: str, *args) -> bool:
-        self.total_moves += 1
         try:
             self.game.move_piece(move)
             return True, None

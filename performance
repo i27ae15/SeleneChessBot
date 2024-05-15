@@ -1,0 +1,2 @@
+Right now the performance of the Mackenzie test is at about 30 seg for the Postgress db
+While using the sqlite is taking 22 seg

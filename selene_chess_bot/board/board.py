@@ -1,3 +1,5 @@
+import numpy as np
+
 from colorama import Fore, Style
 
 from core.utils import convert_from_algebraic_notation, ALGEBRAIC_NOTATION
