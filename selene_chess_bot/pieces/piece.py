@@ -10,6 +10,8 @@ from .utilites import (
     ATTACKING_DIAGONALS
 )
 
+from core.types import PositionT
+
 if TYPE_CHECKING:
     from board import Board
 
@@ -131,7 +133,7 @@ class Piece(ABC):
     def __init__(
         self,
         color: PieceColor,
-        position: tuple[int, int],
+        position: PositionT,
         value: PieceValue,
         name: PieceName,
         board: 'Board'
@@ -143,7 +145,7 @@ class Piece(ABC):
             color (PieceColor): The color of the piece, either
             PieceColor.BLACK or PieceColor.WHITE.
 
-            position (Tuple[int, int]): The starting position of the piece on
+            position (PositionT): The starting position of the piece on
             the chessboard, represented as a tuple (row, column), where row
             and column are integers between 0 and 7.
 
@@ -158,7 +160,7 @@ class Piece(ABC):
 
         Attributes initialized:
 
-            move_story (List[Tuple[int, Tuple[int, int]]]): Initializes as an
+            move_story (List[Tuple[int, PositionT]]): Initializes as an
             empty list to record the piece's move history.
 
             first_move (bool): Initialized to True, indicating that the piece
@@ -171,8 +173,8 @@ class Piece(ABC):
         self.color: PieceColor = color
         self.value: PieceValue = value
 
-        self.position: tuple[int, int] = position
-        self.move_story: list[tuple[int, tuple[int, int]]] = []
+        self.position: PositionT = position
+        self.move_story: list[tuple[int, PositionT]] = []
         self.first_move: bool = True
         self.captured_by: Piece | None = None
         self.name: PieceName = name
@@ -205,7 +207,7 @@ class Piece(ABC):
 
     def move_to(
         self,
-        new_position: tuple[int, int] | str,
+        new_position: PositionT | str,
         in_castleling: bool = False
     ):
         """

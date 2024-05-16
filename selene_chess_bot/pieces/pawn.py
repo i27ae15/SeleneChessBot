@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from core.utils import convert_to_algebraic_notation
+from core.types import PositionT
 
 from .piece import Piece
 from .utilites import PieceColor, PieceValue, PieceName
@@ -19,6 +20,7 @@ class Pawn(Piece):
     ):
 
         self.can_be_captured_en_passant: bool = False
+        self._legal_moves: list[PositionT] = []
 
         super().__init__(
             color,
@@ -72,70 +74,23 @@ class Pawn(Piece):
         **kwargs
     ) -> list[tuple[int, int]] | list[str]:
 
-        board = self.board.board
-
         direction = 1 if self.color == PieceColor.WHITE else -1
-        legal_moves: list[tuple[int, int]] = []
+        self._legal_moves: list[PositionT] = []
 
-        can_move_forward: bool = False
-
-        # Check if the pawn can move forward one square
-        pos_to: tuple[int, int] = (
-            self.position[0] + 1 * direction,
-            self.position[1]
+        # Check if the pawn can move forward
+        self._set_forward_moves(
+            direction,
+            show_in_algebraic_notation=show_in_algebraic_notation
+        )
+        self._set_capturable_moves(
+            direction,
+            show_in_algebraic_notation=show_in_algebraic_notation
+        )
+        self._set_en_passant_moves(
+            show_in_algebraic_notation=show_in_algebraic_notation
         )
 
-        if self.board.is_position_empty(*pos_to):
-            can_move_forward = True
-            legal_moves.append(pos_to)
-
-        # Check if the pawn can move forward two squares
-        pos_to: tuple[int, int] = (
-            self.position[0] + 2 * direction,
-            self.position[1]
-        )
-        if self.first_move and can_move_forward:
-            if self.board.is_position_empty(*pos_to):
-                legal_moves.append(pos_to)
-
-        # Check if the pawn can capture a piece
-        # check if the pawn can capture a piece on the left
-        if self.position[1] - 1 >= 0:
-            pos_to: tuple[int, int] = (
-                self.position[0] + 1 * direction,
-                self.position[1] - 1
-            )
-
-            piece: Piece | None = board[pos_to[0]][pos_to[1]]
-
-            if piece is not None and piece.color != self.color:
-                legal_moves.append(pos_to)
-
-        # check if the pawn can capture a piece on the right
-        if self.position[1] + 1 <= 7:
-            pos_to: tuple[int, int] = (
-                self.position[0] + 1 * direction,
-                self.position[1] + 1
-            )
-
-            piece: Piece | None = board[pos_to[0]][pos_to[1]]
-
-            if piece is not None and piece.color != self.color:
-                legal_moves.append(pos_to)
-
-        # check if can en passant
-        # check if the pawn can capture a piece on the left
-
-        en_passant_square = self._get_on_passant_square()
-        if en_passant_square is not None:
-            legal_moves.append(en_passant_square)
-
-        if show_in_algebraic_notation:
-            return [
-                convert_to_algebraic_notation(*move) for move in legal_moves
-            ]
-
-        return legal_moves
+        return self._legal_moves
 
     def _get_on_passant_square(self) -> tuple[int, int] | None:
 
@@ -175,3 +130,86 @@ class Pawn(Piece):
                     )
 
         self.board.get_square_or_piece(row=self.position[0] - 1, column=0)
+
+    def _set_en_passant_moves(self, show_in_algebraic_notation: bool) -> None:
+        en_passant_square = self._get_on_passant_square()
+        if en_passant_square is not None:
+            if show_in_algebraic_notation:
+                en_passant_square = convert_to_algebraic_notation(
+                    *en_passant_square
+                )
+            self._legal_moves.append(en_passant_square)
+
+    def _set_forward_moves(
+        self,
+        direction: int,
+        show_in_algebraic_notation: bool
+    ) -> None:
+
+        can_move_forward: bool = False
+
+        # Check if the pawn can move forward one square
+        pos_to: PositionT = (
+            self.position[0] + 1 * direction,
+            self.position[1]
+        )
+
+        if self.board.is_position_empty(*pos_to):
+            can_move_forward = True
+
+            if show_in_algebraic_notation:
+                pos_to = convert_to_algebraic_notation(*pos_to)
+
+            self._legal_moves.append(pos_to)
+
+        # Check if the pawn can move forward two squares
+        pos_to: tuple[int, int] = (
+            self.position[0] + 2 * direction,
+            self.position[1]
+        )
+        if self.first_move and can_move_forward:
+            if self.board.is_position_empty(*pos_to):
+
+                if show_in_algebraic_notation:
+                    pos_to = convert_to_algebraic_notation(*pos_to)
+
+                self._legal_moves.append(pos_to)
+
+    def _set_capturable_moves(
+        self,
+        direction: int,
+        show_in_algebraic_notation: bool
+    ) -> None:
+
+        board = self.board.board
+
+        # Check if the pawn can capture a piece
+        # check if the pawn can capture a piece on the left
+        if self.position[1] - 1 >= 0:
+            pos_to: tuple[int, int] = (
+                self.position[0] + 1 * direction,
+                self.position[1] - 1
+            )
+
+            piece: Piece | None = board[pos_to[0]][pos_to[1]]
+
+            if piece is not None and piece.color != self.color:
+
+                if show_in_algebraic_notation:
+                    pos_to = convert_to_algebraic_notation(*pos_to)
+
+                self._legal_moves.append(pos_to)
+
+        # check if the pawn can capture a piece on the right
+        if self.position[1] + 1 <= 7:
+            pos_to: tuple[int, int] = (
+                self.position[0] + 1 * direction,
+                self.position[1] + 1
+            )
+
+            piece: Piece | None = board[pos_to[0]][pos_to[1]]
+
+            if piece is not None and piece.color != self.color:
+                if show_in_algebraic_notation:
+                    pos_to = convert_to_algebraic_notation(*pos_to)
+                self._legal_moves.append(pos_to)

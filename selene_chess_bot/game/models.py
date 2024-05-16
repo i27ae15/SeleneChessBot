@@ -228,6 +228,7 @@ class GameState(models.Model):
                 print(e)
                 if e.__str__() == 'Invalid move at _move_piece.1':
                     print('valid moves:', valid_moves)
+                    print('hash:', current_game_state.board_hash)
                 print('Saving to file')
                 print('-' * 50)
 

@@ -495,26 +495,19 @@ class Game:
         if show_as_list:
             moves = []
 
+            # TODO: Refactor this to be more elegant
             for piece, value in legal_moves.items():
                 piece: Piece
                 for move in value:
-                    # check if the move is a capture
+                    if move in ['O-O', 'O-O-O']:
+                        moves.append(move)
+                        continue
+
                     square_or_piece = self.board.get_square_or_piece(
-                        *convert_from_algebraic_notation(move)
+                        *convert_from_algebraic_notation(
+                            move,
+                        )
                     )
-
-                    if piece.name == PieceName.KING:
-                        king: King = piece
-
-                        if king.can_castle_kingside:
-                            if move in ['c1', 'c8']:
-                                moves.append('O-O')
-                                continue
-
-                        if king.can_castle_queenside:
-                            if move in ['g1', 'g8']:
-                                moves.append('O-O-O')
-                                continue
 
                     if piece.name != PieceName.PAWN:
                         if not isinstance(square_or_piece, Piece):
@@ -522,7 +515,27 @@ class Game:
 
                     elif piece.name == PieceName.PAWN:
                         if isinstance(square_or_piece, Piece):
+                            # if the pawn is on the last row, it can coronate
+                            # into different pieces, so add this
+                            if piece.color == PieceColor.WHITE and piece.row == 6 or \
+                                piece.color == PieceColor.BLACK and piece.row == 1:
+
+                                moves.append(f'{piece.algebraic_pos[0]}x{move}=Q')
+                                moves.append(f'{piece.algebraic_pos[0]}x{move}=R')
+                                moves.append(f'{piece.algebraic_pos[0]}x{move}=N')
+                                moves.append(f'{piece.algebraic_pos[0]}x{move}=B')
+                                continue
+
                             moves.append(f'{piece.algebraic_pos[0]}x{move}')
+                            continue
+
+                        if piece.color == PieceColor.WHITE and piece.row == 6 or \
+                            piece.color == PieceColor.BLACK and piece.row == 1:
+
+                            moves.append(f'{move}=Q')
+                            moves.append(f'{move}=R')
+                            moves.append(f'{move}=N')
+                            moves.append(f'{move}=B')
                             continue
 
                         # check if there is en passant
@@ -530,13 +543,17 @@ class Game:
 
                             row = self.possible_pawn_enp.row
 
-                            # add one or subtract one to the row based on the color of the pawn
+                            # add one or subtract one to the row based on the
+                            # color of the pawn
                             if self.possible_pawn_enp.color == PieceColor.WHITE:
                                 row -= 1
                             else:
                                 row += 1
 
-                            possible_enp_square = (row, self.possible_pawn_enp.column)
+                            possible_enp_square = (
+                                row,
+                                self.possible_pawn_enp.column
+                            )
 
                             if square_or_piece == possible_enp_square:
                                 moves.append(f'{piece.algebraic_pos[0]}x{move}')

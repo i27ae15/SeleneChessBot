@@ -198,8 +198,10 @@ class PieceMove:
         """
 
         if self._abr_move == 'O-O' or self._abr_move == 'O-O-O':
-            self.square = self._get_castleling_square()
-            self.square_pos = convert_from_algebraic_notation(self.square)
+            self.square = self._abr_move
+            self.square_pos = convert_from_algebraic_notation(
+                self._get_castleling_square()
+            )
             return
 
         # See if the position of the piece is given as int
@@ -225,7 +227,10 @@ class PieceMove:
 
             if '=' in self.move:
                 self.piece_file = self._abr_move[0]
-                self.square = self._abr_move[:2]
+                if 'x' in self.move:
+                    self.square = self._abr_move[1:3]
+                else:
+                    self.square = self._abr_move[:2]
             else:
                 self.piece_file = self._abr_move[0]
 
@@ -271,7 +276,7 @@ class PieceMove:
             str: The cleaned move string.
         """
 
-        move = self.move.replace('x', '').replace('+', '')
+        move = self.move.replace('x', '').replace('+', '').replace('#', '').replace('=', '')
         if move[0] == 'P':  # pawn move
             move = move[1:]
 

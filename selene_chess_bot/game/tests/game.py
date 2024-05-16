@@ -324,7 +324,7 @@ class TestGame(TestCase):
         print(m)
         print('expandable moves')
         print(self.game.current_game_state.expandable_moves)
-        self.game.move_piece('Kg8')
+        # self.game.move_piece('dxe8=Q')
         print('-' * 50)
         self.game.board.print_board(show_in_algebraic_notation=True)
 

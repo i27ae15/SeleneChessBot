@@ -64,7 +64,7 @@ class TestPGN(TestCase):
 
         file_path = 'pgn/tests/MacKenzie.txt'
         pgn_games = self.extract_pgn_to_variables(file_path)
-        game = pgn_games[8].replace('\n', ' ')
+        game = pgn_games[3].replace('\n', ' ')
 
         print('game', game)
         PGN(game, debug=True)
@@ -108,7 +108,6 @@ class TestPGN(TestCase):
 
         file_path = 'pgn/tests/same_pos_diff_moves.txt'
         pgn_games = self.extract_pgn_to_variables(file_path)
-
 
         for index, game in enumerate(pgn_games):
             g = game.replace('\n', ' ')

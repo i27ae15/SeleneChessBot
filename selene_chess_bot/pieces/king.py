@@ -39,6 +39,10 @@ class King(Piece):
     def can_castle_queenside(self) -> bool:
         return self._check_if_queenside_castleling_is_possible()
 
+    @property
+    def can_castle(self) -> bool:
+        return self.can_castle_kingside or self.can_castle_queenside
+
     def check_if_in_check(self) -> bool:
         if self.get_pieces_attacking_me():
             self.is_in_check = True
@@ -149,20 +153,21 @@ class King(Piece):
                         legal_moves.append(position)
 
         # check if possible to castle
-        direction = 1  # if self.color == PieceColor.WHITE else -1
+        kingside_cas_pos = (self.position[0], self.position[1] + 2)
         if self._check_if_kingside_castleling_is_possible():
-            legal_moves.append(
-                (self.position[0], self.position[1] + 2 * direction)
-            )
+            legal_moves.append(kingside_cas_pos)
 
+        queenside_cas_pos = (self.position[0], self.position[1] - 2)
         if self._check_if_queenside_castleling_is_possible():
-            legal_moves.append(
-                (self.position[0], self.position[1] - 2 * direction)
-            )
+            legal_moves.append(queenside_cas_pos)
 
         if show_in_algebraic_notation:
             for move in legal_moves:
-                legal_moves[legal_moves.index(move)] = convert_to_algebraic_notation(*move)
+                legal_moves[legal_moves.index(move)] = convert_to_algebraic_notation(
+                    *move,
+                    king_color=self.color,
+                    can_castle=self.can_castle
+                )
 
         return legal_moves
 
