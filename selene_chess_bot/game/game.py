@@ -498,8 +498,9 @@ class Game:
             # TODO: Refactor this to be more elegant
             for piece, value in legal_moves.items():
                 piece: Piece
+
                 for move in value:
-                    if move in ['O-O', 'O-O-O']:
+                    if move in ['O-O', 'O-O-O'] or move.count('x') > 0:
                         moves.append(move)
                         continue
 
@@ -515,27 +516,7 @@ class Game:
 
                     elif piece.name == PieceName.PAWN:
                         if isinstance(square_or_piece, Piece):
-                            # if the pawn is on the last row, it can coronate
-                            # into different pieces, so add this
-                            if piece.color == PieceColor.WHITE and piece.row == 6 or \
-                                piece.color == PieceColor.BLACK and piece.row == 1:
-
-                                moves.append(f'{piece.algebraic_pos[0]}x{move}=Q')
-                                moves.append(f'{piece.algebraic_pos[0]}x{move}=R')
-                                moves.append(f'{piece.algebraic_pos[0]}x{move}=N')
-                                moves.append(f'{piece.algebraic_pos[0]}x{move}=B')
-                                continue
-
                             moves.append(f'{piece.algebraic_pos[0]}x{move}')
-                            continue
-
-                        if piece.color == PieceColor.WHITE and piece.row == 6 or \
-                            piece.color == PieceColor.BLACK and piece.row == 1:
-
-                            moves.append(f'{move}=Q')
-                            moves.append(f'{move}=R')
-                            moves.append(f'{move}=N')
-                            moves.append(f'{move}=B')
                             continue
 
                         # check if there is en passant
@@ -559,7 +540,7 @@ class Game:
                                 moves.append(f'{piece.algebraic_pos[0]}x{move}')
                                 continue
 
-                        moves.append(f'{piece.name.value[1]}{move}')
+                        moves.append(move)
 
                     else:
                         moves.append(f'{piece.name.value[1]}x{move}')
@@ -778,7 +759,9 @@ class Game:
             # the same file) or we do not have a file, so calculate the legal
             # moves for the piece and check if the move is in the legal moves
 
-            if piece_move.square in piece.calculate_legal_moves(
+            # print(piece_move)
+
+            if piece_move.move_to_compare in piece.calculate_legal_moves(
                 show_in_algebraic_notation=True
             ):
                 return piece
@@ -806,7 +789,7 @@ class Game:
             if not piece.castle(side=piece_move.castleling_side):
                 raise InvalidMoveError('_move_piece.0')
         else:
-            if not piece.move_to(piece_move.square):
+            if not piece.move_to(piece_move.square, piece_move=piece_move):
                 raise InvalidMoveError('_move_piece.1')
 
     def _color_has_legal_moves(

@@ -85,6 +85,9 @@ class PieceMove:
             move (str): The chess move in standard algebraic notation.
             player_turn (PieceColor): The color (White or Black) of the player
             making the move.
+
+
+        NOTE: If there is a bug, firs look into "move_to_compare" property
         """
 
         # Move ---------------------
@@ -114,6 +117,16 @@ class PieceMove:
         # Initialize the move information
         self._set_abreviate_move()
         self._set_move_information()
+
+    @property
+    def move_to_compare(self) -> str:
+        if self.piece_name == PieceName.PAWN:
+            if self.coronation_into:
+                # NOTE: Be careful because in the future we may have
+                # to change this
+                return self.move.replace('+', '').replace('#', '')
+
+        return self.square
 
     # ---------------------------- SETTER METHODS -----------------------------
 
@@ -309,7 +322,10 @@ class PieceMove:
         print(f'Piece abbreviation: {self.piece_abbreviation}')
         print(f'Piece file: {self.piece_file}')
         print(f'Square: {self.square}')
+        print('-' * 5)
         print(f'Move: {self.move}')
+        print(f'Move to compare: {self.move_to_compare}')
+        print(f'abr move: {self._abr_move}')
         if self.piece_name == PieceName.PAWN:
             print(f'Coronation into: {self.coronation_into}')
         return '-' * 50

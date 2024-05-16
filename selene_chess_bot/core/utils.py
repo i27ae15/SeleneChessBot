@@ -60,8 +60,6 @@ def convert_from_algebraic_notation(
 ) -> tuple:
     """
         Converts a position in algebraic notation to a tuple of integers.
-
-        TODO: Implement the color of the piece when the king if being castled
     """
 
     if king_color:

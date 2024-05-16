@@ -19,6 +19,8 @@ class Pawn(Piece):
         board: 'Board'
     ):
 
+        # TODO: Add the x when capturing a piece
+
         self.can_be_captured_en_passant: bool = False
         self._legal_moves: list[PositionT] = []
 
@@ -157,6 +159,16 @@ class Pawn(Piece):
         if self.board.is_position_empty(*pos_to):
             can_move_forward = True
 
+            # check if the pawn can coronate and here the only option for the
+            # moment is to add as algebraic notation
+            if pos_to[0] == 0 or pos_to[0] == 7:
+                pos_to = convert_to_algebraic_notation(*pos_to)
+                self._legal_moves.append(f'{pos_to}=Q')
+                self._legal_moves.append(f'{pos_to}=R')
+                self._legal_moves.append(f'{pos_to}=N')
+                self._legal_moves.append(f'{pos_to}=B')
+                return
+
             if show_in_algebraic_notation:
                 pos_to = convert_to_algebraic_notation(*pos_to)
 
@@ -195,6 +207,9 @@ class Pawn(Piece):
 
             if piece is not None and piece.color != self.color:
 
+                if self._set_capture_in_coronation(pos_to):
+                    return
+
                 if show_in_algebraic_notation:
                     pos_to = convert_to_algebraic_notation(*pos_to)
 
@@ -210,6 +225,24 @@ class Pawn(Piece):
             piece: Piece | None = board[pos_to[0]][pos_to[1]]
 
             if piece is not None and piece.color != self.color:
+
+                if self._set_capture_in_coronation(pos_to):
+                    return
+
                 if show_in_algebraic_notation:
                     pos_to = convert_to_algebraic_notation(*pos_to)
+                    # the x
+
                 self._legal_moves.append(pos_to)
+
+    def _set_capture_in_coronation(self, pos_to: PositionT) -> bool:
+
+        if pos_to[0] == 0 or pos_to[0] == 7:
+            pos_to = convert_to_algebraic_notation(*pos_to)
+            self._legal_moves.append(f'{self.algebraic_pos[0]}x{pos_to}=Q')
+            self._legal_moves.append(f'{self.algebraic_pos[0]}x{pos_to}=R')
+            self._legal_moves.append(f'{self.algebraic_pos[0]}x{pos_to}=N')
+            self._legal_moves.append(f'{self.algebraic_pos[0]}x{pos_to}=B')
+            return True
+
+        return False

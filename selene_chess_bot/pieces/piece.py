@@ -208,7 +208,8 @@ class Piece(ABC):
     def move_to(
         self,
         new_position: PositionT | str,
-        in_castleling: bool = False
+        in_castleling: bool = False,
+        piece_move=None  # Piece move object
     ):
         """
         Move the chess piece to a new position on the board.
@@ -247,12 +248,31 @@ class Piece(ABC):
             self.board.castleling_rights[self.color][RookSide.KING] = False
             self.board.castleling_rights[self.color][RookSide.QUEEN] = False
 
-        if isinstance(new_position, str):
+        if isinstance(new_position, str) and not piece_move.coronation_into:
             new_position = convert_from_algebraic_notation(new_position)
 
         # check if is a pawn and check if the movement is en passant
         is_on_passant = False
         if self.name == PieceName.PAWN:
+
+            # check if the new_position has a coronation
+            if piece_move.coronation_into:
+                if piece_move.move_to_compare in self.calculate_legal_moves():
+                    square = convert_from_algebraic_notation(
+                        position=piece_move.square
+                    )
+                    self.board.update_board(
+                        new_row=square[0],
+                        new_column=square[1],
+                        old_column=self.column,
+                        old_row=self.row,
+                        piece=self,
+                    )
+
+                    self.position = tuple(square)
+                    self.first_move = False
+                    return True
+
             if new_position == self._get_on_passant_square():
                 is_on_passant = True
 

@@ -210,8 +210,8 @@ class PGN:
         try:
             self.game.move_piece(move)
             return True, None
-        except InvalidMoveError:
-            return False, None
+        except InvalidMoveError as e:
+            return False, e
         except IndexError:
 
             str_error = """

@@ -314,17 +314,29 @@ class TestGame(TestCase):
                 print(f"{index + 1} Move: {move_}")
                 self.game.move_piece(move_)
 
+        print('-' * 50)
         self.game.board.print_board(show_in_algebraic_notation=True)
         m = self.game.get_legal_moves(
-            color=PieceColor.WHITE,
+            color=PieceColor.BLACK,
             show_in_algebraic=True,
             show_as_list=True
         )
+        expandable_moves = self.game.current_game_state.expandable_moves
         print('-' * 50)
         print(m)
         print('expandable moves')
-        print(self.game.current_game_state.expandable_moves)
-        # self.game.move_piece('dxe8=Q')
+        print(expandable_moves)
+
+        move = 'g1=N'
+
+        print('-' * 50)
+        print('move', move)
+        print('move in expable_move', move in expandable_moves)
+        print('move in legal move', move in m)
+        print('-' * 50)
+
+        print('makig move')
+        self.game.move_piece(move)
         print('-' * 50)
         self.game.board.print_board(show_in_algebraic_notation=True)
 
