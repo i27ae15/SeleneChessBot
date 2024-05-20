@@ -125,6 +125,7 @@ class Game:
 
         # Game state ----------------------------------------------
         self.is_game_terminated: bool = False
+        self.game_drawn_reason: str = str()
         self.is_game_drawn: bool = False
 
         self.current_board_hash: bytes = self.compute_game_state_hash(
@@ -176,10 +177,10 @@ class Game:
         return self.sufficient_material[PieceColor.BLACK]
 
     @property
-    def is_sufficient_material(self) -> bool:
+    def is_sufficient_material_on_board(self) -> bool:
         return (
             self.w_has_sufficient_material
-            and self.b_has_sufficient_material
+            or self.b_has_sufficient_material
         )
 
     @property
@@ -589,7 +590,7 @@ class Game:
 
             return ordered_dict
 
-    def move_piece(self, move: str) -> None:
+    def move_piece(self, move: str) -> bool:
         """
         Processes a chess move and updates the game state accordingly.
 
@@ -609,6 +610,9 @@ class Game:
             the current game state.
 
         """
+
+        if self.is_game_terminated:
+            return False
 
         piece_move = PieceMove(
             move=move,
@@ -641,6 +645,8 @@ class Game:
 
         self._manage_game_state(piece_move)
 
+        return True
+
     def print_game_state(self):
         """
         Prints the current state of the game.
@@ -655,9 +661,12 @@ class Game:
         print(f'black king in check: {self.board.black_king.is_in_check}')
         print(f'is_game_terminated: {self.is_game_terminated}')
         print(f'is_game_drawn: {self.is_game_drawn}')
+        print(f'game_drawn_reason: {self.game_drawn_reason}')
         print(f'moves_for_f_rule: {self.moves_for_f_rule}')
         print(f'values: {self.game_values}')
         print(f'possible_pawn_enp: {self.possible_pawn_enp}')
+        print(f'w_has_sufficient_material: {self.w_has_sufficient_material}')
+        print(f'b_has_sufficient_material: {self.b_has_sufficient_material}')
         print('-' * 50)
 
     def start(self) -> None:
@@ -866,6 +875,11 @@ class Game:
         king: King
     ) -> bool:
 
+        """
+        NOTE: This may be deprecated and all the helper methods that are
+        called here too. except from the .calculate_legal_moves() method
+        """
+
         # TODO: Create docstring
 
         # if the king does not have legal moves, we need to check if there is a
@@ -932,14 +946,6 @@ class Game:
         for piece_key in pieces:
             for piece in pieces[piece_key]:
                 piece: Piece
-
-                # print('-' * 50)
-                # print(f'king: {king.algebraic_pos}')
-                # print(f'attacking_piece: {attacking_piece.algebraic_pos}')
-                # print(f'piece: {piece}')
-                # print(f'under: {piece.get_pieces_under_attack()}')
-                # print('-' * 50)
-
                 if attacking_piece in piece.get_pieces_under_attack():
                     return True
 
@@ -1049,7 +1055,7 @@ class Game:
         self._manage_check_detection()
         king: King = self.board.get_piece(
             piece_name=PieceName.KING,
-            color=self.player_turn.opposite()
+            color=self.player_turn
         )[0]
         self._manage_draw(
             king=king,
@@ -1059,10 +1065,13 @@ class Game:
         if king.is_in_check:
             # check if there are legal moves in the board for the color
 
-            if not self._color_has_legal_moves(
+            m = self.get_legal_moves(
                 color=king.color,
-                is_king_in_check=True
-            ):
+                show_in_algebraic=True,
+                show_as_list=True
+            )
+
+            if not m:
                 # check who won
                 if king.color == PieceColor.WHITE:
                     self.game_values[PieceColor.BLACK] = float('inf')
@@ -1072,7 +1081,6 @@ class Game:
                     self.game_values[PieceColor.BLACK] = float('-inf')
 
                 self.is_game_terminated = True
-                return
 
     def _manage_check_detection(self):
         """
@@ -1159,9 +1167,9 @@ class Game:
             self.moves_for_f_rule += 1
 
         if self.moves_for_f_rule >= 100:
-            self._set_draw()
-
-        return self.is_game_terminated
+            self._set_draw(draw_reason='50 moves rule')
+            return True
+        return False
 
     def _manage_game_state_obj(self):
 
@@ -1193,20 +1201,20 @@ class Game:
             piece_move (PieceMove): The move that has just been executed.
         """
 
-        self._manage_game_termination(piece_move=piece_move)
+        self.board._attacked_squares_by_white_checked = False
+        self.board._attacked_squares_by_black_checked = False
 
-        # check if the move is valid
         if self.current_turn not in self.moves:
             self.moves[self.current_turn] = []
 
         self.player_turn = self.player_turn.opposite()
         self.moves[self.current_turn].append(piece_move.move)
 
+        self._manage_game_termination(piece_move=piece_move)
+
         if self.player_turn == PieceColor.WHITE:
             self.current_turn += 1
 
-        self.board._attacked_squares_by_white_checked = False
-        self.board._attacked_squares_by_black_checked = False
         self._set_current_game_state_hash()
         self._manage_game_state_obj()
 
@@ -1241,8 +1249,8 @@ class Game:
             color=PieceColor.BLACK
         )
 
-        if not self.is_sufficient_material:
-            self._set_draw()
+        if not self.is_sufficient_material_on_board:
+            self._set_draw(draw_reason='insufficient material')
             return True
 
         return self._manage_stalemate(king=king)
@@ -1260,7 +1268,7 @@ class Game:
                 color=king.color,
                 is_king_in_check=False
             ):
-                self._set_draw()
+                self._set_draw(draw_reason='stalemate')
                 return True
         return False
 
@@ -1281,12 +1289,12 @@ class Game:
         if self.sufficient_material[color] is False:
             return False
 
-        piece_num = [
-            self.board.n_white_pieces,
-            self.board.n_black_pieces
-        ]
+        piece_num = {
+            PieceColor.WHITE: self.board.n_white_pieces,
+            PieceColor.BLACK: self.board.n_black_pieces
+        }
 
-        piece_num = piece_num[color.value]
+        piece_num = piece_num[color]
 
         if piece_num > 8:
             # The color has sufficient material
@@ -1294,7 +1302,7 @@ class Game:
 
         if piece_num == 1:
             # There is only the King left
-            self.sufficient_material[color.value] = False
+            self.sufficient_material[color] = False
             return False
 
         # check if the piece that is left with the king is a
@@ -1307,7 +1315,7 @@ class Game:
         )
 
         if knight and piece_num == 2:
-            self.sufficient_material[color.value] = False
+            self.sufficient_material[color] = False
             return False
 
         # check for the bishop
@@ -1317,7 +1325,7 @@ class Game:
         )
 
         if bishop and piece_num == 2:
-            self.sufficient_material[color.value] = False
+            self.sufficient_material[color] = False
             return False
 
         # At this point, the piece that is with the King is either a Queen or
@@ -1362,19 +1370,17 @@ class Game:
             self.board_states[board_hash] = st + 1
             if st + 1 >= 3:
                 # Threefold repetition
-                self.is_game_terminated = True
-                self.is_game_drawn = True
-                self.game_values[PieceColor.WHITE] = 0
-                self.game_values[PieceColor.BLACK] = 0
+                self._set_draw(draw_reason='threefold repetition')
         else:
             self.board_states[board_hash] = 1
 
-    def _set_draw(self) -> None:
+    def _set_draw(self, draw_reason: str) -> None:
 
         self.game_values[PieceColor.WHITE] = 0
         self.game_values[PieceColor.BLACK] = 0
         self.is_game_terminated = True
         self.is_game_drawn = True
+        self.game_drawn_reason = draw_reason
 
     def _set_en_passant_pawn(self, en_passant_target: str) -> None:
 

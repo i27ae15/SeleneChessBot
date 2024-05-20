@@ -2,8 +2,6 @@ import json
 
 from django.test import TestCase
 
-from core.testing import BColors
-
 from game.game import Game
 
 
@@ -29,12 +27,16 @@ class TestSimulation(TestCase):
         # adding the first move that is not in the moves dictionary
         moves['1'] = ['h4', moves['1'][0]]
 
+        terminated = False
         for index, move in enumerate(moves):
             for move_ in moves[move]:
                 print(f"{index + 1} Move: {move_}")
-                self.game.move_piece(move_)
+                if not self.game.move_piece(move_):
+                    print(f"Move {move_} is not valid due to game termination")
+                    terminated = True
+                    break
 
-            if index + 1 == 199:
+            if index + 1 == 5000 or terminated:
                 break
 
         print('-' * 50)

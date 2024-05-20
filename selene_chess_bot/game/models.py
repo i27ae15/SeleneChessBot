@@ -212,7 +212,8 @@ class GameState(models.Model):
                 print('-' * 50)
 
                 if game_instance.is_game_terminated:
-
+                    print('Game terminated successfully')
+                    game_instance.print_game_state()
                     file_path = 'completed simulations.json'
                     self.save_simulation_data(file_path, game_instance)
 
