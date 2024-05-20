@@ -142,6 +142,11 @@ class Game:
             PieceColor.BLACK: 0
         }
 
+        self.sufficient_material: dict = {
+            PieceColor.WHITE: True,
+            PieceColor.BLACK: True
+        }
+
         self._initialize_game_state()
 
     #  ---------------------------- PROPERTIES ----------------------------
@@ -161,6 +166,21 @@ class Game:
     @property
     def possible_pawn_enp(self) -> Pawn | None:
         return self.white_possible_pawn_enp or self.black_possible_pawn_enp
+
+    @property
+    def w_has_sufficient_material(self) -> bool:
+        return self.sufficient_material[PieceColor.WHITE]
+
+    @property
+    def b_has_sufficient_material(self) -> bool:
+        return self.sufficient_material[PieceColor.BLACK]
+
+    @property
+    def is_sufficient_material(self) -> bool:
+        return (
+            self.w_has_sufficient_material
+            and self.b_has_sufficient_material
+        )
 
     @property
     def castling_fen(self) -> str:
@@ -513,6 +533,8 @@ class Game:
                     if piece.name != PieceName.PAWN:
                         if not isinstance(square_or_piece, Piece):
                             moves.append(f'{piece.name.value[1]}{move}')
+                        else:
+                            moves.append(f'{piece.name.value[1]}x{move}')
 
                     elif piece.name == PieceName.PAWN:
                         if isinstance(square_or_piece, Piece):
@@ -627,6 +649,7 @@ class Game:
         current player turn, the move history, and the board.
         """
 
+        print('-' * 50)
         print(f'Player turn: {self.player_turn}')
         print(f'white king in check: {self.board.white_king.is_in_check}')
         print(f'black king in check: {self.board.black_king.is_in_check}')
@@ -635,6 +658,7 @@ class Game:
         print(f'moves_for_f_rule: {self.moves_for_f_rule}')
         print(f'values: {self.game_values}')
         print(f'possible_pawn_enp: {self.possible_pawn_enp}')
+        print('-' * 50)
 
     def start(self) -> None:
         """
@@ -818,11 +842,6 @@ class Game:
             color=color
         )[0]
 
-        king_moves = king.calculate_legal_moves()
-
-        if king_moves:
-            return True
-
         if is_king_in_check:
             return self._check_legal_moves_when_king_is_in_check(king)
 
@@ -857,53 +876,46 @@ class Game:
         # since we calculated that above, the variable pieces_attacking_me
         # should be filled
 
+        # first, check if the king has legal moves
+        if king.calculate_legal_moves(traspass_king=True):
+            return True
+
         pieces: list[Piece] = king.pieces_attacking_me['pieces']
 
         for piece in pieces:
-            # look first for a knight or a pawn
+            # We have two options:
+            # 1. capture the attacking piece
+            # 2. put a piece between the attacking piece and the king
+
+            pos_to_cap = self._check_if_piece_can_capture_attacking_piece(
+                attacking_piece=piece,
+                king=king
+            )
+
+            if pos_to_cap:
+                return True
+
             if piece.name in (PieceName.KNIGHT, PieceName.PAWN):
                 # this will mean that the only way to protect the king is to
                 # capture the piece
                 # so we need to check if there is a piece that can capture
-                # the attacking pawn or knight
+                # the attacking pawn or knight, so continue with the loop
+                continue
 
-                pos_to_cap = self._check_if_piece_can_capture_attacking_piece(
-                    attacking_piece=piece,
-                    king=king
-                )
+            # now we need to check if there is a piece that can be put
+            # between the attacking piece and the king
+            # the best approach if to identify where is the piece that is
+            # attacking the king once we know this, we should scan, row,
+            # column and diagonal and look for a piece
+            # that can move to the position blocking the attacked
 
-                if pos_to_cap:
-                    # this mean checkmate was not pos and return False
-                    return True
+            pos_to_block = self._check_if_piece_can_block_attacking_piece(
+                attacking_piece=piece,
+                king=king
+            )
 
-            else:
-                # this mean that the attacking piece is a bishop, a rook or a
-                # queen. For this pieces we have two options:
-                # 1. capture the attacking piece
-                # 2. put a piece between the attacking piece and the king
-
-                pos_to_cap = self._check_if_piece_can_capture_attacking_piece(
-                    attacking_piece=piece,
-                    king=king
-                )
-
-                if pos_to_cap:
-                    return True
-
-                # now we need to check if there is a piece that can be put
-                # between the attacking piece and the king
-                # the best approach if to identify where is the piece that is
-                # attacking the king once we know this, we should scan, row,
-                # column and diagonal and look for a piece
-                # that can move to the position blocking the attacked
-
-                pos_to_block = self._check_if_piece_can_block_attacking_piece(
-                    attacking_piece=piece,
-                    king=king
-                )
-
-                if pos_to_block:
-                    return True
+            if pos_to_block:
+                return True
 
         return False
 
@@ -920,6 +932,14 @@ class Game:
         for piece_key in pieces:
             for piece in pieces[piece_key]:
                 piece: Piece
+
+                # print('-' * 50)
+                # print(f'king: {king.algebraic_pos}')
+                # print(f'attacking_piece: {attacking_piece.algebraic_pos}')
+                # print(f'piece: {piece}')
+                # print(f'under: {piece.get_pieces_under_attack()}')
+                # print('-' * 50)
+
                 if attacking_piece in piece.get_pieces_under_attack():
                     return True
 
@@ -1010,8 +1030,14 @@ class Game:
         Manages the termination of the game.
 
         This method checks if the move has caused the game to end, either
-        through checkmate or stalemate. If so, it raises an error, indicating
-        the end of the game.
+        through checkmate or stalemate. If so, it changes the variables:
+
+        self.is_game_terminated
+        self.is_game_drawn,
+        self.game_values
+
+        It will put a value of float('inf') to the winner and float('-inf') to
+        the loser or 0 to both players in case of a draw
 
         Parameters:
             piece_move (PieceMove): The move that has just been executed.
@@ -1020,17 +1046,19 @@ class Game:
             ValueError: If the move has caused the game to end.
         """
 
-        if self._manage_fifty_moves_rule(piece_move):
-            return
-
         self._manage_check_detection()
         king: King = self.board.get_piece(
             piece_name=PieceName.KING,
             color=self.player_turn.opposite()
         )[0]
+        self._manage_draw(
+            king=king,
+            piece_move=piece_move
+        )
 
         if king.is_in_check:
             # check if there are legal moves in the board for the color
+
             if not self._color_has_legal_moves(
                 color=king.color,
                 is_king_in_check=True
@@ -1045,27 +1073,6 @@ class Game:
 
                 self.is_game_terminated = True
                 return
-
-        # check if there is a stale mate in the board
-        # the minimum pieces that are required for a stalemate are 8]
-
-        n_pieces = [
-            self.board.n_white_pieces,
-            self.board.n_black_pieces
-        ]
-
-        n_pieces = n_pieces[king.color.value]
-
-        if not king.is_in_check and n_pieces <= 8:
-            if not self._color_has_legal_moves(
-                color=king.color,
-                is_king_in_check=False
-            ):
-
-                # This is a stalemate
-                self.game_values[PieceColor.WHITE] = 0
-                self.game_values[PieceColor.BLACK] = 0
-                self.is_game_terminated = True
 
     def _manage_check_detection(self):
         """
@@ -1146,15 +1153,13 @@ class Game:
             piece_move (PieceMove): The move that has just been executed.
         """
 
-        if piece_move.piece_name == PieceName.PAWN:
-            self.moves_for_f_rule = 0
-        elif piece_move.is_capture:
+        if piece_move.piece_name == PieceName.PAWN or piece_move.is_capture:
             self.moves_for_f_rule = 0
         else:
             self.moves_for_f_rule += 1
 
         if self.moves_for_f_rule >= 100:
-            self.is_game_terminated = True
+            self._set_draw()
 
         return self.is_game_terminated
 
@@ -1205,6 +1210,120 @@ class Game:
         self._set_current_game_state_hash()
         self._manage_game_state_obj()
 
+    def _manage_draw(
+        self,
+        king: King,
+        piece_move: PieceMove
+    ) -> bool:
+
+        """
+        This method will check is the game is a draw by checking:
+
+        - 50 game rules
+        - Insufficient material
+
+        NOTE:
+            Threefold repetition is already handled in the
+            _set_current_game_state_hash method
+
+        Returns:
+            bool: True if the game is drawn, False otherwise
+        """
+
+        if self._manage_fifty_moves_rule(piece_move=piece_move):
+            return True
+
+        self._manage_sufficient_material(
+            color=PieceColor.WHITE
+        )
+
+        self._manage_sufficient_material(
+            color=PieceColor.BLACK
+        )
+
+        if not self.is_sufficient_material:
+            self._set_draw()
+            return True
+
+        return self._manage_stalemate(king=king)
+
+    def _manage_stalemate(self, king: King) -> bool:
+        n_pieces = [
+            self.board.n_white_pieces,
+            self.board.n_black_pieces
+        ]
+
+        n_pieces = n_pieces[king.color.value]
+
+        if not king.is_in_check and n_pieces <= 8:
+            if not self._color_has_legal_moves(
+                color=king.color,
+                is_king_in_check=False
+            ):
+                self._set_draw()
+                return True
+        return False
+
+    def _manage_sufficient_material(self, color: PieceColor) -> bool:
+
+        """
+        Return false when
+
+        - the color has only a king
+        - the color has only a king and a bishop
+        - the color has only a king and a knight
+
+        Returns:
+            bool: True if the color has sufficient material, False otherwise
+        """
+
+        # check if the color has already set as not sufficient material
+        if self.sufficient_material[color] is False:
+            return False
+
+        piece_num = [
+            self.board.n_white_pieces,
+            self.board.n_black_pieces
+        ]
+
+        piece_num = piece_num[color.value]
+
+        if piece_num > 8:
+            # The color has sufficient material
+            return True
+
+        if piece_num == 1:
+            # There is only the King left
+            self.sufficient_material[color.value] = False
+            return False
+
+        # check if the piece that is left with the king is a
+        # bishop or a Knight
+
+        # Check for the knight
+        knight = self.board.get_piece(
+            piece_name=PieceName.KNIGHT,
+            color=color
+        )
+
+        if knight and piece_num == 2:
+            self.sufficient_material[color.value] = False
+            return False
+
+        # check for the bishop
+        bishop = self.board.get_piece(
+            piece_name=PieceName.BISHOP,
+            color=color
+        )
+
+        if bishop and piece_num == 2:
+            self.sufficient_material[color.value] = False
+            return False
+
+        # At this point, the piece that is with the King is either a Queen or
+        # a Rook, so the color has sufficient material
+        return True
+
     # ---------------------------- SETTER METHODS ----------------------------
 
     def _set_current_game_state_hash(self) -> None:
@@ -1250,6 +1369,13 @@ class Game:
         else:
             self.board_states[board_hash] = 1
 
+    def _set_draw(self) -> None:
+
+        self.game_values[PieceColor.WHITE] = 0
+        self.game_values[PieceColor.BLACK] = 0
+        self.is_game_terminated = True
+        self.is_game_drawn = True
+
     def _set_en_passant_pawn(self, en_passant_target: str) -> None:
 
         square = convert_from_algebraic_notation(en_passant_target)
@@ -1264,6 +1390,8 @@ class Game:
             self.black_possible_pawn_enp = piece
         else:
             self.white_possible_pawn_enp = piece
+
+    # ---------------------------- CREATION METHODS ---------------------------
 
     def _create_current_game_state_obj(self) -> GameState:
         """

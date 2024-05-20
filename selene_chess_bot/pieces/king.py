@@ -241,3 +241,13 @@ class King(Piece):
             return False
 
         return True
+
+    def _validate_before_moving(self):
+
+        """
+        This will delete the rights to clastle if the king is moved
+        """
+
+        if self.first_move:
+            self.board.castleling_rights[self.color][RookSide.KING] = False
+            self.board.castleling_rights[self.color][RookSide.QUEEN] = False

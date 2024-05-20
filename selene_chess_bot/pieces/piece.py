@@ -1,19 +1,20 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+from core.types import PositionT
 from core.utils import (
     convert_from_algebraic_notation, convert_to_algebraic_notation
 )
 
 from .utilites import (
-    PieceColor, PieceValue, PieceName, RookSide, ATTACKING_ROWS_AND_COLUMNS,
+    PieceColor, PieceValue, PieceName, ATTACKING_ROWS_AND_COLUMNS,
     ATTACKING_DIAGONALS
 )
 
-from core.types import PositionT
 
 if TYPE_CHECKING:
     from board import Board
+    from game.piece_move import PieceMove
 
 
 class Piece(ABC):
@@ -168,19 +169,24 @@ class Piece(ABC):
 
             captured_by (Piece | None): Initialized to None, indicating the
             piece has not been captured.
+
+            # TODO: Make possible to connect the board with the game,
+            # so we can acces important information like the move number
         """
 
         self.color: PieceColor = color
         self.value: PieceValue = value
 
-        self.position: PositionT = position
-        self.move_story: list[tuple[int, PositionT]] = []
         self.first_move: bool = True
-        self.captured_by: Piece | None = None
         self.name: PieceName = name
         self.board: 'Board' = board
+        self.position: PositionT = position
+        self.captured_by: Piece | None = None
+        self.move_story: list[tuple[int, PositionT]] = []
 
         self.pieces_attacking_me: dict = dict()
+
+    #  ---------------------------- PROPERTIES ----------------------------
 
     @property
     def is_captured(self) -> bool:
@@ -202,6 +208,15 @@ class Piece(ABC):
     def sing_char(self) -> str:
         return self.name.value[1]
 
+    # ---------------------------- PUBLIC METHODS ----------------------------
+
+    def add_move_to_story(
+        self,
+        move_number: int,
+        new_position: tuple[int, int] | str
+    ):
+        self.move_story.append((move_number, new_position))
+
     def capture(self, captured_by: 'Piece'):
         self.captured_by = captured_by
 
@@ -209,7 +224,7 @@ class Piece(ABC):
         self,
         new_position: PositionT | str,
         in_castleling: bool = False,
-        piece_move=None  # Piece move object
+        piece_move: 'PieceMove' = None
     ):
         """
         Move the chess piece to a new position on the board.
@@ -225,89 +240,65 @@ class Piece(ABC):
         completed.
 
         Parameters:
-        new_position (tuple[int, int] | str): The new position to move the
+        new_position (PositionT | str): The new position to move the
         piece to, either as a tuple of coordinates (row, column)
         or a string in algebraic notation.
 
         Returns:
         bool: True if the move is successful and legal, False otherwise.
 
-        Notes:
+        NOTE:
         - The method checks and updates castling rights if the piece is a rook
-        or king moving for the first time.
+        or king moving for the first time. (this happens on the
+        _validate_before_moving method on the subclasses of the piece class)
+
         - The legality of the move is determined by the `calculate_legal_moves`
         method of the piece.
+
         """
 
-        # check if is a rook and eliminate the right to castle
-        if self.first_move and self.name == PieceName.ROOK:
-            self.board.castleling_rights[self.color][self.rook_side] = False
+        self.__validate_before_moving()
+        position_to, move_to_compare = self._get_position_to(
+            new_position=new_position,
+            piece_move=piece_move
+        )
 
-        # check if is a king and eliminate the right to castle
-        if self.first_move and self.name == PieceName.KING:
-            self.board.castleling_rights[self.color][RookSide.KING] = False
-            self.board.castleling_rights[self.color][RookSide.QUEEN] = False
-
-        if isinstance(new_position, str) and not piece_move.coronation_into:
-            new_position = convert_from_algebraic_notation(new_position)
-
-        # check if is a pawn and check if the movement is en passant
         is_on_passant = False
         if self.name == PieceName.PAWN:
-
-            # check if the new_position has a coronation
-            if piece_move.coronation_into:
-                if piece_move.move_to_compare in self.calculate_legal_moves():
-                    square = convert_from_algebraic_notation(
-                        position=piece_move.square
-                    )
-                    self.board.update_board(
-                        new_row=square[0],
-                        new_column=square[1],
-                        old_column=self.column,
-                        old_row=self.row,
-                        piece=self,
-                    )
-
-                    self.position = tuple(square)
-                    self.first_move = False
-                    return True
-
-            if new_position == self._get_on_passant_square():
+            if position_to == self._get_on_passant_square():
                 is_on_passant = True
 
-        if in_castleling or new_position in self.calculate_legal_moves():
+        if in_castleling or move_to_compare in self.calculate_legal_moves():
             self.board.update_board(
-                new_row=new_position[0],
-                new_column=new_position[1],
+                new_row=position_to[0],
+                new_column=position_to[1],
                 old_column=self.column,
                 old_row=self.row,
                 piece=self,
                 is_en_passant=is_on_passant
             )
 
-            self.position = tuple(new_position)
+            self.position = tuple(position_to)
             self.first_move = False
 
             return True
 
         return False
 
-    def add_move_to_story(
-        self,
-        move_number: int,
-        new_position: tuple[int, int] | str
-    ):
-        self.move_story.append((move_number, new_position))
+    # ---------------------------- GETTER METHODS ----------------------------
 
     def get_pieces_under_attack(self) -> list['Piece']:
         """
         Returns a list of pieces that are under attack by the piece.
         """
-        attacked_squares = self.calculate_legal_moves()
+        attacked_squares = self.get_attacked_squares()
+        # print('-' * 50)
+        # print(attacked_squares)
+        # print('-' * 50)
         pieces_under_attack = []
 
         for square in attacked_squares:
+            square = self.board.get_square_or_piece(*square)
             if isinstance(square, Piece):
                 if square.color != self.color:
                     pieces_under_attack.append(square)
@@ -326,12 +317,27 @@ class Piece(ABC):
         that are attacking the piece.
         """
 
-        # TODO: Make possible to connect the board with the game,
-        # so we can acces important information like the move number
-
         # if move_number:
         #     if self.pieces_attacking_me.get('calculated_at_moved') == move_number:
         #         return self.pieces_attacking_me['pieces']
+
+        pieces_attacking_me: list[Piece] = []
+
+        pieces_attacking_me += self.get_pieces_attacking_from_row_or_column()
+        pieces_attacking_me += self.get_pieces_attacking_from_diagonals()
+        pieces_attacking_me += self.get_knights_attacking_me()
+        pieces_attacking_me += self.get_pawns_attacking_me()
+
+        # TODO: check for pawn attacks
+
+        self.pieces_attacking_me = {
+            'pieces': pieces_attacking_me,
+            'calculated_at_moved': move_number
+        }
+
+        return pieces_attacking_me
+
+    def get_pieces_attacking_from_row_or_column(self) -> list['Piece']:
 
         pieces_attacking_me: list[Piece] = []
 
@@ -361,6 +367,18 @@ class Piece(ABC):
                         if last_pos.name in ATTACKING_ROWS_AND_COLUMNS:
                             pieces_attacking_me.append(last_pos)
 
+        return pieces_attacking_me
+
+    def get_pieces_attacking_from_diagonals(self) -> list['Piece']:
+
+        """
+        NOTE:
+            This does not check for pawns attacking the piece,
+            call the get_pawns_attacking_me method for that
+        """
+
+        pieces_attacking_me: list[Piece] = []
+
         diagonals = self.scan_diagonals()
         positions = ['d0', 'd1', 'd2', 'd3']
 
@@ -372,7 +390,11 @@ class Piece(ABC):
                         if last_pos.name in ATTACKING_DIAGONALS:
                             pieces_attacking_me.append(diagonals[position][-1])
 
-        # and finally calculate the knights
+        return pieces_attacking_me
+
+    def get_knights_attacking_me(self) -> list['Piece']:
+
+        pieces_attacking_me: list[Piece] = []
 
         positions_to_check = [
             [self.row + 2, self.column + 1],
@@ -394,19 +416,43 @@ class Piece(ABC):
                         if piece.color != self.color:
                             pieces_attacking_me.append(piece)
 
-        self.pieces_attacking_me = {
-            'pieces': pieces_attacking_me,
-            'calculated_at_moved': move_number
-        }
+        return pieces_attacking_me
+
+    def get_pawns_attacking_me(self) -> list['Piece']:
+
+        pieces_attacking_me: list[Piece] = []
+
+        positions_to_check = [
+            [self.row + 1, self.column + 1],
+            [self.row + 1, self.column - 1],
+            [self.row - 1, self.column + 1],
+            [self.row - 1, self.column - 1],
+        ]
+
+        for pos in positions_to_check:
+
+            if not self.board.is_position_on_board(pos):
+                continue
+
+            piece = self.board.get_square_or_piece(*pos)
+
+            if not isinstance(piece, Piece):
+                continue
+
+            if piece.name != PieceName.PAWN:
+                continue
+
+            if piece.color == self.color:
+                continue
+
+            # get the attacking squares of the pawn
+            attacking_squares = piece.get_attacked_squares()
+            if self.position in attacking_squares:
+                pieces_attacking_me.append(piece)
 
         return pieces_attacking_me
 
-    def undo_move(self):
-        if self.move_story:
-            move_number, last_position = self.move_story.pop()
-            self.position = last_position
-            if move_number == 1:
-                self.first_move = True
+    # ---------------------------- SCANNER METHODS ----------------------------
 
     def scan_column(
         self,
@@ -729,38 +775,7 @@ class Piece(ABC):
 
         return piece_legal_moves
 
-    @abstractmethod
-    def get_attacked_squares(
-        self,
-        show_in_algebraic_notation: bool = False
-    ) -> list[str | list[int, int]]:
-        """
-        Return a list of the squares attacked by the piece.
-
-        parameters:
-            show_in_algebraic_notation (bool): If True, returns the list of
-            moves in algebraic notation. Defaults to False.
-        """
-        pass
-
-    @abstractmethod
-    def _calculate_legal_moves(
-        self,
-        show_in_algebraic_notation: bool = False,
-        check_capturable_moves: bool = True,
-        traspass_king: bool = False,
-        king_color: PieceColor = None,
-        get_only_squares: bool = False
-    ) -> list[str | list[int, int]]:
-
-        """
-        Returns a list of legal moves for the piece.
-
-        Parameters:
-            show_in_algebraic_notation (bool): If True, returns the list of
-            moves in algebraic notation. Defaults to False.
-        """
-        pass
+    # ---------------------------- PRIVATE METHODS ----------------------------
 
     def _check_if_friendly_king_is_next_to_piece(
         self,
@@ -997,6 +1012,83 @@ class Piece(ABC):
                     return True
 
         return False
+
+    # ---------------------------- HELPER METHODS ----------------------------
+
+    def _get_position_to(
+        self,
+        new_position: PositionT | str,
+        piece_move: 'PieceMove' = None,
+    ) -> tuple[PositionT, PositionT | str]:
+
+        position_to: PositionT | str = new_position
+        move_to_compare: PositionT | str = new_position
+
+        # Check if the position is a string
+        if isinstance(new_position, str):
+            # If the pieve_move does not have a coronation into, then, just
+            # convert the string into the PositionT representation
+            if not piece_move.coronation_into:
+                alg_notation = convert_from_algebraic_notation(new_position)
+                return alg_notation, alg_notation
+
+            # If the piece_move object has a coronation into, then, we convert
+            # the square where the piece is going to be coronated
+            position_to = convert_from_algebraic_notation(
+                position=piece_move.square
+            )
+            move_to_compare = piece_move.move_to_compare
+
+        return position_to, move_to_compare
+
+    # -------------------------- __PRIVATE METHODS ----------------------------
+
+    def __validate_before_moving(self):
+
+        """
+        Optionally validates the move if
+        a `_validate_before_moving` method is defined in the subclass.
+        """
+
+        if hasattr(self, '_validate_before_moving'):
+            self._validate_before_moving()
+
+    # ---------------------------- ABSTRACT METHODS ---------------------------
+
+    @abstractmethod
+    def get_attacked_squares(
+        self,
+        show_in_algebraic_notation: bool = False
+    ) -> list[str | list[int, int]]:
+        """
+        Return a list of the squares attacked by the piece.
+
+        parameters:
+            show_in_algebraic_notation (bool): If True, returns the list of
+            moves in algebraic notation. Defaults to False.
+        """
+        pass
+
+    @abstractmethod
+    def _calculate_legal_moves(
+        self,
+        show_in_algebraic_notation: bool = False,
+        check_capturable_moves: bool = True,
+        traspass_king: bool = False,
+        king_color: PieceColor = None,
+        get_only_squares: bool = False
+    ) -> list[str | list[int, int]]:
+
+        """
+        Returns a list of legal moves for the piece.
+
+        Parameters:
+            show_in_algebraic_notation (bool): If True, returns the list of
+            moves in algebraic notation. Defaults to False.
+        """
+        pass
+
+    # ---------------------------- DUNDER METHODS ---------------------------
 
     def __str__(self):
         return f"{self.__class__.__name__}({self.color}, {self.algebraic_pos})"

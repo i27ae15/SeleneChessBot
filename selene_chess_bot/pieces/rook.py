@@ -89,5 +89,14 @@ class Rook(Piece):
                     move = move.position
                 algebraic_list.append(convert_to_algebraic_notation(*move))
             return algebraic_list
-
         return legal_moves
+
+    def _validate_before_moving(self) -> None:
+
+        """
+        This will eliminate the right to castle if the rook is moved
+        for the first time.
+        """
+
+        if self.first_move:
+            self.board.castleling_rights[self.color][self.rook_side] = False

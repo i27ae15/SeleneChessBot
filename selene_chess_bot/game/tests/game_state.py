@@ -62,17 +62,6 @@ class TestGameModel(TestCase):
 
 class TestGameModelSimulation(TestCase):
 
-    def atest_initial_parsing(self):
-
-        print_starting()
-
-        parent: GameState = GameState.objects.get(fen=INITIAL_FEN)
-        game: Game = Game.parse_fen(parent.fen)
-
-        self.assertEqual(game.current_game_state.id, parent.id)
-
-        print_success()
-
     def test_game_simulation(self):
 
         parent: GameState = GameState.objects.get(fen=INITIAL_FEN)
