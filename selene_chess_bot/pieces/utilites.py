@@ -82,12 +82,17 @@ class ZobristHash():
         random.seed(42)
 
         keys = {}
-        pieces = ['P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k']
+        pieces = ['P', 'N', 'B', 'R', 'Q', 'K']
         for piece in pieces:
-            keys[piece] = {}
-            for row in range(8):
-                for column in range(8):
-                    keys[piece][(row, column)] = random.getrandbits(64)
+            keys[piece] = {
+                PieceColor.WHITE: {},
+                PieceColor.BLACK: {}
+            }
+            for c in range(2):
+                color = PieceColor(c)
+                for row in range(8):
+                    for column in range(8):
+                        keys[piece][color][(row, column)] = random.getrandbits(64)
 
         keys['castling'] = {
             (PieceColor.WHITE, RookSide.KING): random.getrandbits(64),
@@ -96,8 +101,17 @@ class ZobristHash():
             (PieceColor.BLACK, RookSide.QUEEN): random.getrandbits(64)
         }
         keys['en_passant'] = {
-            column: random.getrandbits(64) for column in range(8)
+                PieceColor.WHITE: {
+                    column: random.getrandbits(64) for column in range(8)
+                },
+                PieceColor.BLACK: {
+                    column: random.getrandbits(64) for column in range(8)
+                }
         }  # Assuming column index for en passant
-        keys['side'] = random.getrandbits(64)
+
+        keys['side'] = {
+            PieceColor.WHITE: random.getrandbits(64),
+            PieceColor.BLACK: random.getrandbits(64)
+        }
 
         return keys
