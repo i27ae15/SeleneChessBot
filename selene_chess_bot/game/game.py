@@ -369,6 +369,28 @@ class Game:
         )
         game.moves_for_f_rule = halfmove_clock
 
+        # the game was initialized with the rooks.rook_side = None, so, based
+        # based on the castleling rights, we need to give each rook the
+        # correct side
+
+        # Squares where the rooks should be
+        white_squares = [[0, 0], [0, 7]]
+        black_squares = [[7, 0], [7, 7]]
+
+        # combine the squares
+        squares = [white_squares, black_squares]
+        colors = [PieceColor.WHITE, PieceColor.BLACK]
+
+        # loop through the squares to set the correct sides
+        for c in colors:
+            if castling_rights[c][RookSide.KING]:
+                rook = game.board.get_square_or_piece(*squares[c.value][1])
+                rook.rook_side = RookSide.KING
+
+            if castling_rights[c][RookSide.QUEEN]:
+                rook = game.board.get_square_or_piece(*squares[c.value][0])
+                rook.rook_side = RookSide.QUEEN
+
         return game
 
     @staticmethod
@@ -416,7 +438,7 @@ class Game:
                 piece = board.get_square_or_piece(row, column)
                 if isinstance(piece, Piece):
                     piece: Piece
-                    piece_key = zobrist_keys[piece.name.value[1]][
+                    piece_key = zobrist_keys[piece.name.value[1]][piece.color][
                         (row, column)
                     ]
                     board_hash ^= piece_key
@@ -429,13 +451,12 @@ class Game:
 
         # Include en passant possibility
         if en_passant_pos is not None:
-            board_hash ^= zobrist_keys['en_passant'][
+            board_hash ^= zobrist_keys['en_passant'][current_side][
                 int(en_passant_pos[1])
             ]
 
         # Include the side to move
-        if current_side == PieceColor.BLACK:
-            board_hash ^= zobrist_keys['side']
+        board_hash ^= zobrist_keys['side'][current_side]
 
         return board_hash.to_bytes(8, byteorder='big', signed=False)
 
@@ -1368,6 +1389,7 @@ class Game:
         if board_hash in self.board_states:
             st = self.board_states[board_hash]
             self.board_states[board_hash] = st + 1
+
             if st + 1 >= 3:
                 # Threefold repetition
                 self._set_draw(draw_reason='threefold repetition')
