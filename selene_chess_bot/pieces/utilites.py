@@ -71,6 +71,16 @@ ATTACKING_DIAGONALS = [
     PieceName.QUEEN,
 ]
 
+STARTING_POSITIONS_FOR_W_PAWNS = [
+    (1, 0), (1, 1), (1, 2), (1, 3),
+    (1, 4), (1, 5), (1, 6), (1, 7)
+]
+
+STARTING_POSITIONS_FOR_B_PAWNS = [
+    (6, 0), (6, 1), (6, 2), (6, 3),
+    (6, 4), (6, 5), (6, 6), (6, 7)
+]
+
 
 class ZobristHash():
 

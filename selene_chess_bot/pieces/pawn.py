@@ -4,7 +4,11 @@ from core.utils import convert_to_algebraic_notation
 from core.types import PositionT
 
 from .piece import Piece
-from .utilites import PieceColor, PieceValue, PieceName
+from .utilites import (
+    STARTING_POSITIONS_FOR_B_PAWNS,
+    STARTING_POSITIONS_FOR_W_PAWNS,
+    PieceColor, PieceValue, PieceName
+)
 
 
 if TYPE_CHECKING:
@@ -31,6 +35,21 @@ class Pawn(Piece):
             name=PieceName.PAWN,
             board=board
         )
+
+        self._check_initial_position()
+
+    def _check_initial_position(self) -> None:
+        """
+        Check if the pawn is in its initial position since the pawn
+        can be created in any position on the board with the Game.ParseFEN
+        """
+
+        if self.color == PieceColor.WHITE:
+            if self.position not in STARTING_POSITIONS_FOR_W_PAWNS:
+                self.first_move = False
+        else:
+            if self.position not in STARTING_POSITIONS_FOR_B_PAWNS:
+                self.first_move = False
 
     def coronate(self, coronate_into: PieceName):
 

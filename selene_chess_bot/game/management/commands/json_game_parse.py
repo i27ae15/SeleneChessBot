@@ -61,6 +61,3 @@ class Command(BaseCommand):
         for index, game in enumerate(games):
             self.add_game(game)
             print(f'Game {index + 1} created successfully.')
-
-            if index + 1 == 10:
-                break

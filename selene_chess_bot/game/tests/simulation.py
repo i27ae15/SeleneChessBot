@@ -9,7 +9,7 @@ from game.game import Game
 class TestGameModelSimulation(TestCase):
 
     def setUp(self) -> None:
-        self.games_to_simulate = 10
+        self.games_to_simulate = 50
         return super().setUp()
 
     def test_game_simulation(self):
@@ -22,6 +22,7 @@ class TestGameModelSimulation(TestCase):
             r = child_game_state.simulate(
                 game=Game,
                 first_move=move,
-                save_data=True
+                save_data=True,
+                delete_json=True
             )
             print(f'Game {current + 1} simulated successfully. {r}')
