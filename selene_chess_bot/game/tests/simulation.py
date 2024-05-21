@@ -9,7 +9,7 @@ from game.game import Game
 class TestGameModelSimulation(TestCase):
 
     def setUp(self) -> None:
-        self.games_to_simulate = 50
+        self.games_to_simulate = 1000
         return super().setUp()
 
     def test_game_simulation(self):

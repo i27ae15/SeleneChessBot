@@ -556,10 +556,15 @@ class Game:
 
                     if piece.name != PieceName.PAWN:
 
+                        piece_name = piece.name.value[1]
+
+                        if piece.name in (PieceName.KING, PieceName.ROOK):
+                            piece_name = f'{piece_name}{piece.algebraic_pos[0]}'
+
                         if not isinstance(square_or_piece, Piece):
-                            moves.append(f'{piece.name.value[1]}{move}')
+                            moves.append(f'{piece_name}{move}')
                         else:
-                            moves.append(f'{piece.name.value[1]}x{move}')
+                            moves.append(f'{piece_name}x{move}')
 
                     elif piece.name == PieceName.PAWN:
                         if isinstance(square_or_piece, Piece):
