@@ -4,7 +4,6 @@ from core.utils import INITIAL_FEN
 
 from game.models import GameState
 from game.game import Game
-from core.testing import print_starting, print_success
 
 
 class TestGameModel(TestCase):

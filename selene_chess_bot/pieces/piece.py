@@ -676,8 +676,8 @@ class Piece(ABC):
         if not king:
             return piece_legal_moves
 
-        if not moves_dict:
-            return piece_legal_moves
+        # if not moves_dict:
+        #     return piece_legal_moves
 
         pieces_that_could_attack_king: list[PieceName] = list()
 
@@ -702,32 +702,34 @@ class Piece(ABC):
         # a len of 1 and is the same color king, so descard that direction
 
         # convert moves into from a direction to a list of objects
-        moves = moves_dict['d0'] + moves_dict['d1']
 
-        if show_in_algebraic_notation:
-            alg_moves = []
-            for move in moves:
-                if isinstance(move, Piece):
-                    alg_moves.append(move)
-                else:
-                    alg_moves.append(convert_to_algebraic_notation(*move))
-            moves = alg_moves
+        if moves_dict:
+            moves = moves_dict['d0'] + moves_dict['d1']
 
-        if self._check_if_a_piece_can_attack_friendly_king_in_given_moves(
-            moves=moves,
-            pieces_to_check=pieces_that_could_attack_king
-        ):
-            # if there is a piece that could attack the king, we need to unify
-            # the moves and the calculated legal moves, so the just the moves
-            # that appear in both could be returned
-            # convert all moves to position
-            for index, move in enumerate(moves):
-                if isinstance(move, Piece):
-                    if show_in_algebraic_notation:
-                        moves[index] = move.algebraic_pos
+            if show_in_algebraic_notation:
+                alg_moves = []
+                for move in moves:
+                    if isinstance(move, Piece):
+                        alg_moves.append(move)
                     else:
-                        moves[index] = move.position
-            piece_legal_moves = list(set(piece_legal_moves) & set(moves))
+                        alg_moves.append(convert_to_algebraic_notation(*move))
+                moves = alg_moves
+
+            if self._check_if_a_piece_can_attack_friendly_king_in_given_moves(
+                moves=moves,
+                pieces_to_check=pieces_that_could_attack_king
+            ):
+                # if there is a piece that could attack the king, we need to unify
+                # the moves and the calculated legal moves, so the just the moves
+                # that appear in both could be returned
+                # convert all moves to position
+                for index, move in enumerate(moves):
+                    if isinstance(move, Piece):
+                        if show_in_algebraic_notation:
+                            moves[index] = move.algebraic_pos
+                        else:
+                            moves[index] = move.position
+                piece_legal_moves = list(set(piece_legal_moves) & set(moves))
 
         king: Piece = king[0]
 
@@ -773,7 +775,6 @@ class Piece(ABC):
 
                     if move == piece.position or move == piece.algebraic_pos:
                         possible_legal_moves.append(move)
-
             return possible_legal_moves
 
         return piece_legal_moves

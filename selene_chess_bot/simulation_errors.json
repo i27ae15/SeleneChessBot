@@ -2,230 +2,124 @@
     "data": [
         {
             "game_state": {
-                "white_king_in_check": true,
+                "white_king_in_check": false,
                 "black_king_in_check": false,
                 "is_game_terminated": false,
                 "is_game_drawn": false,
-                "moves_for_f_rule": 1,
-                "fen": "4r3/5k1p/Np4q1/2p3P1/PpP3P1/2bPB3/2Q1P3/1N2K3 w KQ - 1 40"
+                "moves_for_f_rule": 0,
+                "fen": "rnbqkb2/pp2pp1p/7n/2pp2r1/2PPPPp1/6P1/PP5P/RNBQKBNR b KQq f4 0 8"
             },
             "moves": {
                 "1": [
-                    "c6"
+                    "d4",
+                    "Nh6"
                 ],
                 "2": [
-                    "a3",
-                    "Nf6"
+                    "c3",
+                    "Rg8"
                 ],
                 "3": [
-                    "Ra2",
-                    "Qa5"
-                ],
-                "4": [
-                    "Nc3",
-                    "c5"
-                ],
-                "5": [
-                    "g3",
-                    "e5"
-                ],
-                "6": [
-                    "Nb1",
-                    "Qa6"
-                ],
-                "7": [
-                    "Ra1",
-                    "Qd6"
-                ],
-                "8": [
-                    "Bg2",
-                    "a6"
-                ],
-                "9": [
-                    "a4",
-                    "g6"
-                ],
-                "10": [
-                    "Ra3",
+                    "Be3",
                     "g5"
                 ],
-                "11": [
-                    "Be4",
-                    "Nd5"
-                ],
-                "12": [
-                    "Bxd5",
-                    "Qf6"
-                ],
-                "13": [
-                    "Bc6",
-                    "Bg7"
-                ],
-                "14": [
-                    "Rc3",
-                    "Rf8"
-                ],
-                "15": [
-                    "Rb3",
-                    "Ke7"
-                ],
-                "16": [
-                    "Rh3",
-                    "a5"
-                ],
-                "17": [
-                    "Rh2",
-                    "Qh6"
-                ],
-                "18": [
-                    "Rh1",
-                    "d6"
-                ],
-                "19": [
-                    "Rc3",
-                    "e4"
-                ],
-                "20": [
-                    "Be8",
-                    "Be6"
-                ],
-                "21": [
-                    "Nf3",
-                    "e3"
-                ],
-                "22": [
-                    "hxg5",
-                    "Rxe8"
-                ],
-                "23": [
-                    "Rf1",
-                    "Bh3"
-                ],
-                "24": [
-                    "Ne5",
-                    "Ra6"
-                ],
-                "25": [
-                    "Rxc5",
-                    "dxc5"
-                ],
-                "26": [
-                    "g4",
-                    "Qh5"
-                ],
-                "27": [
-                    "c3",
-                    "Bf6"
-                ],
-                "28": [
-                    "Qc2",
-                    "Bh8"
-                ],
-                "29": [
-                    "Nd7",
-                    "f6"
-                ],
-                "30": [
-                    "f3",
-                    "Bxg4"
-                ],
-                "31": [
-                    "fxg4",
-                    "b6"
-                ],
-                "32": [
-                    "Nxb8",
-                    "Qh6"
-                ],
-                "33": [
-                    "b4",
-                    "Kf7"
-                ],
-                "34": [
-                    "Rf5",
-                    "Qh2"
-                ],
-                "35": [
+                "4": [
                     "c4",
-                    "Qf4"
+                    "d5"
                 ],
-                "36": [
-                    "Rxf6",
-                    "Qxf6"
+                "5": [
+                    "Bc1",
+                    "g4"
                 ],
-                "37": [
-                    "d3",
-                    "Qg6"
+                "6": [
+                    "g3",
+                    "Rg5"
                 ],
-                "38": [
-                    "Bxe3",
-                    "axb4"
+                "7": [
+                    "e4",
+                    "c5"
                 ],
-                "39": [
-                    "Nxa6",
-                    "Bc3"
+                "8": [
+                    "f4"
                 ]
             },
-            "error": "list index out of range",
+            "last_move": "f3",
+            "error": "Invalid move at _get_movable_piece",
             "game_values": {
                 "white": 0,
                 "black": 0
             },
-            "player_turn": "white",
+            "player_turn": "black",
             "wlm": [
                 "Nd2",
-                "Nxc3",
+                "Nc3",
+                "Na3",
+                "Nh3",
+                "Nf3",
+                "Ne2",
                 "Bd2",
-                "Qxc3",
+                "Be3",
+                "Be2",
+                "Bd3",
+                "Bg2",
+                "Bh3",
+                "Qc2",
+                "Qb3",
+                "Qa4",
+                "Qe2",
+                "Qf3",
+                "Qxg4",
                 "Qd2",
+                "Qd3",
                 "Kf2",
-                "Kd1",
-                "Kf1",
-                "O-O"
+                "Ke2",
+                "Kd2",
+                "a3",
+                "a4",
+                "b3",
+                "b4",
+                "cxd5",
+                "e5",
+                "exd5",
+                "f5",
+                "fxg5",
+                "h3",
+                "h4",
+                "dxc5"
             ],
             "blm": [
-                "b3",
+                "a6",
+                "a5",
+                "b6",
                 "b5",
-                "h6",
-                "h5",
-                "Re7",
-                "Re6",
-                "Re5",
-                "Re4",
-                "Rxe3",
-                "Rd8",
-                "Rc8",
-                "Rb8",
-                "Ra8",
-                "Rf8",
+                "cxd4",
+                "dxc4",
+                "dxe4",
+                "e6",
+                "e5",
+                "f6",
+                "f5",
+                "f3",
+                "Rg6",
+                "Rg7",
                 "Rg8",
-                "Rh8",
-                "Bb2",
-                "Ba1",
-                "Bd2",
-                "Bxe1",
-                "Bd4",
-                "Be5",
-                "Bf6",
+                "Rf5",
+                "Re5",
+                "Rh5",
+                "Na6",
+                "Nc6",
+                "Nd7",
+                "Ng8",
+                "Nf5",
+                "Bd7",
+                "Be6",
+                "Bf5",
                 "Bg7",
-                "Bh8",
-                "Qf5",
-                "Qe4",
-                "Qxd3",
-                "Qh5",
-                "Qxg5",
-                "Qg7",
-                "Qg8",
-                "Qf6",
-                "Qe6",
+                "Qc7",
+                "Qb6",
+                "Qa5",
+                "Qd7",
                 "Qd6",
-                "Qc6",
-                "Qh6",
-                "Kg8",
-                "Kf8",
-                "Ke7",
-                "Ke6",
-                "Kg7"
+                "Kd7"
             ]
         }
     ]

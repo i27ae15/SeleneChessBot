@@ -4,7 +4,7 @@ from core.testing import print_starting, print_success
 
 from board import Board
 
-from pieces import King, Queen
+from pieces import King
 from pieces.utilites import PieceColor, PieceName
 
 

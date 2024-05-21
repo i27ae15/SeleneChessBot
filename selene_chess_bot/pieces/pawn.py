@@ -73,6 +73,7 @@ class Pawn(Piece):
     def _calculate_legal_moves(
         self,
         show_in_algebraic_notation: bool = False,
+        show_captuable_enpt: bool = False,
         **kwargs
     ) -> list[tuple[int, int]] | list[str]:
 
@@ -89,7 +90,8 @@ class Pawn(Piece):
             show_in_algebraic_notation=show_in_algebraic_notation
         )
         self._set_en_passant_moves(
-            show_in_algebraic_notation=show_in_algebraic_notation
+            show_in_algebraic_notation=show_in_algebraic_notation,
+            show_capture_move=show_captuable_enpt
         )
 
         return self._legal_moves
@@ -133,14 +135,23 @@ class Pawn(Piece):
 
         self.board.get_square_or_piece(row=self.position[0] - 1, column=0)
 
-    def _set_en_passant_moves(self, show_in_algebraic_notation: bool) -> None:
+    def _set_en_passant_moves(
+        self,
+        show_in_algebraic_notation: bool,
+        show_capture_move: bool = False
+    ) -> None:
         en_passant_square = self._get_on_passant_square()
         if en_passant_square is not None:
             if show_in_algebraic_notation:
                 en_passant_square = convert_to_algebraic_notation(
                     *en_passant_square
                 )
-            self._legal_moves.append(en_passant_square)
+            s = en_passant_square
+
+            if show_capture_move:
+                s = f'{self.algebraic_pos[0]}x{en_passant_square}'
+
+            self._legal_moves.append(s)
 
     def _set_forward_moves(
         self,

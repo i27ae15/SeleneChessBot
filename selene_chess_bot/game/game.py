@@ -166,7 +166,9 @@ class Game:
 
     @property
     def possible_pawn_enp(self) -> Pawn | None:
-        return self.white_possible_pawn_enp or self.black_possible_pawn_enp
+        if self.player_turn == PieceColor.WHITE:
+            return self.white_possible_pawn_enp
+        return self.black_possible_pawn_enp
 
     @property
     def w_has_sufficient_material(self) -> bool:
@@ -553,6 +555,7 @@ class Game:
                     )
 
                     if piece.name != PieceName.PAWN:
+
                         if not isinstance(square_or_piece, Piece):
                             moves.append(f'{piece.name.value[1]}{move}')
                         else:
@@ -652,7 +655,6 @@ class Game:
 
         # move the piece
         # manage the en passant pawns
-
         self._manage_en_passant_pawns(piece, piece_move)
 
         self._move_piece(piece, piece_move)

@@ -5,11 +5,15 @@ import json
 import os
 import networkx as nx
 
-from typing import Any, Callable
+from typing import Any, TYPE_CHECKING
 
 from django.db import models
 
 from pieces.utilites import PieceColor
+
+
+if TYPE_CHECKING:
+    from game import Game
 
 C_VALUE = 1.414
 
@@ -63,6 +67,13 @@ class GameState(models.Model):
     @property
     def player_turn_obj(self) -> PieceColor:
         return PieceColor(self.player_turn)
+
+    @property
+    def game_values(self) -> dict[PieceColor, float]:
+        return {
+            PieceColor.WHITE: self.white_value,
+            PieceColor.BLACK: self.black_value
+        }
 
     @staticmethod
     def create_tree_representation(
@@ -122,7 +133,7 @@ class GameState(models.Model):
         self.save()
 
     def is_fully_expanded(self) -> bool:
-        return len(self.expandable_moves) == self.children.all().count()
+        return len(self.expandable_moves) == 0
 
     def select(self) -> 'GameState':
         """
@@ -169,23 +180,32 @@ class GameState(models.Model):
 
         return move
 
-    def expand(self, game_instance: Any) -> 'GameState | bool':
+    def get_random_move(self) -> str:
+        """
+        Returns a random move from the list of explored moves.
+        """
+        return np.random.choice(self.expandable_moves)
+
+    def expand(self, game_instance: 'Game') -> 'GameState | bool':
         """
         Expands the current node by creating a new child.
         """
 
-        if self.is_fully_expanded():
-            raise False  # No more moves to expand
+        # if self.is_fully_expanded():
+        #     raise False  # No more moves to expand
 
-        move: str = self.get_untried_move()
-        move = 'Ph4'
-
-        print(f"Taken: {move}")
-
+        move: str = self.get_random_move()
         game_instance.move_piece(move)
-        return game_instance.current_game_state
+        return game_instance.current_game_state, move
 
-    def simulate(self, game: Any, delete_json: bool = False) -> float:
+    def simulate(
+        self,
+        game: 'Game',
+        delete_json: bool = False,
+        print_helpers: bool = False,
+        first_move: str = None,
+        save_data: bool = True
+    ) -> float:
 
         """
         Game would be the pointer to the game object.
@@ -202,22 +222,32 @@ class GameState(models.Model):
                 valid_moves = current_game_state.expandable_moves
                 move = np.random.choice(valid_moves)
 
-                print('-' * 50)
-                print('Current move:', game_instance.current_turn)
-                print('Player turn:', game_instance.player_turn)
-                print('Selected move:', move)
+                if print_helpers:
+                    print('-' * 50)
+                    print('Current move:', game_instance.current_turn)
+                    print('Player turn:', game_instance.player_turn)
+                    print('Selected move:', move)
 
                 game_instance.move_piece(move)
-                game_instance.board.print_board()
-                print('-' * 50)
+
+                if print_helpers:
+                    game_instance.board.print_board()
+                    print('-' * 50)
 
                 if game_instance.is_game_terminated:
-                    print('Game terminated successfully')
-                    game_instance.print_game_state()
-                    file_path = 'completed simulations.json'
-                    self.save_simulation_data(file_path, game_instance)
+                    if print_helpers:
+                        print('Game terminated successfully')
+                        game_instance.print_game_state()
+                    file_path = 'completed_simulations.json'
 
-                    return game_instance.game_values[game_instance.player_turn]
+                    if save_data:
+                        self.save_simulation_data(
+                            file_path,
+                            game_instance,
+                            first_move=first_move,
+                        )
+
+                    return game_instance.game_values
 
             except Exception as e:
 
@@ -226,10 +256,10 @@ class GameState(models.Model):
 
                 print('-' * 50)
                 print('error occurred')
+                print('last move:', move)
                 print(e)
-                if e.__str__() == 'Invalid move at _move_piece.1':
-                    print('valid moves:', valid_moves)
-                    print('hash:', current_game_state.board_hash)
+                print('valid moves:', valid_moves)
+                print('hash:', current_game_state.board_hash)
                 print('Saving to file')
                 print('-' * 50)
 
@@ -238,18 +268,24 @@ class GameState(models.Model):
                     file_path=file_path,
                     game_instance=game_instance,
                     error=e,
-                    delete_json=delete_json
+                    delete_json=delete_json,
+                    print_helpers=print_helpers,
+                    last_move=move,
+                    first_move=first_move
                 )
-                break
+                raise Exception('Error occurred during simulation')
 
             current_game_state = game_instance.current_game_state
 
     def save_simulation_data(
         self,
         file_path: dict,
-        game_instance: Callable,
+        game_instance: 'Game',
         delete_json: bool = False,
-        error: Any = None
+        error: Any = None,
+        print_helpers: bool = False,
+        last_move: str = None,
+        first_move: str = None
     ) -> None:
 
         if delete_json:
@@ -263,8 +299,23 @@ class GameState(models.Model):
                     'data': []
                 }
 
-        white_king_in_check = game_instance.board.white_king.is_in_check
+        white_king_in_check = 'No data'
+        black_king_in_check = 'No data'
+
+        try:
+            white_king_in_check = game_instance.board.white_king.is_in_check
+        except Exception as e:
+            print('Error getting white king in check:', e)
+
+        try:
+            black_king_in_check = game_instance.board.black_king.is_in_check
+        except Exception as e:
+            print('Error getting black king in check:', e)
+
         black_king_in_check = game_instance.board.black_king.is_in_check
+
+        moves = game_instance.moves
+        moves[1] = [first_move, moves[1][0]]
 
         data_to_append = {
             'game_state': {
@@ -275,7 +326,8 @@ class GameState(models.Model):
                 'moves_for_f_rule': game_instance.moves_for_f_rule,
                 'fen': game_instance.current_fen,
             },
-            'moves': game_instance.moves,
+            'moves': moves,
+            'last_move': last_move if last_move else 'No move selected'
         }
 
         if error:
@@ -319,7 +371,8 @@ class GameState(models.Model):
 
         with open(file_path, 'w') as f:
             json.dump(data, f, indent=4)
-            print('Data saved to file')
+            if print_helpers:
+                print('Data saved to file')
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         super().save(*args, **kwargs)
