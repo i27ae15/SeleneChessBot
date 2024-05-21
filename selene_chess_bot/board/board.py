@@ -1,5 +1,3 @@
-import numpy as np
-
 from colorama import Fore, Style
 
 from core.utils import convert_from_algebraic_notation, ALGEBRAIC_NOTATION
@@ -402,7 +400,7 @@ class Board:
             PieceColor.WHITE: dict(),
             PieceColor.BLACK: dict()
         }
-        self.create_empty_board()
+        self.board = self.create_empty_board()
 
     def decrement_piece_count(self, color: PieceColor):
         """
@@ -847,6 +845,9 @@ class Board:
             raise BoardAlreadyInitializedError()
 
         self.board = self.create_empty_board()
+
+        if board_setup == 'empty':
+            return
 
         if not board_setup:
             self._set_initial_board_set_up()
