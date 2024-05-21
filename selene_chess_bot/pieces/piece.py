@@ -646,6 +646,9 @@ class Piece(ABC):
         Parameters:
             show_in_algebraic_notation (bool): If True, returns the list of
             moves in algebraic notation. Defaults to False.
+
+        TODO:
+            Refactor this
         """
 
         piece_legal_moves = self._calculate_legal_moves(
@@ -672,53 +675,6 @@ class Piece(ABC):
 
         if not king:
             return piece_legal_moves
-
-        king: Piece = king[0]
-
-        if king.check_if_in_check():
-
-            # Check first if there is any move that the piece can block the
-            # Enemy piece of attacking the king
-            pieces: list[Piece] = king.pieces_attacking_me['pieces']
-
-            # if there is more than one piece doing this, then, the king is in
-            # double check, meaning that the king must move
-            if len(pieces) > 1:
-                return []
-
-            # this piece could be a Rook, a Bishop or a Queen
-            directions_to_scan: dict = {
-                PieceName.BISHOP: 2,
-                PieceName.ROOK: 3,
-                PieceName.QUEEN: 4,
-            }
-            piece: Piece = pieces[0]
-
-            # we now need to get the direction from where the piece is
-            # attacking the king
-
-            direction = []
-            if piece.name in directions_to_scan.keys():
-                direction = directions_to_scan[piece.name]
-                direction = king.scan_direction_for_piece_at_end(
-                    direction=direction,
-                    piece_to_find=piece,
-                    show_in_algebraic_notation=show_in_algebraic_notation
-                )
-
-            for move in piece_legal_moves:
-                if isinstance(move, Piece):
-                    if move == piece:
-                        possible_legal_moves.append(move)
-                else:
-
-                    if move in direction:
-                        possible_legal_moves.append(move)
-
-                    if move == piece.position or move == piece.algebraic_pos:
-                        possible_legal_moves.append(move)
-
-            return possible_legal_moves
 
         if not moves_dict:
             return piece_legal_moves
@@ -772,6 +728,53 @@ class Piece(ABC):
                     else:
                         moves[index] = move.position
             piece_legal_moves = list(set(piece_legal_moves) & set(moves))
+
+        king: Piece = king[0]
+
+        if king.check_if_in_check():
+
+            # Check first if there is any move that the piece can block the
+            # Enemy piece of attacking the king
+            pieces: list[Piece] = king.pieces_attacking_me['pieces']
+
+            # if there is more than one piece doing this, then, the king is in
+            # double check, meaning that the king must move
+            if len(pieces) > 1:
+                return []
+
+            # this piece could be a Rook, a Bishop or a Queen
+            directions_to_scan: dict = {
+                PieceName.BISHOP: 2,
+                PieceName.ROOK: 3,
+                PieceName.QUEEN: 4,
+            }
+            piece: Piece = pieces[0]
+
+            # we now need to get the direction from where the piece is
+            # attacking the king
+
+            direction = []
+            if piece.name in directions_to_scan.keys():
+                direction = directions_to_scan[piece.name]
+                direction = king.scan_direction_for_piece_at_end(
+                    direction=direction,
+                    piece_to_find=piece,
+                    show_in_algebraic_notation=show_in_algebraic_notation
+                )
+
+            for move in piece_legal_moves:
+                if isinstance(move, Piece):
+                    if move == piece:
+                        possible_legal_moves.append(move)
+                else:
+
+                    if move in direction:
+                        possible_legal_moves.append(move)
+
+                    if move == piece.position or move == piece.algebraic_pos:
+                        possible_legal_moves.append(move)
+
+            return possible_legal_moves
 
         return piece_legal_moves
 
@@ -881,9 +884,15 @@ class Piece(ABC):
             direction_0.append(
                 self.board.get_square_or_piece(*row_column)
             )
-            if isinstance(direction_0[-1], Piece):
+            last_square = direction_0[-1]
+
+            if isinstance(last_square, Piece):
                 if get_only_squares:
                     direction_0[-1] = direction_0[-1].position
+
+                if last_square.name == PieceName.KING:
+                    if traspass_king and last_square.color == king_color:
+                        continue
 
                 if end_at_piece_found:
                     break

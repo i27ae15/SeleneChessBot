@@ -4,21 +4,20 @@ from core.testing import print_starting, print_success
 
 from board import Board
 
-from pieces import King
+from pieces import King, Queen
 from pieces.utilites import PieceColor, PieceName
 
 
 class TestKing(unittest.TestCase):
 
     def setUp(self):
-        self.board = Board(create_initial_board_set_up=False)
+        self.board = Board(board_setup='empty')
         self.board.create_empty_board()
         self.king = self.add_king_to_board()
         self.board.remove_castleling_rights(color=PieceColor.WHITE)
 
     def tearDown(self) -> None:
         self.board.clean_board()
-
         self.king = self.add_king_to_board()
         return super().tearDown()
 
@@ -288,6 +287,31 @@ class TestKing(unittest.TestCase):
         calculated_moves = self.king.calculate_legal_moves(
             show_in_algebraic_notation=True
         )
+
+        self.assertEqual(
+            sorted(calculated_moves),
+            sorted(expected_moves)
+        )
+        print_success()
+
+    def test_legal_move_when_king_is_in_check_next_to_q(self):
+        print_starting()
+        self.board.add_piece(
+            piece=PieceName.QUEEN,
+            piece_color=PieceColor.BLACK,
+            row=4,
+            column=5
+        )
+
+        # expected moves in algebraic notation
+        expected_moves = [
+            'd6', 'd4', 'f5'
+        ]
+        calculated_moves = self.king.calculate_legal_moves(
+            show_in_algebraic_notation=True
+        )
+
+        self.board.print_board(show_in_algebraic_notation=True)
 
         self.assertEqual(
             sorted(calculated_moves),
