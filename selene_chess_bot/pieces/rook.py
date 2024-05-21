@@ -29,6 +29,11 @@ class Rook(Piece):
             board=board
         )
 
+    def capture(self, captured_by: Piece):
+        # eliminate the right to castle if the rook is captured
+        self.board.castleling_rights[self.color][self.rook_side] = False
+        return super().capture(captured_by)
+
     def get_attacked_squares(
         self,
         traspass_king: bool = False,
