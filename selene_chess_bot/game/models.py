@@ -335,6 +335,12 @@ class GameState(models.Model):
 
         values = game_instance.game_values
 
+        if values[PieceColor.WHITE] == 'inf':
+            values[PieceColor.WHITE] = 999999999
+
+        if values[PieceColor.BLACK] == 'inf':
+            values[PieceColor.BLACK] = 999999999
+
         data_to_append['game_values'] = {
             'white': values[PieceColor.WHITE],
             'black': values[PieceColor.BLACK]

@@ -28,16 +28,15 @@ class Command(BaseCommand):
     def create_game_states(self):
         # Eliminate all the game states but the initial one
         GameState.objects.exclude(fen=INITIAL_FEN).delete()
-
         try:
             User.objects.create_superuser(
                 username='i27ae15',
                 email='andresruse18@gmail.com',
                 first_name='Andres',
-                last_name='Ruse',
+                last_name='Melendes',
                 password='ruse18775',
             )
-        except Exception as _:
+        except Exception as e:
             print('User already exists.')
 
         file_path = 'pgn/tests/MacKenzie.txt'

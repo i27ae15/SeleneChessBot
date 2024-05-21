@@ -194,7 +194,7 @@ class PieceMove:
                     self.piece_name = piece
                     break
             else:
-                raise InvalidMoveError()
+                raise InvalidMoveError('_set_piece')
 
     def _set_square_and_pos(self):
         """
