@@ -613,19 +613,38 @@ class Piece(ABC):
         direction: int,
         piece_to_find: 'Piece',
         show_in_algebraic_notation: bool = False
-    ) -> list[tuple[int, int], str] | bool:
+    ) -> list[PositionT, str] | bool:
 
         """
-        This will look if, at the end of the direction, there is the instance
-        of the piece_to_fiend
+        Scan the board in specified directions to find if a particular piece
+        is at the end of any direction.
 
-        direction = 0 -> column
-        direction = 1 -> row
-        direction = 2 -> diagonal
-        direction = 3 -> column & row
-        direction = 4 -> diagonal & row & column
+        This method scans the board in one or more specified directions to
+        check if the specified piece is at the end of the scan.
+        The directions are determined by the `direction` parameter, and the
+        scan results can be returned in algebraic notation if specified.
+
+        Parameters:
+        direction (int): The direction(s) to scan:
+                        0 -> column
+                        1 -> row
+                        2 -> diagonal
+                        3 -> column & row
+                        4 -> diagonal & row & column
+
+        piece_to_find ('Piece'): The piece instance to find at the end of the
+        scan.
+
+        show_in_algebraic_notation (bool, optional): If True, returns
+        positions in algebraic notation. Default is False.
+
+        Returns:
+            list[PositionT, str] | bool: The list of positions or pieces
+            in the direction where the piece was found at the end, or False if
+            not found.
         """
 
+        # Dictionary mapping direction values to the corresponding scan methods
         directions_to_scan = {
             0: [self.scan_column],
             1: [self.scan_row],
@@ -634,30 +653,28 @@ class Piece(ABC):
             4: [self.scan_column, self.scan_row, self.scan_diagonals]
         }
 
+        # Iterate over the selected scan methods based on the provided
+        # direction
         for dir in directions_to_scan[direction]:
+            # Call the scan method and get the results
             dirs: dict = dir(
                 get_in_algebraic_notation=show_in_algebraic_notation
             )
 
+            # Iterate over the results from the scan method
             for key in dirs:
                 direction: list = dirs[key]
 
+                # Skip empty directions
                 if not direction:
                     continue
 
+                # Check if the piece_to_find is at the end of the current
+                # direction
                 if piece_to_find == direction[-1]:
-
-                    # if show_in_algebraic_notation:
-                    #     alg_list = []
-                    #     for pos in direction:
-                    #         if isinstance(pos, Piece):
-                    #             alg_list.append(pos)
-                    #         else:
-                    #             alg_list.append(
-                    #                 convert_to_algebraic_notation(*pos)
-                    #             )
-                    #     direction = alg_list
                     return direction
+
+        # Return False if the piece was not found in any direction
         return False
 
     def calculate_legal_moves(
