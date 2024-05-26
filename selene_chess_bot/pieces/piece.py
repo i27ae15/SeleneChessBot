@@ -13,6 +13,7 @@ from .utilites import (
 
 
 if TYPE_CHECKING:
+    from pieces import King
     from board import Board
     from game.piece_move import PieceMove
 
@@ -137,7 +138,8 @@ class Piece(ABC):
         position: PositionT,
         value: PieceValue,
         name: PieceName,
-        board: 'Board'
+        board: 'Board',
+        my_king: 'King' = None  # TODO: add the king when creating the piece
     ):
         """
         Initialize a new instance of a chess piece.
@@ -185,8 +187,18 @@ class Piece(ABC):
         self.move_story: list[tuple[int, PositionT]] = []
 
         self.pieces_attacking_me: dict = dict()
+        self.my_king: 'King' = my_king
 
     #  ---------------------------- PROPERTIES ----------------------------
+
+    @property
+    def get_my_king(self) -> 'King':
+        if not self.my_king:
+            self.my_king = self.board.get_piece(
+                piece_name=PieceName.KING,
+                color=self.color
+            )[0]
+        return self.my_king
 
     @property
     def is_captured(self) -> bool:
@@ -693,8 +705,6 @@ class Piece(ABC):
             show_in_algebraic_notation (bool): If True, returns the list of
             moves in algebraic notation. Defaults to False.
 
-        TODO:
-            Refactor this
         """
 
         piece_legal_moves = self._calculate_legal_moves(
@@ -705,122 +715,28 @@ class Piece(ABC):
             show_in_algebraic_notation=show_in_algebraic_notation,
         )
 
-        possible_legal_moves = []
-
         if self.name == PieceName.KING:
             return piece_legal_moves
 
         # check if the king is under attack
-
         moves_dict, direction = self._detect_friendly_king_in_directions(
             get_in_algebraic_notation=show_in_algebraic_notation
         )
 
-        king: Piece = self.board.get_piece(
-            piece_name=PieceName.KING,
-            color=self.color
-        )
-
-        if not king:
-            return piece_legal_moves
-
-        pieces_that_could_attack_king: list[PieceName] = list()
-
-        if direction == 0 or direction == 1:
-            pieces_that_could_attack_king = [
-                PieceName.ROOK,
-                PieceName.QUEEN
-            ]
-
-        else:
-            pieces_that_could_attack_king = [
-                PieceName.BISHOP,
-                PieceName.QUEEN
-            ]
-
-            # d0 -> d4
-            # d1 -> d2
-
-        # check if there is a piece that could attack the king in the moves
-        # list if the dictionary only have to keys, this mean that there is a
-        # column or a row, so we need are sure that one of the directions have
-        # a len of 1 and is the same color king, so descard that direction
-
-        # convert moves into from a direction to a list of objects
-
         if moves_dict:
             moves = moves_dict['d0'] + moves_dict['d1']
+            piece_legal_moves = self._intersect_moves_with_king_helper(
+                direction=direction,
+                moves_to_scan=moves,
+                piece_legal_moves=piece_legal_moves,
+                get_in_algebraic_notation=show_in_algebraic_notation,
+            )
 
-            if show_in_algebraic_notation:
-                alg_moves = []
-                for move in moves:
-                    if isinstance(move, Piece):
-                        alg_moves.append(move)
-                    else:
-                        alg_moves.append(convert_to_algebraic_notation(*move))
-                moves = alg_moves
-
-            if self._check_if_a_piece_can_attack_friendly_king_in_given_moves(
-                moves=moves,
-                pieces_to_check=pieces_that_could_attack_king
-            ):
-                # if there is a piece that could attack the king, we need to
-                # unify the moves and the calculated legal moves, so the just
-                # the moves that appear in both could be returned
-                # convert all moves to position
-                for index, move in enumerate(moves):
-                    if isinstance(move, Piece):
-                        if show_in_algebraic_notation:
-                            moves[index] = move.algebraic_pos
-                        else:
-                            moves[index] = move.position
-                piece_legal_moves = list(set(piece_legal_moves) & set(moves))
-
-        king: Piece = king[0]
-
-        if king.check_if_in_check():
-
-            # Check first if there is any move that the piece can block the
-            # Enemy piece of attacking the king
-            pieces: list[Piece] = king.pieces_attacking_me['pieces']
-
-            # if there is more than one piece doing this, then, the king is in
-            # double check, meaning that the king must move
-            if len(pieces) > 1:
-                return []
-
-            # this piece could be a Rook, a Bishop or a Queen
-            directions_to_scan: dict = {
-                PieceName.BISHOP: 2,
-                PieceName.ROOK: 3,
-                PieceName.QUEEN: 4,
-            }
-            piece: Piece = pieces[0]
-
-            # we now need to get the direction from where the piece is
-            # attacking the king
-
-            direction = []
-            if piece.name in directions_to_scan.keys():
-                direction = directions_to_scan[piece.name]
-                direction = king.scan_direction_for_piece_at_end(
-                    direction=direction,
-                    piece_to_find=piece,
-                    show_in_algebraic_notation=show_in_algebraic_notation
-                )
-
-            for move in piece_legal_moves:
-                if isinstance(move, Piece):
-                    if move == piece:
-                        possible_legal_moves.append(move)
-                else:
-
-                    if move in direction:
-                        possible_legal_moves.append(move)
-
-                    if move == piece.position or move == piece.algebraic_pos:
-                        possible_legal_moves.append(move)
-            return possible_legal_moves
+        if self.get_my_king.check_if_in_check():
+            return self._king_in_check_moves_helper(
+                piece_legal_moves=piece_legal_moves,
+                get_in_algebraic_notation=show_in_algebraic_notation
+            )
 
         return piece_legal_moves
 
@@ -1172,6 +1088,140 @@ class Piece(ABC):
         return list_to_output
 
     # ---------------------------- HELPER METHODS ----------------------------
+
+    def _intersect_moves_with_king_helper(
+        self,
+        direction: int,
+        piece_legal_moves: list[PositionT],
+        moves_to_scan: 'list[PositionT | Piece | str]',
+        get_in_algebraic_notation: bool = False
+    ) -> list:
+        """
+        Intersect the legal moves of the piece with potential attacking moves
+        to protect the friendly king.
+
+        This method checks if there are any pieces in the given moves that can
+        attack the friendly king. If such pieces are found, it returns the
+        intersection of the legal moves of the piece and the potential
+        attacking moves.
+
+        Parameters:
+
+            direction (int): The direction to check for potential attacks
+            (0 for column, 1 for row, 2 for diagonal).
+
+            piece_legal_moves (list[PositionT]): The list of legal moves for
+            the piece.
+
+            moves_to_scan (list[PositionT | Piece | str]): The list of moves
+            to scan for potential attackers.
+
+            get_in_algebraic_notation (bool, optional): If True, converts the
+            moves to algebraic notation. Default is False.
+
+        Returns:
+            list[PositionT]: The list of legal moves for the piece that also
+            protect the king.
+        """
+
+        attacking_pieces: list[PieceName] = None
+
+        if direction == 0 or direction == 1:
+            attacking_pieces = ATTACKING_ROWS_AND_COLUMNS
+
+        else:
+            attacking_pieces = ATTACKING_DIAGONALS
+
+            # d0 -> d4
+            # d1 -> d2
+
+        if self._check_if_a_piece_can_attack_friendly_king_in_given_moves(
+            moves=moves_to_scan,
+            pieces_to_check=attacking_pieces
+        ):
+            # if there is a piece that could attack the king, we need to
+            # unify the moves and the calculated legal moves, so the just
+            # the moves that appear in both could be returned
+            # convert all moves to position
+            for index, move in enumerate(moves_to_scan):
+                if isinstance(move, Piece):
+                    if get_in_algebraic_notation:
+                        moves_to_scan[index] = move.algebraic_pos
+                    else:
+                        moves_to_scan[index] = move.position
+            piece_legal_moves = list(
+                set(piece_legal_moves) & set(moves_to_scan)
+            )
+        return piece_legal_moves
+
+    def _king_in_check_moves_helper(
+        self,
+        piece_legal_moves: list[PositionT],
+        get_in_algebraic_notation: bool = False
+    ) -> list[PositionT]:
+        """
+        Helper method to calculate legal moves when the king is in check.
+
+        This method determines if there is any move that the piece can make to
+        block an enemy piece from attacking the friendly king. If the king is
+        under double check, it returns an empty list, as the king must move.
+        Otherwise, it returns the legal moves that block the check.
+
+        Parameters:
+            piece_legal_moves (list[PositionT]): The list of legal moves for
+            the piece.
+            get_in_algebraic_notation (bool, optional): If True, converts the
+            moves to algebraic notation. Default is False.
+
+        Returns:
+            list[PositionT]: The list of possible legal moves that block the
+            check.
+
+            NOTE:
+                This should be implemented in each Piece, on the
+                _calculate_legal_moves, more complex, but more efficient.
+
+                If this method is eliminated, it could increase the runtime
+                in a 20% to 30%.
+        """
+        possible_legal_moves = []
+        # Get the pieces attacking the friendly king
+        pieces: list[Piece] = self.get_my_king.pieces_attacking_me['pieces']
+
+        # If more than one piece is attacking, the king is in double check
+        if len(pieces) > 1:
+            return []
+
+        # Dictionary mapping pieces to their respective scan directions
+        directions_to_scan = {
+            PieceName.BISHOP: 2,
+            PieceName.ROOK: 3,
+            PieceName.QUEEN: 4,
+        }
+        piece: Piece = pieces[0]
+
+        # Determine the direction from which the piece is attacking the king
+        direction = []
+        if piece.name in directions_to_scan:
+            direction = directions_to_scan[piece.name]
+            direction = self.get_my_king.scan_direction_for_piece_at_end(
+                direction=direction,
+                piece_to_find=piece,
+                show_in_algebraic_notation=get_in_algebraic_notation
+            )
+
+        # Check if any of the piece's legal moves can block the check
+        for move in piece_legal_moves:
+            if isinstance(move, Piece):
+                if move == piece:
+                    possible_legal_moves.append(move)
+            else:
+                if move in direction:
+                    possible_legal_moves.append(move)
+                if move == piece.position or move == piece.algebraic_pos:
+                    possible_legal_moves.append(move)
+
+        return possible_legal_moves
 
     def _scan_direction_helper(
         self,
