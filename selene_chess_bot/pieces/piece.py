@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 from core.types import PositionT
 from core.utils import (
@@ -292,9 +292,6 @@ class Piece(ABC):
         Returns a list of pieces that are under attack by the piece.
         """
         attacked_squares = self.get_attacked_squares()
-        # print('-' * 50)
-        # print(attacked_squares)
-        # print('-' * 50)
         pieces_under_attack = []
 
         for square in attacked_squares:
@@ -409,12 +406,13 @@ class Piece(ABC):
         ]
 
         for pos in positions_to_check:
-            if self.board.is_position_on_board(pos):
-                piece = self.board.get_square_or_piece(*pos)
-                if isinstance(piece, Piece):
-                    if piece.name == PieceName.KNIGHT:
-                        if piece.color != self.color:
-                            pieces_attacking_me.append(piece)
+
+            piece = self._validate_piece_from_positions(
+                position=pos,
+                piece_name=PieceName.KNIGHT
+            )
+            if piece:
+                pieces_attacking_me.append(piece)
 
         return pieces_attacking_me
 
@@ -430,19 +428,11 @@ class Piece(ABC):
         ]
 
         for pos in positions_to_check:
-
-            if not self.board.is_position_on_board(pos):
-                continue
-
-            piece = self.board.get_square_or_piece(*pos)
-
-            if not isinstance(piece, Piece):
-                continue
-
-            if piece.name != PieceName.PAWN:
-                continue
-
-            if piece.color == self.color:
+            piece = self._validate_piece_from_positions(
+                position=pos,
+                piece_name=PieceName.PAWN
+            )
+            if not piece:
                 continue
 
             # get the attacking squares of the pawn
@@ -593,8 +583,8 @@ class Piece(ABC):
     ) -> list[tuple[int, int], str] | bool:
 
         """
-        This will look if, at the end of the direction, there is the instance of the
-        piece_to_fiend
+        This will look if, at the end of the direction, there is the instance
+        of the piece_to_fiend
 
         direction = 0 -> column
         direction = 1 -> row
@@ -613,22 +603,26 @@ class Piece(ABC):
 
         for dir in directions_to_scan[direction]:
             dirs: dict = dir()
+
             for key in dirs:
                 direction: list = dirs[key]
-                if direction:
-                    if piece_to_find == direction[-1]:
 
-                        if show_in_algebraic_notation:
-                            alg_list = []
-                            for pos in direction:
-                                if isinstance(pos, Piece):
-                                    alg_list.append(pos)
-                                else:
-                                    alg_list.append(
-                                        convert_to_algebraic_notation(*pos)
-                                    )
-                            direction = alg_list
-                        return direction
+                if not direction:
+                    continue
+
+                if piece_to_find == direction[-1]:
+
+                    if show_in_algebraic_notation:
+                        alg_list = []
+                        for pos in direction:
+                            if isinstance(pos, Piece):
+                                alg_list.append(pos)
+                            else:
+                                alg_list.append(
+                                    convert_to_algebraic_notation(*pos)
+                                )
+                        direction = alg_list
+                    return direction
         return False
 
     def calculate_legal_moves(
@@ -719,9 +713,9 @@ class Piece(ABC):
                 moves=moves,
                 pieces_to_check=pieces_that_could_attack_king
             ):
-                # if there is a piece that could attack the king, we need to unify
-                # the moves and the calculated legal moves, so the just the moves
-                # that appear in both could be returned
+                # if there is a piece that could attack the king, we need to
+                # unify the moves and the calculated legal moves, so the just
+                # the moves that appear in both could be returned
                 # convert all moves to position
                 for index, move in enumerate(moves):
                     if isinstance(move, Piece):
@@ -780,6 +774,56 @@ class Piece(ABC):
         return piece_legal_moves
 
     # ---------------------------- PRIVATE METHODS ----------------------------
+
+    def _validate_piece_from_positions(
+        self,
+        position: PositionT,
+        piece_name: list[PieceName] | PieceName | None
+    ) -> 'Piece | None':
+
+        """
+            Validate a piece at the given position on the board.
+
+            Parameters
+            ----------
+            position : PositionT
+                The position on the board to validate.
+
+            piece_name : list[PieceName] | PieceName | None
+                The name(s) of the piece to validate.
+                Can be a single name, a list of names, or None.
+
+            Returns
+            -------
+
+            Piece | None
+                The piece if it is valid and matches the given criteria,
+                otherwise None.
+
+            Validates that the position is on the board and contains a piece
+            that matches the given name(s) and is not of the same color as
+            the player.
+        """
+
+        if not self.board.is_position_on_board(position):
+            return
+
+        piece = self.board.get_square_or_piece(*position)
+
+        if not isinstance(piece, Piece):
+            return
+
+        if piece_name is not None:
+            if not isinstance(piece_name, Iterable):
+                piece_name = [piece_name]
+
+            if piece.name not in piece_name:
+                return
+
+        if piece.color == self.color:
+            return
+
+        return piece
 
     def _check_if_friendly_king_is_next_to_piece(
         self,
@@ -842,8 +886,8 @@ class Piece(ABC):
             if isinstance(last_square, Piece):
                 if last_square.name == PieceName.KING:
                     if last_square.color == self.color:
-                        # here we need to return the diagonals where the king is
-                        # that is:
+                        # here we need to return the diagonals where the king
+                        # is that is:
                         # d0 -> d4
                         # d1 -> d2
                         to_return = dict()
@@ -864,61 +908,77 @@ class Piece(ABC):
     def _scan_direction(
         self,
         for_value: int,
-        board_scan_value: int,
         f_value_side: int,
-        end_at_piece_found: bool = True,
-        get_only_squares: bool = False,
+        board_scan_value: int,
         traspass_king: bool = False,
-        king_color: PieceColor = None
+        king_color: PieceColor = None,
+        get_only_squares: bool = False,
+        end_at_piece_found: bool = True,
+        get_in_algebraic_notation: bool = False
     ):
-        direction_0: list[Piece | None] = []
-        direction_1: list[Piece | None] = []
 
-        row_column = [None, None]
+        """
+        Scan the board in two directions from a given position and collect
+        pieces or squares based on specified conditions.
 
-        # check the column in one direction
-        for f_value in range(for_value - 1, -1, -1):
+        This method scans the board in two opposite directions from a starting
+        position, collecting either pieces or their positions into two
+        separate lists. The scanning is done on the _scanner_helper method.
 
-            row_column[f_value_side] = f_value
-            row_column[1 - f_value_side] = board_scan_value
+        Parameters:
 
-            direction_0.append(
-                self.board.get_square_or_piece(*row_column)
-            )
-            last_square = direction_0[-1]
+        for_value (int): The starting value for the direction scan.
 
-            if isinstance(last_square, Piece):
-                if get_only_squares:
-                    direction_0[-1] = direction_0[-1].position
+        f_value_side (int): The index (0 or 1) to be varied during the scan.
 
-                if last_square.name == PieceName.KING:
-                    if traspass_king and last_square.color == king_color:
-                        continue
+        board_scan_value (int): The fixed value for the other index during the
+        scan.
 
-                if end_at_piece_found:
-                    break
+        traspass_king (bool, optional): Whether to continue scanning if the
+        piece is a king and matches the specified king color. Default is False.
 
-        # check the column in another direction
-        for f_value in range(for_value + 1, 8):
+        king_color (PieceColor, optional): The color of the king to check for
+        when `traspass_king` is True. Default is None.
 
-            row_column[f_value_side] = f_value
-            row_column[1 - f_value_side] = board_scan_value
+        get_only_squares (bool, optional): If True, collects only the
+        positions of the squares instead of the pieces. Default is False.
 
-            direction_1.append(
-                self.board.get_square_or_piece(*row_column)
-            )
-            last_square = direction_1[-1]
+        end_at_piece_found (bool, optional): If True, stops scanning upon
+        finding a piece. Default is True.
 
-            if isinstance(last_square, Piece):
-                if get_only_squares:
-                    direction_1[-1] = last_square.position
+        get_in_algebraic_notation (bool, optional): If True, returns positions
+        in algebraic notation. Default is False.
 
-                if last_square.name == PieceName.KING:
-                    if traspass_king and last_square.color == king_color:
-                        continue
+        Returns:
+            dict: A dictionary with two keys, 'd0' and 'd1', each containing a
+            list of pieces or positions found in the two scan directions.
+        """
 
-                if end_at_piece_found:
-                    break
+        direction_0 = self._scanner_helper(
+            step=-1,
+            end_value=-1,
+            start_value=for_value - 1,
+            f_value_side=f_value_side,
+            board_scan_value=board_scan_value,
+            traspass_king=traspass_king,
+            get_only_squares=get_only_squares,
+            king_color=king_color,
+            end_at_piece_found=end_at_piece_found,
+            get_in_algebraic_notation=get_in_algebraic_notation
+        )
+
+        direction_1 = self._scanner_helper(
+            step=1,
+            end_value=8,
+            start_value=for_value + 1,
+            f_value_side=f_value_side,
+            board_scan_value=board_scan_value,
+            traspass_king=traspass_king,
+            get_only_squares=get_only_squares,
+            king_color=king_color,
+            end_at_piece_found=end_at_piece_found,
+            get_in_algebraic_notation=get_in_algebraic_notation
+        )
 
         return {
             'd0': direction_0,
@@ -985,19 +1045,69 @@ class Piece(ABC):
         end_at_piece_found: bool = True,
         traspass_king: bool = False,
         king_color: PieceColor = None,
-        get_only_squares: bool = False
+        get_only_squares: bool = False,
+        get_in_algebraic_notation: bool = False
     ) -> list[tuple[int, int]]:
+
+        """
+        Check and process a series of positions on the board defined by the
+        given ranges for rows and columns.
+
+        This method scans through positions on the board specified by the
+        start and end ranges for rows and columns, collecting either pieces or
+        their positions into a list. The scanning stops based on various
+        conditions, such as encountering a piece, finding a king of a specific
+        color, or reaching the end of the range.
+
+        Parameters:
+
+        start_range (list[int]): The starting range of values for the rows.
+
+        end_range (list[int]): The ending range of values for the columns.
+
+        end_at_piece_found (bool, optional): If True, stops scanning upon
+        finding a piece. Default is True.
+
+        traspass_king (bool, optional): Whether to continue scanning if the
+        piece is a king and matches the specified king color. Default is False.
+
+        king_color (PieceColor, optional): The color of the king to check for
+        when `traspass_king` is True. Default is None.
+
+        get_only_squares (bool, optional): If True, collects only the
+        positions of the squares instead of the pieces. Default is False.
+
+        get_in_algebraic_notation (bool, optional): If True, returns positions
+        in algebraic notation. Default is False.
+
+        Returns:
+            list[tuple[int, int]]: A list of tuples representing either the
+            pieces or their positions found during the scan.
+
+        NOTE:
+            This is not being done on the _scanner_helper method because
+            the way the foor loops works is different from the other methods
+            so to avoid over complicating the code, this is done here.
+
+            Yes, we could just implement the part where it checks the squares
+            into a separete method so we can call it there, but this will
+            increase the runtime due to the over calling of the method which is
+            not necessary.
+        """
 
         list_to_output: list[Piece | None] = []
 
         for row, column in zip(start_range, end_range):
             list_to_output.append(
-                self.board.get_square_or_piece(row, column)
+                self.board.get_square_or_piece(
+                    row,
+                    column,
+                    get_in_algebraic_notation=get_in_algebraic_notation
+                )
             )
-
             last_square = list_to_output[-1]
 
-            if isinstance(list_to_output[-1], Piece):
+            if isinstance(last_square, Piece):
                 if get_only_squares:
                     list_to_output[-1] = last_square.position
 
@@ -1009,6 +1119,108 @@ class Piece(ABC):
                     break
 
         return list_to_output
+
+    # ---------------------------- HELPER METHODS ----------------------------
+
+    def _scanner_helper(
+        self,
+        step: int,
+        end_value: int,
+        start_value: int,
+        f_value_side: int,
+        traspass_king: bool,
+        board_scan_value: int,
+        get_only_squares: bool,
+        king_color: PieceColor,
+        end_at_piece_found: bool,
+        get_in_algebraic_notation: bool
+    ) -> bool:
+        """
+        Process squares or pieces on the board in a specific direction and
+        update the direction list based on specified conditions.
+
+        This method iterates over board positions in a specified direction,
+        appending each square or piece to the direction list. If a square
+        contains a piece, it checks various conditions  such as encountering
+        a piece, finding a king of a specific color,
+        or reaching the end of the board.
+
+        Parameters:
+        step (int): The step value for the iteration, determining the
+        direction of the scan.
+
+        end_value (int): The end value for the iteration range.
+
+        start_value (int): The starting value for the iteration range.
+
+        f_value_side (int): The index (0 or 1) to be varied during the scan.
+
+        traspass_king (bool): Whether to continue processing if the piece is a
+        king and matches the specified king color.
+
+        board_scan_value (int): The fixed value for the other index during the
+        scan.
+
+        get_only_squares (bool): If True, replaces pieces in the direction
+        list with their positions.
+
+        king_color (PieceColor): The color of the king to check for when
+        `traspass_king` is True.
+
+        end_at_piece_found (bool): If True, stops processing upon finding
+        a piece.
+
+        get_in_algebraic_notation (bool): If True, returns positions
+        in algebraic notation.
+
+        Returns:
+        list: The list of squares or pieces found during the scan.
+        """
+
+        # Initialize the list to store the pieces or positions found in the
+        # direction
+        direction_list: list[Piece | None] = []
+
+        # Initialize the row and column values
+        row_column = [None, None]
+
+        # Iterate over the range of values to scan in the specified direction
+        for f_value in range(start_value, end_value, step):
+            # Update the row or column value based on f_value_side
+            row_column[f_value_side] = f_value
+            row_column[1 - f_value_side] = board_scan_value
+
+            # Append the square or piece found at the current position to the
+            # direction list
+            direction_list.append(
+                self.board.get_square_or_piece(
+                    *row_column,
+                    get_in_algebraic_notation=get_in_algebraic_notation
+                )
+            )
+
+            # Get the last square or piece added to the direction list
+            last_square = direction_list[-1]
+
+            # Check if the last square is a piece
+            if isinstance(last_square, Piece):
+                # If only square positions are needed, replace the piece with
+                # its position
+                if get_only_squares:
+                    direction_list[-1] = last_square.position
+
+                # If the piece is a king and matches the specified color,
+                # determine if scanning should continue
+                if last_square.name == PieceName.KING:
+                    if traspass_king and last_square.color == king_color:
+                        continue
+
+                # If the scan should end upon finding a piece, break the loop
+                if end_at_piece_found:
+                    break
+
+        # Return the list of squares or pieces found during the scan
+        return direction_list
 
     def _check_if_a_piece_can_attack_friendly_king_in_given_moves(
         self,
@@ -1022,8 +1234,6 @@ class Piece(ABC):
                     return True
 
         return False
-
-    # ---------------------------- HELPER METHODS ----------------------------
 
     def _get_position_to(
         self,

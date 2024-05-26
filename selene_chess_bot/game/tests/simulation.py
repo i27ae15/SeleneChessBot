@@ -23,6 +23,5 @@ class TestGameModelSimulation(TestCase):
                 game=Game,
                 first_move=move,
                 save_data=True,
-                delete_json=True
             )
             print(f'Game {current + 1} simulated successfully. {r}')
