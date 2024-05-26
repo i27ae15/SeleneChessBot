@@ -712,7 +712,9 @@ class Piece(ABC):
 
         # check if the king is under attack
 
-        moves_dict, direction = self._detect_friendly_king_in_directions()
+        moves_dict, direction = self._detect_friendly_king_in_directions(
+            get_in_algebraic_notation=show_in_algebraic_notation
+        )
 
         king: Piece = self.board.get_piece(
             piece_name=PieceName.KING,
