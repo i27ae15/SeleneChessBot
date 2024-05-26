@@ -1,11 +1,10 @@
 
-NOTE:
+### NOTE:
 
-If you got this error when doing python manage.py shell:
+If you got this error when doing ```python manage.py shell```:
 
 ---------------------------------------------------------------------------
-BUG:
-
+```
 IPython\terminal\interactiveshell.py", line 813, in prompt_for_code
     text = self.pt_app.prompt(
         ^^^^^^^^^^^^^^^^^^^
@@ -20,10 +19,10 @@ to interactively debug it.
 
 Extra-detailed tracebacks for bug-reporting purposes can be enabled via:
     %config Application.verbose_crash=True
-
+```
 ---------------------------------------------------------------------------
 
-Is probably because, mayby, somebody (like me) is using Shiny for
+Is probably because, somebody (like me) is using Shiny for
 Python, and, you maybe are asking yourself?
 
 "What the hell is Shiny for Python?"
@@ -34,25 +33,29 @@ only Python, and, the best part is that you don't need to know HTML,
 CSS or JavaScript, because Shiny for Python does all the work for you.
 
 Such a nice tool, right? Yes!
-it uses Flask, now, you know what Flask is, right? Well, we are using
+Well, it uses Flask, now, you know what Flask is, right? We are using
 Django as well, yes, yes, yes, in the same project, what a nice
-combination?
+combination, I know.
 
 Well, to solve the issue, go to the site packages folder, localize this
-file:
+file, on the environment:
 
-IPython\terminal\interactiveshell.py
+``` IPython\terminal\interactiveshell.py ```
 
-and on the lie 813, you will see this:
+On the line 813, you will see this:
 
+---------------------------------------------------------------------------
+```
 text = self.pt_app.prompt(
     default=default,
     inputhook=self._inputhook,
     **self._extra_prompt_options(),
 )
-
-add a try to it like this:
-
+```
+---------------------------------------------------------------------------
+Add a try to it like this:
+---------------------------------------------------------------------------
+```
 try:
     text = self.pt_app.prompt(
         default=default,
@@ -60,11 +63,11 @@ try:
         **self._extra_prompt_options(),
     )
 except TypeError:
-    # optional, print(insult_to_me)
+    # optional, print(insults_to_me)
     text = self.pt_app.prompt(
         default=default,
         **self._extra_prompt_options(),
     )
-
+```
 Of course this is a momentary solution, I'll figure out a better way to
 solve this issue, but for now, this is the way to go.
