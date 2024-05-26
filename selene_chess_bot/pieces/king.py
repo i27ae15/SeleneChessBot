@@ -1,9 +1,11 @@
 from typing import TYPE_CHECKING
 
 from core.utils import convert_to_algebraic_notation
-from pieces.piece import Piece
+from core.types import PositionT
 
-from .utilites import PieceColor, PieceValue, PieceName, RookSide
+from pieces.piece import Piece
+from pieces.utilites import PieceColor, PieceValue, PieceName, RookSide
+
 
 if TYPE_CHECKING:
     from board import Board
@@ -17,7 +19,7 @@ class King(Piece):
     def __init__(
         self,
         color: PieceColor,
-        position: tuple[int, int],
+        position: PositionT,
         board: 'Board'
     ):
 
@@ -186,26 +188,10 @@ class King(Piece):
             (self.position[0], self.position[1] - 3)
         ]
 
-        for square in squares_to_check:
-            if not self.board.is_position_empty(
-                row=square[0],
-                column=square[1]
-            ):
-                return False
-
-        # check if the squares the king is moving to is under attack
-        attacked_squares = self.board.get_attacked_squares(
-            self.color.opposite(),
-            show_in_algebraic_notation=False
+        return self._castleling_helper(
+            multiplier=-1,
+            squares_to_check=squares_to_check
         )
-
-        if (self.position[0], self.position[1] - 2) in attacked_squares:
-            return False
-
-        if (self.position[0], self.position[1] - 1) in attacked_squares:
-            return False
-
-        return True
 
     def _check_if_kingside_castleling_is_possible(
         self
@@ -221,6 +207,18 @@ class King(Piece):
             (self.position[0], self.position[1] + 2)
         ]
 
+        return self._castleling_helper(
+            multiplier=1,
+            squares_to_check=squares_to_check
+        )
+    # ---------------------------- PRIVATE METHODS ----------------------------
+
+    def _castleling_helper(
+        self,
+        multiplier: int,
+        squares_to_check: list[PositionT],
+    ) -> bool:
+
         for square in squares_to_check:
             if not self.board.is_position_empty(
                 row=square[0],
@@ -234,13 +232,14 @@ class King(Piece):
             show_in_algebraic_notation=False
         )
 
-        if (self.position[0], self.position[1] + 2) in attacked_squares:
-            return False
-
-        if (self.position[0], self.position[1] + 1) in attacked_squares:
-            return False
+        for i in range(len(squares_to_check), 0, -1):
+            pos = (self.position[0], self.position[1] + (i * multiplier))
+            if pos in attacked_squares:
+                return False
 
         return True
+
+    # ---------------------------- HELPER METHODS ----------------------------
 
     def _validate_before_moving(self):
 
