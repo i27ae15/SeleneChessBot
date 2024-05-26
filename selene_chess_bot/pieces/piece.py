@@ -325,8 +325,6 @@ class Piece(ABC):
         pieces_attacking_me += self.get_knights_attacking_me()
         pieces_attacking_me += self.get_pawns_attacking_me()
 
-        # TODO: check for pawn attacks
-
         self.pieces_attacking_me = {
             'pieces': pieces_attacking_me,
             'calculated_at_moved': move_number
@@ -345,7 +343,7 @@ class Piece(ABC):
 
         for position in positions:
             # we only need to check the last position
-            # and since both columns and rows has two directions
+            # and since both columns and rows have two directions
             # we can check both at the same time
 
             # for rows and columns we also need to check if the last element
@@ -450,6 +448,7 @@ class Piece(ABC):
         king_color: PieceColor = None,
         get_only_squares: bool = False,
         end_at_piece_found: bool = True,
+        get_in_algebraic_notation: bool = False
     ) -> dict:
 
         """
@@ -468,13 +467,14 @@ class Piece(ABC):
         """
 
         return self._scan_direction(
-            for_value=self.row,
-            board_scan_value=self.column,
             f_value_side=0,
-            end_at_piece_found=end_at_piece_found,
-            get_only_squares=get_only_squares,
+            for_value=self.row,
+            king_color=king_color,
             traspass_king=traspass_king,
-            king_color=king_color
+            board_scan_value=self.column,
+            get_only_squares=get_only_squares,
+            end_at_piece_found=end_at_piece_found,
+            get_in_algebraic_notation=get_in_algebraic_notation
         )
 
     def scan_row(
@@ -483,6 +483,7 @@ class Piece(ABC):
         king_color: PieceColor = None,
         get_only_squares: bool = False,
         end_at_piece_found: bool = True,
+        get_in_algebraic_notation: bool = False
     ) -> dict:
 
         """
@@ -501,37 +502,64 @@ class Piece(ABC):
         """
 
         return self._scan_direction(
-            for_value=self.column,
-            board_scan_value=self.row,
             f_value_side=1,
-            end_at_piece_found=end_at_piece_found,
-            get_only_squares=get_only_squares,
+            for_value=self.column,
+            king_color=king_color,
+            board_scan_value=self.row,
             traspass_king=traspass_king,
-            king_color=king_color
+            get_only_squares=get_only_squares,
+            end_at_piece_found=end_at_piece_found,
+            get_in_algebraic_notation=get_in_algebraic_notation
         )
 
     def scan_diagonals(
         self,
-        end_at_piece_found: bool = True,
         traspass_king: bool = False,
         king_color: PieceColor = None,
-        get_only_squares: bool = False
+        get_only_squares: bool = False,
+        end_at_piece_found: bool = True,
+        get_in_algebraic_notation: bool = False
     ) -> dict:
 
         """
-        This instance will scan the diagonals where the piece is located and
-        until it finds another piece or the end of the board.
+        Scan the diagonals where the piece is located until it finds another
+        piece or the end of the board.
 
-        The function will return a dictionary with the following structure:
+        This method scans all four diagonals from the current piece's position,
+        collecting either the pieces or their positions into separate lists
+        for each diagonal. The scanning stops based on various conditions,
+        such as encountering a piece, finding a king of a specific color, or
+        reaching the end of the board.
 
-        {
-            'd0': [[int, int] | [Pieces]],
-            'd1': [[int, int] | [Pieces]],
-            'd2': [[int, int] | [Pieces]],
-            'd3': [[int, int] | [Pieces]]
-        }
+        Parameters:
+        traspass_king (bool, optional): Whether to continue scanning if the
+        piece is a king and matches the specified king color. Default is False.
 
-        Where the [int, int] is the position of the square and [Pieces] is a
+        king_color (PieceColor, optional): The color of the king to check for
+        when `traspass_king` is True. Default is None.
+
+        get_only_squares (bool, optional): If True, collects only the
+        positions of the squares instead of the pieces. Default is False.
+
+        end_at_piece_found (bool, optional): If True, stops scanning upon
+        finding a piece. Default is True.
+
+        get_in_algebraic_notation (bool, optional): If True, returns positions
+        in algebraic notation. Default is False.
+
+        Returns:
+            dict: A dictionary with four keys ('d0', 'd1', 'd2', 'd3'), each
+            containing a list of pieces or positions found in the
+            corresponding diagonal direction.
+
+            the dictionary will have the following structure:
+
+            {
+                'd0': [PositionT | [Pieces]],
+                'd1': [PositionT | [Pieces]],
+                'd2': [PositionT | [Pieces]],
+                'd3': [PositionT | [Pieces]]
+            }
 
         """
 
@@ -541,15 +569,18 @@ class Piece(ABC):
             end_at_piece_found=end_at_piece_found,
             traspass_king=traspass_king,
             king_color=king_color,
-            get_only_squares=get_only_squares
+            get_only_squares=get_only_squares,
+            get_in_algebraic_notation=get_in_algebraic_notation
         )
+
         direction_1: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row - 1, -1, -1),
             end_range=range(self.column + 1, 8),
             end_at_piece_found=end_at_piece_found,
             traspass_king=traspass_king,
             king_color=king_color,
-            get_only_squares=get_only_squares
+            get_only_squares=get_only_squares,
+            get_in_algebraic_notation=get_in_algebraic_notation
         )
         direction_2: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row + 1, 8),
@@ -557,7 +588,8 @@ class Piece(ABC):
             end_at_piece_found=end_at_piece_found,
             traspass_king=traspass_king,
             king_color=king_color,
-            get_only_squares=get_only_squares
+            get_only_squares=get_only_squares,
+            get_in_algebraic_notation=get_in_algebraic_notation
         )
         direction_3: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row + 1, 8),
@@ -565,7 +597,8 @@ class Piece(ABC):
             end_at_piece_found=end_at_piece_found,
             traspass_king=traspass_king,
             king_color=king_color,
-            get_only_squares=get_only_squares
+            get_only_squares=get_only_squares,
+            get_in_algebraic_notation=get_in_algebraic_notation
         )
 
         return {
@@ -602,7 +635,9 @@ class Piece(ABC):
         }
 
         for dir in directions_to_scan[direction]:
-            dirs: dict = dir()
+            dirs: dict = dir(
+                get_in_algebraic_notation=show_in_algebraic_notation
+            )
 
             for key in dirs:
                 direction: list = dirs[key]
@@ -612,16 +647,16 @@ class Piece(ABC):
 
                 if piece_to_find == direction[-1]:
 
-                    if show_in_algebraic_notation:
-                        alg_list = []
-                        for pos in direction:
-                            if isinstance(pos, Piece):
-                                alg_list.append(pos)
-                            else:
-                                alg_list.append(
-                                    convert_to_algebraic_notation(*pos)
-                                )
-                        direction = alg_list
+                    # if show_in_algebraic_notation:
+                    #     alg_list = []
+                    #     for pos in direction:
+                    #         if isinstance(pos, Piece):
+                    #             alg_list.append(pos)
+                    #         else:
+                    #             alg_list.append(
+                    #                 convert_to_algebraic_notation(*pos)
+                    #             )
+                    #     direction = alg_list
                     return direction
         return False
 
@@ -1287,7 +1322,7 @@ class Piece(ABC):
             show_in_algebraic_notation (bool): If True, returns the list of
             moves in algebraic notation. Defaults to False.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def _calculate_legal_moves(
@@ -1306,7 +1341,7 @@ class Piece(ABC):
             show_in_algebraic_notation (bool): If True, returns the list of
             moves in algebraic notation. Defaults to False.
         """
-        pass
+        raise NotImplementedError
 
     # ---------------------------- DUNDER METHODS ---------------------------
 
