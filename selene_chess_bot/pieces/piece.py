@@ -903,32 +903,44 @@ class Piece(ABC):
             the king is found, otherwise (False, -1).
         """
 
+        # Directions for columns and rows
         directions = ['d0', 'd1']
+        # Directions for diagonals
         diagonals_dir = ['d0', 'd1', 'd2', 'd3']
+        # List of scan methods for columns, rows, and diagonals
         scan_methods = [self.scan_column, self.scan_row, self.scan_diagonals]
+        # Corresponding directions to check for each scan method
         directions_to_scan = [directions, directions, diagonals_dir]
 
+        # Iterate over the scan methods and their corresponding directions
         for index, method in enumerate(scan_methods):
+            # Perform the scan using the current method
             scan_result = method(
                 get_in_algebraic_notation=get_in_algebraic_notation
             )
             current_directions = directions_to_scan[index]
 
+            # Check each direction in the current scan result
             for direction in current_directions:
                 moves = scan_result[direction]
 
+                # Skip empty directions
                 if not moves:
                     continue
 
+                # Get the last square in the current direction
                 last_square = moves[-1]
+                # Check if the last square contains a friendly king
                 if (
                     isinstance(last_square, Piece) and
                     last_square.name == PieceName.KING and
                     last_square.color == self.color
                 ):
+                    # Return the scan result and direction index for columns and rows
                     if index in [0, 1]:
                         return scan_result, index
 
+                    # Prepare the return value for diagonals
                     to_return = {}
                     if direction in ['d0', 'd3']:
                         to_return = {
@@ -941,7 +953,7 @@ class Piece(ABC):
                             'd1': scan_result['d2']
                         }
                     return to_return, 2
-
+        # Return False if no friendly king is found in any direction
         return False, -1
 
     def _scan_direction(
