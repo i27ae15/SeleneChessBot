@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, Callable
 
 from core.types import PositionT
 from core.utils import (
@@ -684,7 +684,7 @@ class Piece(ABC):
         traspass_king: bool = False,
         king_color: PieceColor = None,
         get_only_squares: bool = False
-    ) -> list[str | list[int, int]]:
+    ) -> list[str | PositionT]:
 
         """
         Returns a list of legal moves for the piece.
@@ -698,8 +698,8 @@ class Piece(ABC):
         """
 
         piece_legal_moves = self._calculate_legal_moves(
-            traspass_king=traspass_king,
             king_color=king_color,
+            traspass_king=traspass_king,
             get_only_squares=get_only_squares,
             check_capturable_moves=check_capturable_moves,
             show_in_algebraic_notation=show_in_algebraic_notation,
@@ -712,7 +712,7 @@ class Piece(ABC):
 
         # check if the king is under attack
 
-        moves_dict, direction = self._check_if_friendly_king_is_next_to_piece()
+        moves_dict, direction = self._detect_friendly_king_in_directions()
 
         king: Piece = self.board.get_piece(
             piece_name=PieceName.KING,
@@ -877,83 +877,70 @@ class Piece(ABC):
 
         return piece
 
-    def _check_if_friendly_king_is_next_to_piece(
+    def _detect_friendly_king_in_directions(
         self,
-    ) -> tuple[tuple[int, int], int] | bool:
+        get_in_algebraic_notation: bool = False
+    ) -> tuple[PositionT, int] | bool:
         """
-        Check if the friendly king is in the same diagonal, row or column as
-        the piece
+        Check if the friendly king is in the same diagonal, row, or column as
+        the piece.
 
-        this will return the direction where the king is located, and a integer
-        that represent the direction, the directions are the following:
+        This method scans the board in columns, rows, and diagonals to check
+        if the friendly king is present. It returns the direction where the
+        king is located and an integer representing the direction.
 
-        0 -> column
-        1 -> row
-        2 -> diagonal
+        The directions are represented as follows:
+            0 -> column
+            1 -> row
+            2 -> diagonal
 
+        Parameters:
+            get_in_algebraic_notation (bool, optional): If True, returns
+            positions in algebraic notation.
+
+        Returns:
+            tuple: A tuple containing the scan result and direction index if
+            the king is found, otherwise (False, -1).
         """
-
-        # check column first
 
         directions = ['d0', 'd1']
         diagonals_dir = ['d0', 'd1', 'd2', 'd3']
+        scan_methods = [self.scan_column, self.scan_row, self.scan_diagonals]
+        directions_to_scan = [directions, directions, diagonals_dir]
 
-        column = self.scan_column()
+        for index, method in enumerate(scan_methods):
+            scan_result = method(
+                get_in_algebraic_notation=get_in_algebraic_notation
+            )
+            current_directions = directions_to_scan[index]
 
-        for direction in directions:
-            moves = column[direction]
+            for direction in current_directions:
+                moves = scan_result[direction]
 
-            if not moves:
-                continue
-            last_square = column[direction][-1]
-            if isinstance(last_square, Piece):
-                if last_square.name == PieceName.KING:
-                    if last_square.color == self.color:
-                        return column, 0
+                if not moves:
+                    continue
 
-        row = self.scan_row()
+                last_square = moves[-1]
+                if (
+                    isinstance(last_square, Piece) and
+                    last_square.name == PieceName.KING and
+                    last_square.color == self.color
+                ):
+                    if index in [0, 1]:
+                        return scan_result, index
 
-        for direction in directions:
-            moves = row[direction]
-
-            if not moves:
-                continue
-
-            last_square = row[direction][-1]
-            if isinstance(last_square, Piece):
-                if last_square.name == PieceName.KING:
-                    if last_square.color == self.color:
-                        return row, 1
-
-        diagonals = self.scan_diagonals()
-
-        for direction in diagonals_dir:
-            moves = diagonals[direction]
-
-            if not moves:
-                continue
-
-            last_square = diagonals[direction][-1]
-
-            if isinstance(last_square, Piece):
-                if last_square.name == PieceName.KING:
-                    if last_square.color == self.color:
-                        # here we need to return the diagonals where the king
-                        # is that is:
-                        # d0 -> d4
-                        # d1 -> d2
-                        to_return = dict()
-                        if direction == 'd0' or direction == 'd3':
-                            to_return = {
-                                'd0': diagonals['d0'],
-                                'd1': diagonals['d3']
-                            }
-                        elif direction == 'd1' or direction == 'd2':
-                            to_return = {
-                                'd0': diagonals['d1'],
-                                'd1': diagonals['d2']
-                            }
-                        return to_return, 2
+                    to_return = {}
+                    if direction in ['d0', 'd3']:
+                        to_return = {
+                            'd0': scan_result['d0'],
+                            'd1': scan_result['d3']
+                        }
+                    elif direction in ['d1', 'd2']:
+                        to_return = {
+                            'd0': scan_result['d1'],
+                            'd1': scan_result['d2']
+                        }
+                    return to_return, 2
 
         return False, -1
 

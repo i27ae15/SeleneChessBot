@@ -244,7 +244,7 @@ class GameState(models.Model):
                         self.save_simulation_data(
                             file_path,
                             game_instance,
-                            first_move=first_move,
+                        first_move=first_move,
                         )
 
                     return game_instance.game_values
