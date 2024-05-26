@@ -64,7 +64,7 @@ class TestPGN(TestCase):
 
         file_path = 'pgn/tests/MacKenzie.txt'
         pgn_games = self.extract_pgn_to_variables(file_path)
-        game = pgn_games[64].replace('\n', ' ')
+        game = pgn_games[0].replace('\n', ' ')
 
         print('game', game)
         PGN(game, debug=True)

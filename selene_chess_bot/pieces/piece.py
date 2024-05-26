@@ -954,8 +954,9 @@ class Piece(ABC):
 
     def _check_capturable_moves(
         self,
-        moves: 'list[list[int, int], Piece | Piece]',
-        check_only_last_move: bool = False
+        moves: 'list[PositionT, Piece | Piece]',
+        check_only_last_move: bool = False,
+        get_in_algebraic_notation: bool = False
     ) -> list[tuple[int, int]]:
 
         """
@@ -992,7 +993,10 @@ class Piece(ABC):
                     moves.pop()
 
                 if is_capturable:
-                    moves[-1] = tuple(moves[-1].position)
+                    if get_in_algebraic_notation:
+                        moves[-1] = moves[-1].algebraic_pos
+                    else:
+                        moves[-1] = tuple(moves[-1].position)
         else:
             for index, move in enumerate(moves):
                 if isinstance(move, Piece):
@@ -1002,7 +1006,10 @@ class Piece(ABC):
                         moves.pop(index)
 
                     if is_capturable:
-                        moves[index] = tuple(move.position)
+                        if get_in_algebraic_notation:
+                            moves[index] = move.algebraic_pos
+                        else:
+                            moves[index] = tuple(move.position)
         return moves
 
     def _check_row_and_columns(

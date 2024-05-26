@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from core.utils import convert_to_algebraic_notation
 from pieces.piece import Piece
 
 from .utilites import PieceColor, PieceValue, PieceName, RookSide
@@ -63,38 +62,53 @@ class Rook(Piece):
             end_at_piece_found=True,
             traspass_king=traspass_king,
             get_only_squares=get_only_squares,
+            get_in_algebraic_notation=show_in_algebraic_notation
         )
         scanned_row = self.scan_row(
             king_color=king_color,
             end_at_piece_found=True,
             traspass_king=traspass_king,
-            get_only_squares=get_only_squares
+            get_only_squares=get_only_squares,
+            get_in_algebraic_notation=show_in_algebraic_notation
         )
 
         legal_moves = list()
 
         # check if there is a capturable piece in the list of move
         if check_capturable_moves:
-            legal_moves += self._check_capturable_moves(scanned_column['d0'])
-            legal_moves += self._check_capturable_moves(scanned_column['d1'])
+            legal_moves += self._check_capturable_moves(
+                scanned_column['d0'],
+                get_in_algebraic_notation=show_in_algebraic_notation
+            )
+            legal_moves += self._check_capturable_moves(
+                scanned_column['d1'],
+                get_in_algebraic_notation=show_in_algebraic_notation
+            )
 
-            legal_moves += self._check_capturable_moves(scanned_row['d0'])
-            legal_moves += self._check_capturable_moves(scanned_row['d1'])
+            legal_moves += self._check_capturable_moves(
+                scanned_row['d0'],
+                get_in_algebraic_notation=show_in_algebraic_notation
+            )
+            legal_moves += self._check_capturable_moves(
+                scanned_row['d1'],
+                get_in_algebraic_notation=show_in_algebraic_notation
+            )
         else:
-            legal_moves += scanned_column['d0']
-            legal_moves += scanned_column['d1']
+            legal_moves += self._piece_to_alg_position(scanned_column['d0'])
+            legal_moves += self._piece_to_alg_position(scanned_column['d1'])
 
-            legal_moves += scanned_row['d0']
-            legal_moves += scanned_row['d1']
+            legal_moves += self._piece_to_alg_position(scanned_row['d0'])
+            legal_moves += self._piece_to_alg_position(scanned_row['d1'])
 
-        if show_in_algebraic_notation:
-            algebraic_list = []
-            for move in legal_moves:
-                if isinstance(move, Piece):
-                    move = move.position
-                algebraic_list.append(convert_to_algebraic_notation(*move))
-            return algebraic_list
         return legal_moves
+
+    def _piece_to_alg_position(
+        self,
+        moves: list[str | list[int, int]],
+    ) -> str:
+        if moves and isinstance(moves[-1], Piece):
+            moves[-1] = moves[-1].algebraic_pos
+        return moves
 
     def _validate_before_moving(self) -> None:
 

@@ -549,9 +549,10 @@ class Game:
                         continue
 
                     square_or_piece = self.board.get_square_or_piece(
-                        *convert_from_algebraic_notation(
-                            move,
-                        )
+                        move=move
+                        # *convert_from_algebraic_notation(
+                        #     move,
+                        # )
                     )
 
                     if piece.name != PieceName.PAWN:

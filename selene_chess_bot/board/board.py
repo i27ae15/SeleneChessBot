@@ -1,7 +1,8 @@
 from colorama import Fore, Style
 
 from core.utils import (
-    convert_from_algebraic_notation, convert_to_algebraic_notation, ALGEBRAIC_NOTATION
+    convert_from_algebraic_notation, convert_to_algebraic_notation,
+    ALGEBRAIC_NOTATION
 )
 from core.types import BoardRepresentation, PositionT
 
@@ -421,8 +422,9 @@ class Board:
 
     def get_square_or_piece(
         self,
-        row: int,
-        column: int,
+        row: int = None,
+        column: int = None,
+        move: str | PositionT = None,
         get_in_algebraic_notation: bool = False
     ) -> 'PositionT | Piece':
 
@@ -444,6 +446,13 @@ class Board:
             square is not on the board.
         """
 
+        if move:
+            if isinstance(move, str):
+                row, column = convert_from_algebraic_notation(move)
+            elif isinstance(move, tuple) or isinstance(move, list):
+                row, column = move
+
+        # print(row, column, move)
         move_or_piece: PositionT | Piece | None = []
         if self.board[row][column] is None:
             if get_in_algebraic_notation:
