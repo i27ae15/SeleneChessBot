@@ -722,9 +722,6 @@ class Piece(ABC):
         if not king:
             return piece_legal_moves
 
-        # if not moves_dict:
-        #     return piece_legal_moves
-
         pieces_that_could_attack_king: list[PieceName] = list()
 
         if direction == 0 or direction == 1:
@@ -936,7 +933,8 @@ class Piece(ABC):
                     last_square.name == PieceName.KING and
                     last_square.color == self.color
                 ):
-                    # Return the scan result and direction index for columns and rows
+                    # Return the scan result and direction index for columns
+                    # and rows
                     if index in [0, 1]:
                         return scan_result, index
 
@@ -1005,7 +1003,7 @@ class Piece(ABC):
             list of pieces or positions found in the two scan directions.
         """
 
-        direction_0 = self._scanner_helper(
+        direction_0 = self._scan_direction_helper(
             step=-1,
             end_value=-1,
             start_value=for_value - 1,
@@ -1018,7 +1016,7 @@ class Piece(ABC):
             get_in_algebraic_notation=get_in_algebraic_notation
         )
 
-        direction_1 = self._scanner_helper(
+        direction_1 = self._scan_direction_helper(
             step=1,
             end_value=8,
             start_value=for_value + 1,
@@ -1173,7 +1171,7 @@ class Piece(ABC):
 
     # ---------------------------- HELPER METHODS ----------------------------
 
-    def _scanner_helper(
+    def _scan_direction_helper(
         self,
         step: int,
         end_value: int,
