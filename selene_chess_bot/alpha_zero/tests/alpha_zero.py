@@ -1,6 +1,6 @@
 import unittest
 
-from alpha_zero.mcts import MCTS
+from selene_chess_bot.alpha_zero.old_mcts import MCTS
 from game.game import Game
 
 

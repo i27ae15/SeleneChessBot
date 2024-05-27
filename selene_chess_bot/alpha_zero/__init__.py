@@ -1,5 +1,5 @@
-from .mcts import MCTS
+from .mcst import MCST
 
 __all__ = [
-    'MCTS'
+    'MCST'
 ]

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterable, Callable
+from typing import TYPE_CHECKING, Iterable
 
 from core.types import PositionT
 from core.utils import (

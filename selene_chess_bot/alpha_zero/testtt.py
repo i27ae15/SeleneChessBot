@@ -1,72 +1,47 @@
 import math
-import uuid
-import numpy as np
 import json
 import os
-import networkx as nx
+import numpy as np
 
 from typing import Any, TYPE_CHECKING
-
-from django.db import models
 
 from pieces.utilites import PieceColor
 
 
 if TYPE_CHECKING:
-    from game import Game
+    from game.game import Game
 
 C_VALUE = 1.414
 
 
-class GameState(models.Model):
+class GameStateNode:
 
-    """
-    This also should act as the node in the AlphaZero tree.
+    def __init__(
+        self,
+        game: 'Game',
+        exploration_weight: float = 1.0
+    ) -> None:
 
-    The Json for the expandable_moves and explored_moves would be in the
-    following format:
+        self.game: 'Game' = game
 
-    {
-        'moves': ['Pe4', 'Pe5', 'Pd4', 'Pd5']
-    }
+        self.parents: set['GameStateNode'] = set()
+        self.children: dict[bytes, 'GameStateNode'] = {}  # Using a dict to map moves to child nodes
+        self.board_hash: bytes = game.current_board_hash
+        self.is_game_terminated: bool = False
 
-    """
+        self.white_value: float = 0.0
+        self.black_value: float = 0.0
+        self.fen: str = game.current_fen
 
-    # A game State can have multiple parents and multiple children
-    parents = models.ManyToManyField(
-        'GameState',
-        related_name='children',
-        blank=True
-    )
+        self.player_turn: PieceColor = game.player_turn
+        self.num_visits: int = 0
+        self.total_value: float = 0.0  # Cumulative value from simulations
 
-    id: str = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+        self.expandable_moves: set['GameStateNode'] = set()  # List of moves that can be expanded
+        self.explored_moves: set['GameStateNode'] = set()  # List of moves that have been explored
 
-    board_hash: bytes = models.BinaryField(unique=True)
-
-    is_game_terminated: bool = models.BooleanField()
-
-    white_value: float = models.FloatField()
-    black_value: float = models.FloatField()
-
-    # NOTE: The fen is necessar to be able to create a game instance
-    # NOTE: Note that the current turn in the fen can vary
-    fen: str = models.CharField(max_length=255, unique=True)
-
-    player_turn: int = models.IntegerField(
-        choices=PieceColor.choices
-    )
-
-    num_visits: int = models.IntegerField(default=1)
-    expandable_moves: list = models.JSONField()
-    explored_moves: list = models.JSONField(default=list)
-
-    @property
-    def player_turn_obj(self) -> PieceColor:
-        return PieceColor(self.player_turn)
+        self.policy: dict[bytes, float] = {}  # Prior probabilities from NN for each move
+        self.exploration_weight: float = exploration_weight
 
     @property
     def game_values(self) -> dict[PieceColor, float]:
@@ -75,82 +50,37 @@ class GameState(models.Model):
             PieceColor.BLACK: self.black_value
         }
 
-    @staticmethod
-    def create_tree_representation(
-        parent: 'GameState',
-        visited: set = None,
-        count_nodes: bool = False,
-        nx_graph: nx.DiGraph = None,
-        order_by: str = '-num_visits',
-    ) -> nx.DiGraph:
-        """
-        Create the nx.Diagraph tree code representation with a DFS on the tree.
-        """
-
-        if nx_graph is None:
-            nx_graph = nx.DiGraph()
-
-        if visited is None:
-            visited = set()
-
-        # Check if the current node has already been visited
-        if str(parent.board_hash) in visited:
-            return nx_graph
-
-        # Mark the current node as visited
-        visited.add(str(parent.board_hash))
-
-        if parent.children.all().count() == 0:
-            return nx_graph
-
-        children = parent.children.all().order_by(order_by)
-
-        for child in children:
-            child: GameState
-            nx_graph.add_edge(str(parent.board_hash), str(child.board_hash))
-            GameState.create_tree_representation(
-                parent=child,
-                visited=visited,
-                nx_graph=nx_graph,
-                order_by=order_by,
-                count_nodes=count_nodes,
-            )
-
-        return nx_graph
-
-    def add_explored_move(self, move: str) -> None:
-        self.explored_moves.append(move)
-        self.save()
-
-    def add_parent(self, parent: 'GameState') -> None:
-        # Postgres does not allow to add a None value to a many to many
-        # field
-        if parent is not None:
-            self.parents.add(parent)
-
-    def increment_visits(self):
-        self.num_visits += 1
-        self.save()
-
+    @property
     def is_fully_expanded(self) -> bool:
         return len(self.expandable_moves) == 0
 
-    def select(self) -> 'GameState':
+    def add_explored_move(self, game_state: 'GameStateNode') -> None:
+        self.explored_moves.add(game_state)
+
+    def add_parent(self, parent: 'GameStateNode') -> None:
+        if parent is None:
+            return
+        self.parents.add(parent)
+
+    def increment_visits(self):
+        self.num_visits += 1
+
+    def select(self) -> 'GameStateNode':
         """
-        Selects the child with the highest UCB1 value.
+        Selects the child with the highest UCB value.
         """
         best_child = None
         best_ucb = float('-inf')
 
-        for child in self.children.all():
-            ucb = self.get_ucb(child, self.player_turn_obj)
+        for child in self.children:
+            ucb = self.get_ucb(child, self.player_turn)
             if ucb > best_ucb:
                 best_ucb = ucb
                 best_child = child
 
         return best_child
 
-    def get_ucb(self, child: 'GameState', side: PieceColor) -> float:
+    def get_ucb(self, child: 'GameStateNode', side: PieceColor) -> float:
         """
         Calculates the UCB value for the node.
         """
@@ -186,7 +116,7 @@ class GameState(models.Model):
         """
         return np.random.choice(self.expandable_moves)
 
-    def expand(self, game_instance: 'Game') -> 'GameState | bool':
+    def expand(self, game_instance: 'Game') -> 'GameStateNode | bool':
         """
         Expands the current node by creating a new child.
         """
@@ -211,7 +141,7 @@ class GameState(models.Model):
         Game would be the pointer to the game object.
         """
         game_instance = game.parse_fen(self.fen)
-        current_game_state: GameState = game_instance.current_game_state
+        current_game_state: GameStateNode = game_instance.current_game_state
 
         if self.is_game_terminated:
             return self.game_values
@@ -379,6 +309,3 @@ class GameState(models.Model):
             json.dump(data, f, indent=4)
             if print_helpers:
                 print('Data saved to file')
-
-    def save(self, *args: Any, **kwargs: Any) -> None:
-        super().save(*args, **kwargs)

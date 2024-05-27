@@ -11,6 +11,7 @@ from game.game import Game
 
 @receiver(post_migrate)
 def initialize_game_state(sender, **kwargs):
+    return
     # Check if the model with the initial board state exists
     exist = GameState.objects.filter(fen=INITIAL_FEN).exists()
     if not exist:

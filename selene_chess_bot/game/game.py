@@ -153,6 +153,22 @@ class Game:
     #  ---------------------------- PROPERTIES ----------------------------
 
     @property
+    def result(self) -> int:
+        """
+        1 - White wins
+        0 - Draw
+        -1 - Black wins
+        """
+
+        if self.is_game_drawn:
+            return 0
+
+        if self.game_values[PieceColor.WHITE] > self.game_values[PieceColor.BLACK]:
+            return 1
+
+        return -1
+
+    @property
     def action_size(self) -> int:
         return len(self.get_legal_moves(self.player_turn, False, True))
 
@@ -485,7 +501,7 @@ class Game:
             reverse=True
         )
 
-        return self.create_fen(
+        self.current_fen = self.create_fen(
             board=board_representation,
             active_color=self.player_turn,
             castling_rights=self.castling_fen,
@@ -493,6 +509,7 @@ class Game:
             halfmove_clock=self.moves_for_f_rule,
             fullmove_number=self.current_turn
         )
+        return self.current_fen
 
     def get_legal_moves(
         self,
@@ -550,9 +567,6 @@ class Game:
 
                     square_or_piece = self.board.get_square_or_piece(
                         move=move
-                        # *convert_from_algebraic_notation(
-                        #     move,
-                        # )
                     )
 
                     if piece.name != PieceName.PAWN:
@@ -1245,7 +1259,7 @@ class Game:
             self.current_turn += 1
 
         self._set_current_game_state_hash()
-        self._manage_game_state_obj()
+        # self._manage_game_state_obj()
 
     def _manage_draw(
         self,
