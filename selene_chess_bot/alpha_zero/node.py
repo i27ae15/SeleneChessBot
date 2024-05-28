@@ -98,6 +98,7 @@ class GameStateNode:
     def __init__(
         self,
         fen: str,
+        move: str,
         result: int,
         board_hash: bytes,
         player_turn: PieceColor,
@@ -153,7 +154,10 @@ class GameStateNode:
         self.policy: dict[bytes, float] = {}
         self.exploration_weight: float = exploration_weight
 
-        self.state_manager = state_manager
+        self.state_manager: StateManager = state_manager
+        # NOTE: This is momentarily, we have to set the move to be
+        # a hash of the board position not a string
+        self.move: str = move
 
     @property
     def is_fully_expanded(self) -> bool:
@@ -258,10 +262,11 @@ class GameStateNode:
         float
             The UCB value of the child node.
         """
-        if self.num_visits == 0:
+        if child.num_visits == 0:
             return float("inf")
 
         q_value = ((self.result / self.num_visits) + 1) / 2
+
         ucb = q_value + self.exploration_weight * math.sqrt(
             math.log(self.num_visits) / child.num_visits
         )
@@ -318,6 +323,10 @@ class GameStateNode:
         GameStateNode or str
             The new game state node and the move leading to it.
         """
+
+        if not self.expandable_moves:
+            return False, False
+
         move: str = self.get_random_move()
         game_instance.move_piece(move)
 
@@ -345,6 +354,7 @@ class GameStateNode:
                 return state, move
 
         new_node = self.create_game_state(
+            move=move,
             game=game_instance,
             state_manager=self.state_manager
         )
@@ -356,7 +366,7 @@ class GameStateNode:
 
         return new_node, move
 
-    def simulate(self) -> float:
+    def simulate(self, backpropagate: bool = True) -> float:
         """
         Run a random simulation from the current node to the end of the game
         and return the result.
@@ -378,7 +388,12 @@ class GameStateNode:
                 game_instance=game_instance
             )
 
-        current_node.backpropagate()
+            if not current_node:
+                return self.result
+
+        if backpropagate:
+            current_node.backpropagate()
+
         return current_node.result
 
     def backpropagate(self) -> None:
@@ -399,6 +414,7 @@ class GameStateNode:
 
     @staticmethod
     def create_game_state(
+        move: str,
         game: 'Game',
         state_manager: 'StateManager' = None
     ) -> 'GameStateNode':
@@ -423,6 +439,7 @@ class GameStateNode:
         )
 
         return GameStateNode(
+            move=move,
             result=game.result,
             fen=game.current_fen,
             state_manager=state_manager,

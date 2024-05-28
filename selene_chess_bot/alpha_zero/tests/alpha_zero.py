@@ -1,16 +1,13 @@
-import unittest
-
-from selene_chess_bot.alpha_zero.old_mcts import MCTS
-from game.game import Game
+from django.test import TestCase
+from alpha_zero.alpha_zero import AlphaZero
 
 
-class AlphaZeroTest(unittest.TestCase):
+class AlphaZeroTest(TestCase):
 
-    def setUp(self):
-        self.mcts = MCTS(
-            game=Game(),
-            num_searches=100,
+    def test_alpha_zero(self):
+
+        alpha_zero = AlphaZero(
+            depth_of_search=10,
         )
-
-    def test_mcts(self):
-        pass
+        game = alpha_zero.play_game()
+        game.print_game_state()

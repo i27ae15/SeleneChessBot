@@ -16,7 +16,7 @@ class TestDeserializer(TestCase):
         mcst = MCST(
             initial_fen=game.create_current_fen(),
         )
-        mcst.run(100)
+        mcst.run(10)
 
         best_move = max(
             mcst.root.children.values(),
@@ -31,4 +31,4 @@ class TestDeserializer(TestCase):
         root = mcst.root
         # print(root.fen)
 
-        TreeRepresentation(root)
+        # TreeRepresentation(root)

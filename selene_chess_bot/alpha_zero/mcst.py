@@ -1,5 +1,4 @@
 from alpha_zero.node import GameStateNode
-from alpha_zero.serializer import Checkpoint
 from alpha_zero.state_manager import StateManager
 
 from game.game import Game
@@ -8,7 +7,9 @@ from game.game import Game
 class MCST:
     def __init__(
         self,
-        initial_fen: str,
+        initial_fen: str = None,
+        root: GameStateNode = None,
+        state_manager: StateManager = None,
     ):
         """
         Initialize the Monte Carlo Search Tree with the initial game state.
@@ -19,13 +20,19 @@ class MCST:
             The initial FEN (Forsyth-Edwards Notation) string representing the
             starting position of the game.
         """
-        self.initial_fen = initial_fen
-        self.state_manager = StateManager()
-        self.game: Game = Game.parse_fen(initial_fen)
-        self.root = GameStateNode.create_game_state(
-            game=self.game,
-            state_manager=self.state_manager,
-        )
+
+        self.root = root
+
+        self.initial_fen = initial_fen or self.root.fen
+        self.state_manager = state_manager or StateManager()
+        self.game: Game = Game.parse_fen(self.initial_fen)
+
+        if not self.root:
+            self.root = GameStateNode.create_game_state(
+                move=None,
+                game=self.game,
+                state_manager=self.state_manager,
+            )
 
     def select(self, node: GameStateNode):
         """
@@ -78,21 +85,7 @@ class MCST:
             return new_node
         return None
 
-    def backpropagate(self, node: GameStateNode, result: int):
-        """
-        Backpropagate the result of a simulation up the tree to update the
-        statistics of the nodes involved.
-
-        Parameters:
-        -----------
-        node : GameStateNode
-            The node from which to start the backpropagation.
-        result : int
-            The result of the simulation to be propagated.
-        """
-        node.backpropagate(result)
-
-    def run(self, iterations: int):
+    def run(self, iterations: int) -> GameStateNode:
         """
         Run the Monte Carlo Tree Search for a specified number of iterations.
 
@@ -161,10 +154,6 @@ class MCST:
             node = self.select(self.root)
 
             if not node.is_fully_expanded:
-                result = node.simulate()
-                self.backpropagate(node, result)
-
-        # Let's save the created nodes into a checkopoint file
-        # Checkpoint.save_checkpoint(self.root)
+                node.simulate(backpropagate=True)
 
         return max(self.root.children.values(), key=lambda n: n.num_visits)
