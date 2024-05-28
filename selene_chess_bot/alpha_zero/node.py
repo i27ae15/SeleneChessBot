@@ -1,9 +1,14 @@
 import math
 import numpy as np
 
+from typing import TYPE_CHECKING
+
 from pieces.utilites import PieceColor
 
 from game.game import Game
+
+if TYPE_CHECKING:
+    from alpha_zero.state_manager import StateManager
 
 
 class GameStateNode:
@@ -98,7 +103,8 @@ class GameStateNode:
         player_turn: PieceColor,
         is_game_terminated: bool,
         expandable_moves: set[str],
-        exploration_weight: float = 1.414
+        exploration_weight: float = 1.414,
+        state_manager: 'StateManager' = None
     ) -> None:
         """
         Initialize the GameStateNode with the given game state parameters.
@@ -146,6 +152,8 @@ class GameStateNode:
 
         self.policy: dict[bytes, float] = {}
         self.exploration_weight: float = exploration_weight
+
+        self.state_manager = state_manager
 
     @property
     def is_fully_expanded(self) -> bool:
@@ -286,7 +294,17 @@ class GameStateNode:
         """
         return np.random.choice(list(self.expandable_moves))
 
-    def expand(self) -> 'GameStateNode | str':
+    def update(self, is_game_terminated: bool, result: int):
+
+        self.is_game_terminated = is_game_terminated
+        self.result = result
+
+        self.increment_visits()
+
+    def expand(
+        self,
+        game_instance: 'Game'
+    ) -> 'GameStateNode | str':
         """
         Expand the current node by creating a new child node.
 
@@ -300,14 +318,41 @@ class GameStateNode:
         GameStateNode or str
             The new game state node and the move leading to it.
         """
-        game_instance = Game.parse_fen(self.fen)
-
         move: str = self.get_random_move()
-
         game_instance.move_piece(move)
-        new_node = self.create_game_state(game_instance)
+
+        # check if the hash is in the state manager
+        if self.state_manager:
+            game_hash = game_instance.current_board_hash
+
+            if game_hash in self.state_manager:
+                state = self.state_manager.get_state(
+                    board_hash=game_hash,
+                    check_exists=False
+                )
+
+                # NOTE: Check that somehow the state when created
+                # is not being set as terminated
+                # I believe because a node could be a terminal node,
+                # or not necessarily
+                # Due to the 50 rules, or threefold repetition
+                # Check into the inplications of this
+                state.update(
+                    result=game_instance.result,
+                    is_game_terminated=game_instance.is_game_terminated,
+                )
+
+                return state, move
+
+        new_node = self.create_game_state(
+            game=game_instance,
+            state_manager=self.state_manager
+        )
+        self.state_manager.add_state(new_node)
+
         self.add_child(move, new_node)
         self.add_explored_move(new_node)
+        new_node.add_parent(self)
 
         return new_node, move
 
@@ -321,42 +366,22 @@ class GameStateNode:
         float
             The result of the simulation.
         """
+
         game_instance = Game.parse_fen(self.fen)
-        current_game_state: GameStateNode = self.create_game_state(
-            game_instance
-        )
 
         if self.is_game_terminated:
             return self.result
 
-        while not game_instance.is_game_terminated:
-            valid_moves = current_game_state.expandable_moves
-            move = np.random.choice(list(valid_moves))
-            game_instance.move_piece(move)
-
-            if game_instance.is_game_terminated:
-                return game_instance.result
-
-            current_game_state = self.create_game_state(game_instance)
-
-    def tt(self):
-
-        game_instance = Game.parse_fen(self.fen)
-        if self.is_game_terminated:
-            return self.result
-
-        while not game_instance.is_game_terminated:
-            valid_moves = game_instance.get_legal_moves(
-                color=game_instance.player_turn,
-                show_in_algebraic=True,
-                show_as_list=True
+        current_node = self
+        while not current_node.is_game_terminated:
+            current_node, _ = current_node.expand(
+                game_instance=game_instance
             )
-            move = np.random.choice(valid_moves)
-            game_instance.move_piece(move)
 
-        return game_instance.result
+        current_node.backpropagate()
+        return current_node.result
 
-    def backpropagate(self, result: float) -> None:
+    def backpropagate(self) -> None:
         """
         Backpropagate the simulation result up the tree, updating values and
         visit counts.
@@ -369,11 +394,14 @@ class GameStateNode:
         node = self
         while node is not None:
             node.increment_visits()
-            node.total_value += result
+            node.total_value += self.result
             node = next(iter(node.parents), None)  # Move to the parent node
 
     @staticmethod
-    def create_game_state(game: 'Game') -> 'GameStateNode':
+    def create_game_state(
+        game: 'Game',
+        state_manager: 'StateManager' = None
+    ) -> 'GameStateNode':
         """
         Create a new game state node from the given game instance.
 
@@ -395,10 +423,11 @@ class GameStateNode:
         )
 
         return GameStateNode(
-            fen=game.current_fen,
             result=game.result,
-            board_hash=game.current_board_hash,
+            fen=game.current_fen,
+            state_manager=state_manager,
             player_turn=game.player_turn,
+            expandable_moves=expandable_moves,
+            board_hash=game.current_board_hash,
             is_game_terminated=game.is_game_terminated,
-            expandable_moves=expandable_moves
         )

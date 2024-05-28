@@ -1,4 +1,7 @@
 from alpha_zero.node import GameStateNode
+from alpha_zero.serializer import Checkpoint
+from alpha_zero.state_manager import StateManager
+
 from game.game import Game
 
 
@@ -17,8 +20,12 @@ class MCST:
             starting position of the game.
         """
         self.initial_fen = initial_fen
+        self.state_manager = StateManager()
         self.game: Game = Game.parse_fen(initial_fen)
-        self.root = GameStateNode.create_game_state(game=self.game)
+        self.root = GameStateNode.create_game_state(
+            game=self.game,
+            state_manager=self.state_manager,
+        )
 
     def select(self, node: GameStateNode):
         """
@@ -70,23 +77,6 @@ class MCST:
             node.add_child(move, new_node)
             return new_node
         return None
-
-    def simulate(self, node: GameStateNode):
-        """
-        Run a random simulation (playout) from the given node to the end of
-        the game and return the result.
-
-        Parameters:
-        -----------
-        node : GameStateNode
-            The node from which to start the simulation.
-
-        Returns:
-        --------
-        int
-            The result of the simulation (e.g., win, loss, draw).
-        """
-        return node.simulate()
 
     def backpropagate(self, node: GameStateNode, result: int):
         """
@@ -171,12 +161,10 @@ class MCST:
             node = self.select(self.root)
 
             if not node.is_fully_expanded:
-                expanded_node = self.expand(node)
+                result = node.simulate()
+                self.backpropagate(node, result)
 
-                if expanded_node:
-                    result = self.simulate(expanded_node)
-                    self.backpropagate(expanded_node, result)
-                    # Creating a new game to reset the state to the initial
-                    # position
+        # Let's save the created nodes into a checkopoint file
+        # Checkpoint.save_checkpoint(self.root)
 
         return max(self.root.children.values(), key=lambda n: n.num_visits)
