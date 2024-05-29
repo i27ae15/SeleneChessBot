@@ -53,7 +53,7 @@ class MCST:
             The leaf node reached by the selection policy.
         """
         while node.is_fully_expanded and node.children:
-            node = node.select()
+            node = node.select_child()
         return node
 
     def expand(self, node: GameStateNode):

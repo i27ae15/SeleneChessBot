@@ -159,6 +159,8 @@ class GameStateNode:
         # a hash of the board position not a string
         self.move: str = move
 
+    #  ---------------------------- PROPERTIES ----------------------------
+
     @property
     def is_fully_expanded(self) -> bool:
         """
@@ -170,6 +172,75 @@ class GameStateNode:
             True if the node is fully expanded, False otherwise.
         """
         return len(self.expandable_moves) == len(self.explored_moves)
+
+    #  ---------------------------- STATIC METHODS ----------------------------
+
+    @staticmethod
+    def create_game_state(
+        move: str,
+        game: 'Game',
+        state_manager: 'StateManager' = None
+    ) -> 'GameStateNode':
+        """
+        Create a new game state node from the given game instance.
+
+        Parameters:
+        -----------
+        game : Game
+            The game instance from which to create the game state node.
+
+        Returns:
+        --------
+        GameStateNode
+            The created game state node.
+        """
+        game.create_current_fen()
+        expandable_moves = game.get_legal_moves(
+            color=game.player_turn,
+            show_in_algebraic=True,
+            show_as_list=True
+        )
+
+        return GameStateNode(
+            move=move,
+            result=game.result,
+            fen=game.current_fen,
+            state_manager=state_manager,
+            player_turn=game.player_turn,
+            expandable_moves=expandable_moves,
+            board_hash=game.current_board_hash,
+            is_game_terminated=game.is_game_terminated,
+        )
+
+    @staticmethod
+    def get_node_ucb(node: 'GameStateNode') -> float:
+
+        """
+        Calculate the UCB value for the given node.
+
+        Parameters:
+        -----------
+
+        node : GameStateNode
+            The node for which to calculate the UCB value.
+
+        Returns:
+        --------
+        float
+            The UCB value of the given node.
+        """
+        if node.num_visits == 0:
+            return float("inf")
+
+        q_value = ((node.result / node.num_visits) + 1) / 2
+
+        ucb = q_value + node.exploration_weight * math.sqrt(
+            math.log(node.num_visits) / node.num_visits
+        )
+
+        return ucb
+
+    # ---------------------------- PUBLIC METHODS ----------------------------
 
     def add_explored_move(self, game_state: 'GameStateNode') -> None:
         """
@@ -226,7 +297,7 @@ class GameStateNode:
         """
         self.num_visits += 1
 
-    def select(self) -> 'GameStateNode':
+    def select_child(self) -> 'GameStateNode':
         """
         Select the child node with the highest UCB value.
 
@@ -235,43 +306,28 @@ class GameStateNode:
         GameStateNode
             The child node with the highest UCB value.
         """
-        best_child = None
+        best_child: GameStateNode = None
         best_ucb = float('-inf')
 
         for child in self.children.values():
-            ucb = self.get_ucb(child, self.player_turn)
+            ucb = child.get_ucb()
             if ucb > best_ucb:
                 best_ucb = ucb
                 best_child = child
 
         return best_child
 
-    def get_ucb(self, child: 'GameStateNode', side: PieceColor) -> float:
+    def get_ucb(self) -> float:
         """
-        Calculate the UCB value for the given child node.
+        Calculate the UCB value for the current node.
 
-        Parameters:
-        -----------
-        child : GameStateNode
-            The child node for which to calculate the UCB value.
-        side : PieceColor
-            The color of the player whose turn it is.
-
-        Returns:
-        --------
         float
-            The UCB value of the child node.
+            The UCB value of the current node.
         """
-        if child.num_visits == 0:
+        if self.num_visits == 0:
             return float("inf")
 
-        q_value = ((self.result / self.num_visits) + 1) / 2
-
-        ucb = q_value + self.exploration_weight * math.sqrt(
-            math.log(self.num_visits) / child.num_visits
-        )
-
-        return ucb
+        return self.get_node_ucb(self)
 
     def get_untried_move(self) -> str:
         """
@@ -358,7 +414,9 @@ class GameStateNode:
             game=game_instance,
             state_manager=self.state_manager
         )
-        self.state_manager.add_state(new_node)
+
+        if self.state_manager:
+            self.state_manager.add_state(new_node)
 
         self.add_child(move, new_node)
         self.add_explored_move(new_node)
@@ -411,40 +469,3 @@ class GameStateNode:
             node.increment_visits()
             node.total_value += self.result
             node = next(iter(node.parents), None)  # Move to the parent node
-
-    @staticmethod
-    def create_game_state(
-        move: str,
-        game: 'Game',
-        state_manager: 'StateManager' = None
-    ) -> 'GameStateNode':
-        """
-        Create a new game state node from the given game instance.
-
-        Parameters:
-        -----------
-        game : Game
-            The game instance from which to create the game state node.
-
-        Returns:
-        --------
-        GameStateNode
-            The created game state node.
-        """
-        game.create_current_fen()
-        expandable_moves = game.get_legal_moves(
-            color=game.player_turn,
-            show_in_algebraic=True,
-            show_as_list=True
-        )
-
-        return GameStateNode(
-            move=move,
-            result=game.result,
-            fen=game.current_fen,
-            state_manager=state_manager,
-            player_turn=game.player_turn,
-            expandable_moves=expandable_moves,
-            board_hash=game.current_board_hash,
-            is_game_terminated=game.is_game_terminated,
-        )
