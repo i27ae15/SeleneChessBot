@@ -36,6 +36,7 @@ class AlphaZero:
             )
 
             print(f'Best move: {best_move.move}')
+            return
             game.move_piece(best_move.move)
 
             print('-' * 50)
