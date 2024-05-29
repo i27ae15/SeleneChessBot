@@ -39,11 +39,8 @@ class AlphaZero:
             best_move = mcst.run(
                 iterations=self.depth_of_search,
             )
-            return best_move, self.root
-
 
             game.move_piece(best_move.move)
-
             print('-' * 50)
             print(f'Best move: {best_move.move}')
             game.board.print_board(show_in_algebraic_notation=True)
