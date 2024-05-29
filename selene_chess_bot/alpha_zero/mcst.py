@@ -9,6 +9,7 @@ class MCST:
         self,
         initial_fen: str = None,
         root: GameStateNode = None,
+        exploration_weight: float = 1.414,
         state_manager: StateManager = None,
     ):
         """
@@ -32,6 +33,7 @@ class MCST:
                 move=None,
                 game=self.game,
                 state_manager=self.state_manager,
+                exploration_weight=exploration_weight,
             )
 
     def select(self, node: GameStateNode):
@@ -53,7 +55,7 @@ class MCST:
             The leaf node reached by the selection policy.
         """
         while node.is_fully_expanded and node.children:
-            node = node.select_child()
+            node = node.get_best_child()
         return node
 
     def expand(self, node: GameStateNode):
