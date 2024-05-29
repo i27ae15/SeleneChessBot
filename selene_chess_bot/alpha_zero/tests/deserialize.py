@@ -3,7 +3,7 @@ from django.test import TestCase
 from game.game import Game
 
 from alpha_zero.mcst import MCST
-from alpha_zero.serializer import Checkpoint
+from alpha_zero.checkpoint import Checkpoint
 from alpha_zero.tree import TreeRepresentation
 
 

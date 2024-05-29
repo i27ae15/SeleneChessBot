@@ -24,7 +24,7 @@ class StateManager:
     def add_state(
         self,
         game_state: 'GameStateNode',
-        check_exists: bool = False,
+        check_exists: bool = True,
     ) -> 'GameStateNode':
 
         if not check_exists:

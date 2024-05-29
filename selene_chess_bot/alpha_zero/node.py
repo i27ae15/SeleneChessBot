@@ -105,7 +105,8 @@ class GameStateNode:
         is_game_terminated: bool,
         expandable_moves: set[str],
         exploration_weight: float = 1.414,
-        state_manager: 'StateManager' = None
+        state_manager: 'StateManager' = None,
+        **kwargs
     ) -> None:
         """
         Initialize the GameStateNode with the given game state parameters.
@@ -162,6 +163,18 @@ class GameStateNode:
     #  ---------------------------- PROPERTIES ----------------------------
 
     @property
+    def move_number(self) -> int:
+        """
+        Get the move number of the current node.
+
+        Returns:
+        --------
+        int
+            The move number of the current node.
+        """
+        return self.fen.split(' ')[5]
+
+    @property
     def is_fully_expanded(self) -> bool:
         """
         Check if the node is fully expanded (no more moves to explore).
@@ -173,12 +186,25 @@ class GameStateNode:
         """
         return len(self.expandable_moves) == len(self.explored_moves)
 
+    @property
+    def total_parent_visits(self) -> int:
+        """
+        Get the total number of visits of all parent nodes.
+
+        Returns:
+        --------
+        int
+            The total number of visits of all parent nodes.
+        """
+        return sum([parent.num_visits for parent in self.parents])
+
     #  ---------------------------- STATIC METHODS ----------------------------
 
     @staticmethod
     def create_game_state(
         move: str,
         game: 'Game',
+        exploration_weight: float = 1.414,
         state_manager: 'StateManager' = None
     ) -> 'GameStateNode':
         """
@@ -209,6 +235,7 @@ class GameStateNode:
             player_turn=game.player_turn,
             expandable_moves=expandable_moves,
             board_hash=game.current_board_hash,
+            exploration_weight=exploration_weight,
             is_game_terminated=game.is_game_terminated,
         )
 
@@ -233,10 +260,20 @@ class GameStateNode:
             return float("inf")
 
         q_value = ((node.result / node.num_visits) + 1) / 2
-
-        ucb = q_value + node.exploration_weight * math.sqrt(
-            math.log(node.num_visits) / node.num_visits
+        mul = math.sqrt(
+            math.log(node.total_parent_visits) / node.num_visits
         )
+
+        ucb = q_value + node.exploration_weight * mul
+
+        # if ucb == 0:
+        #     print('-' * 50)
+        #     print('result', node.result)
+        #     print('num_visits', node.num_visits)
+        #     print('-' * 50)
+        #     print('q_value', q_value)
+        #     print('mul', mul)
+        #     print('-' * 50)
 
         return ucb
 
@@ -297,7 +334,7 @@ class GameStateNode:
         """
         self.num_visits += 1
 
-    def select_child(self) -> 'GameStateNode':
+    def get_best_child(self) -> 'GameStateNode':
         """
         Select the child node with the highest UCB value.
 
@@ -311,6 +348,10 @@ class GameStateNode:
 
         for child in self.children.values():
             ucb = child.get_ucb()
+
+            if ucb == float("inf"):
+                return child
+
             if ucb > best_ucb:
                 best_ucb = ucb
                 best_child = child
@@ -364,7 +405,8 @@ class GameStateNode:
 
     def expand(
         self,
-        game_instance: 'Game'
+        game_instance: 'Game',
+        perfom_randomly: bool = False
     ) -> 'GameStateNode | str':
         """
         Expand the current node by creating a new child node.
@@ -383,7 +425,11 @@ class GameStateNode:
         if not self.expandable_moves:
             return False, False
 
-        move: str = self.get_random_move()
+        # move = self._get_move(
+        #     random=True,
+        # )
+
+        move = self.get_random_move()
         game_instance.move_piece(move)
 
         # check if the hash is in the state manager
@@ -401,7 +447,7 @@ class GameStateNode:
                 # I believe because a node could be a terminal node,
                 # or not necessarily
                 # Due to the 50 rules, or threefold repetition
-                # Check into the inplications of this
+                # Check into the implications of this
                 state.update(
                     result=game_instance.result,
                     is_game_terminated=game_instance.is_game_terminated,
@@ -412,7 +458,8 @@ class GameStateNode:
         new_node = self.create_game_state(
             move=move,
             game=game_instance,
-            state_manager=self.state_manager
+            state_manager=self.state_manager,
+            exploration_weight=self.exploration_weight,
         )
 
         if self.state_manager:
@@ -423,6 +470,41 @@ class GameStateNode:
         new_node.add_parent(self)
 
         return new_node, move
+
+    def _get_move(self, random: bool = False) -> 'str':
+        if random:
+            return self.get_random_move()
+
+        best_move = None
+        best_ucb = float('-inf')
+
+        for move in self.expandable_moves:
+
+            new_game = Game.parse_fen(self.fen)
+            new_game.move_piece(move)
+
+            # if the hash of the new game is not in the state
+            # manager, we know that the move has not been explored
+            # and we can return it
+
+            if new_game.current_board_hash not in self.state_manager:
+                return move
+
+            # if this is in the state manager, then we can check
+            # the UCB value of the node
+
+            new_node = self.state_manager.get_state(
+                check_exists=False,
+                board_hash=new_game.current_board_hash,
+            )
+
+            current_ucb = new_node.get_ucb()
+
+            if current_ucb > best_ucb:
+                best_ucb = current_ucb
+                best_move = move
+
+        return best_move
 
     def simulate(self, backpropagate: bool = True) -> float:
         """
@@ -452,6 +534,7 @@ class GameStateNode:
         if backpropagate:
             current_node.backpropagate()
 
+        game_instance.print_game_state()
         return current_node.result
 
     def backpropagate(self) -> None:
