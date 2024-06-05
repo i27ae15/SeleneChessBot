@@ -226,6 +226,13 @@ class Game:
     #  ---------------------------- STATIC METHODS ----------------------------
 
     @staticmethod
+    def get_opponent_value(value: int) -> float:
+        """
+        Get the value of the opponent of the given color.
+        """
+        return -value
+
+    @staticmethod
     def create_fen(
         board: list[list[str]],
         active_color: PieceColor,
@@ -445,6 +452,13 @@ class Game:
         Returns:
             int: An integer hash of the board state. This integer is
                 represented in 8 bytes using big-endian byte order.
+
+        NOTE:
+            The hash does not take in mind the state of the position in terms
+            of winning.
+
+            It is possible for the same position to have different odds of
+            winning based on the pieces on the board.
         """
 
         board_hash = 0

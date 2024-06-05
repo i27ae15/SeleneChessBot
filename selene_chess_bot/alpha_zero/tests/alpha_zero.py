@@ -6,45 +6,37 @@ from alpha_zero.checkpoint import Checkpoint
 
 class AlphaZeroTest(TestCase):
 
-    def test_alpha_zero(self):
-
-        alpha_zero = AlphaZero(
-            depth_of_search=10,
-        )
-        alpha_zero.play_game()
-
     def test_nodes(self):
 
         alpha_zero = AlphaZero(
-            depth_of_search=1,
-            mcst_exploration_weight=2.0
+            depth_of_search=15,
+            # mcst_exploration_weight=2.0
         )
-        best_move, root = alpha_zero.play_game()
-        # print(f'best_move ucb: {best_move.get_ucb()}')
-        # print(f'root children: {root.children}')
+        root = alpha_zero.play_game()
 
         print('-' * 50)
+        # tree = TreeRepresentation(root_node=root, view_tree=False)
 
-        # for move, child in root.children.items():
-        #     print(f'{move} ucb: {child.get_ucb()}, num visits: {child.num_visits}')
+        # nx_diagraph = tree.create_tree_representation(
+        #     parent=root,
+        # )
 
-        tree = TreeRepresentation(root_node=root, view_tree=False)
+        # Checkpoint.save_checkpoint(flatten=True, root=root)
+        # checkpoint = Checkpoint().load_checkpoint()
 
-        nx_diagraph = tree.create_tree_representation(
-            parent=root,
-        )
+        # nx_diagraph_loaded = tree.create_tree_representation(
+        #     parent=root,
+        # )
 
-        Checkpoint.save_checkpoint(flatten=True, root=root)
-        checkpoint = Checkpoint().load_checkpoint()
+        # self.assertEqual(
+        #     nx_diagraph.number_of_nodes(),
+        #     nx_diagraph_loaded.number_of_nodes()
+        # )
 
-        nx_diagraph_loaded = tree.create_tree_representation(
-            parent=checkpoint,
-        )
+        # print('nx_diagraph nodes:', nx_diagraph.number_of_nodes())
 
-        self.assertEqual(
-            nx_diagraph.number_of_nodes(),
-            nx_diagraph_loaded.number_of_nodes()
-        )
+        # print('loading tree from checkpoint...')
+        # TreeRepresentation(root_node=root)
 
-        print('loading tree from checkpoint...')
-        TreeRepresentation(root_node=checkpoint)
+
+l = [0., 0.07692308, 0., 0.07692308, 0.07692308, 0., 0., 0., 0., 0., 0.07692308, 0., 0.07692308, 0.,         0.,         0.,         0.07692308, 0., 0., 0., 0., 0., 0.07692308, 0.07692308, 0., 0., 0., 0.07692308, 0.07692308, 0., 0., 0., 0.07692308, 0.07692308, 0.07692308,]

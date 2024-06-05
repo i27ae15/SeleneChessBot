@@ -1,3 +1,5 @@
+import numpy as np
+
 from alpha_zero.node import GameStateNode
 from alpha_zero.state_manager import StateManager
 
@@ -22,7 +24,7 @@ class MCST:
             starting position of the game.
         """
 
-        self.root = root
+        self.root: GameStateNode = root
 
         self.initial_fen = initial_fen or self.root.fen
         self.state_manager = state_manager or StateManager()
@@ -153,9 +155,31 @@ class MCST:
 
         for i in range(iterations):
             print(f"Running iteration {i+1}/{iterations}...")
-            node = self.select(self.root)
 
-            if not node.is_fully_expanded:
-                node.simulate(backpropagate=True)
+            node = self.root
 
-        return max(self.root.children.values(), key=lambda n: n.num_visits)
+            while node.is_fully_expanded:
+                node = self.select(node)
+
+            value = Game.get_opponent_value(node.result)
+
+            if not node.is_game_terminated:
+                node = node.expand(Game.parse_fen(node.fen))
+                value = node.simulate()
+
+            node.backpropagate(value=value)
+
+        legal_moves = self.game.get_legal_moves(
+            color=self.game.player_turn,
+            show_as_list=True,
+            show_in_algebraic=True
+        )
+        action_probs = np.zeros(len(legal_moves))
+        for child in self.root.children.values():
+            action_probs[legal_moves.index(child.move)] = child.num_visits
+
+        action_probs /= np.sum(action_probs)
+
+        print(f"Action probabilities: {action_probs}")
+
+        return legal_moves[np.argmax(action_probs)]

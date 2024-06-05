@@ -150,7 +150,6 @@ class GameStateNode:
         self.total_value: float = 0.0
 
         self.expandable_moves: set['GameStateNode'] = expandable_moves
-        self.explored_moves: set['GameStateNode'] = set()
 
         self.policy: dict[bytes, float] = {}
         self.exploration_weight: float = exploration_weight
@@ -184,7 +183,7 @@ class GameStateNode:
         bool
             True if the node is fully expanded, False otherwise.
         """
-        return len(self.expandable_moves) == len(self.explored_moves)
+        return len(self.expandable_moves) == len(self.children)
 
     @property
     def total_parent_visits(self) -> int:
@@ -229,7 +228,7 @@ class GameStateNode:
 
         return GameStateNode(
             move=move,
-            result=game.result,
+            result=abs(game.result),
             fen=game.current_fen,
             state_manager=state_manager,
             player_turn=game.player_turn,
@@ -259,10 +258,8 @@ class GameStateNode:
         if node.num_visits == 0:
             return float("inf")
 
-        q_value = ((node.result / node.num_visits) + 1) / 2
-        mul = math.sqrt(
-            math.log(node.total_parent_visits) / node.num_visits
-        )
+        q_value = 1 - ((node.total_value / node.num_visits) + 1) / 2
+        mul = math.sqrt(math.log(node.total_parent_visits) / node.num_visits)
 
         ucb = q_value + node.exploration_weight * mul
 
@@ -278,17 +275,6 @@ class GameStateNode:
         return ucb
 
     # ---------------------------- PUBLIC METHODS ----------------------------
-
-    def add_explored_move(self, game_state: 'GameStateNode') -> None:
-        """
-        Add a move to the set of explored moves.
-
-        Parameters:
-        -----------
-        game_state : GameStateNode
-            The game state node corresponding to the explored move.
-        """
-        self.explored_moves.add(game_state)
 
     def add_parent(self, parent: 'GameStateNode') -> bool:
         """
@@ -365,9 +351,6 @@ class GameStateNode:
         float
             The UCB value of the current node.
         """
-        if self.num_visits == 0:
-            return float("inf")
-
         return self.get_node_ucb(self)
 
     def get_untried_move(self) -> str:
@@ -406,7 +389,24 @@ class GameStateNode:
     def expand(
         self,
         game_instance: 'Game',
-        perfom_randomly: bool = False
+    ) -> 'GameStateNode':
+        move = self.get_random_move()
+        game_instance.move_piece(move)
+
+        new_node = self.create_game_state(
+            move=move,
+            game=game_instance,
+            state_manager=self.state_manager,
+            exploration_weight=self.exploration_weight,
+        )
+        self.add_child(move, new_node)
+        new_node.add_parent(self)
+
+        return new_node
+
+    def old_expand(
+        self,
+        game_instance: 'Game',
     ) -> 'GameStateNode | str':
         """
         Expand the current node by creating a new child node.
@@ -421,13 +421,6 @@ class GameStateNode:
         GameStateNode or str
             The new game state node and the move leading to it.
         """
-
-        if not self.expandable_moves:
-            return False, False
-
-        # move = self._get_move(
-        #     random=True,
-        # )
 
         move = self.get_random_move()
         game_instance.move_piece(move)
@@ -466,7 +459,6 @@ class GameStateNode:
             self.state_manager.add_state(new_node)
 
         self.add_child(move, new_node)
-        self.add_explored_move(new_node)
         new_node.add_parent(self)
 
         return new_node, move
@@ -506,7 +498,50 @@ class GameStateNode:
 
         return best_move
 
-    def simulate(self, backpropagate: bool = True) -> float:
+    def simulate(self) -> float:
+
+        game_instance = Game.parse_fen(self.fen)
+        value: float = abs(game_instance.result)
+
+        value = game_instance.get_opponent_value(value=value)
+
+        if self.is_game_terminated:
+            return value
+
+        player_values: dict[PieceColor, float] = {
+            PieceColor.WHITE: 1,
+            PieceColor.BLACK: -1
+        }
+
+        while True:
+            moves = game_instance.get_legal_moves(
+                game_instance.player_turn,
+                show_in_algebraic=True,
+                show_as_list=True
+            )
+            try:
+                move = np.random.choice(moves)
+            except Exception as e:
+                print('error:', e)
+                print('moves:', moves)
+                raise e
+            game_instance.move_piece(move)
+
+            if game_instance.is_game_terminated:
+                if game_instance.result == 15:
+                    print('-' * 50)
+                    print('game terminated')
+                    game_instance.print_game_state()
+                    print('-' * 50)
+                player_value = player_values[game_instance.player_turn]
+
+                if game_instance.player_turn == PieceColor.BLACK:
+                    value = game_instance.get_opponent_value(
+                        value=player_value
+                    )
+                return value
+
+    def old_simulate(self) -> float:
         """
         Run a random simulation from the current node to the end of the game
         and return the result.
@@ -518,26 +553,29 @@ class GameStateNode:
         """
 
         game_instance = Game.parse_fen(self.fen)
+        value: float = 0.0
 
         if self.is_game_terminated:
-            return self.result
+            return game_instance.result
 
         current_node = self
-        while not current_node.is_game_terminated:
-            current_node, _ = current_node.expand(
+        while True:
+            current_node = current_node.expand(
                 game_instance=game_instance
             )
 
-            if not current_node:
-                return self.result
+            if current_node.is_game_terminated:
+                if current_node.player_turn == PieceColor.WHITE:
+                    value = -1
+                else:
+                    value = 1
+                break
 
-        if backpropagate:
-            current_node.backpropagate()
+        return value
 
-        game_instance.print_game_state()
-        return current_node.result
+        # return current_node.result
 
-    def backpropagate(self) -> None:
+    def backpropagate(self, value: int) -> None:
         """
         Backpropagate the simulation result up the tree, updating values and
         visit counts.
@@ -547,8 +585,10 @@ class GameStateNode:
         result : float
             The result of the simulation to be propagated.
         """
-        node = self
-        while node is not None:
-            node.increment_visits()
-            node.total_value += self.result
-            node = next(iter(node.parents), None)  # Move to the parent node
+        value = Game.get_opponent_value(value=value)
+        self.increment_visits()
+        self.total_value += value
+
+        if self.parents:
+            for parent in self.parents:
+                parent.backpropagate(value=value)

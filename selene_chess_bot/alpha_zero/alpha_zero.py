@@ -16,8 +16,10 @@ class AlphaZero:
         self.root: GameStateNode = None
         self.depth_of_search: int = depth_of_search
         self.mcst_exploration_weight: float = mcst_exploration_weight
+        self.games_played = 0
+        self.games_played_list: list[Game] = []
 
-    def play_game(self):
+    def play_game(self) -> GameStateNode:
         state_manager = StateManager()
         game: Game = Game()
 
@@ -40,11 +42,24 @@ class AlphaZero:
                 iterations=self.depth_of_search,
             )
 
-            game.move_piece(best_move.move)
             print('-' * 50)
-            print(f'Best move: {best_move.move}')
+            print(f'Best move: {best_move}')
+            game.move_piece(best_move)
             game.board.print_board(show_in_algebraic_notation=True)
             print('-' * 50)
 
+            if game.is_game_terminated:
+                print('Game terminated.')
+                break
+
+            best_move = GameStateNode.create_game_state(
+                move=None,
+                game=game,
+                state_manager=state_manager,
+            )
+
+        self.games_played += 1
+        self.games_played_list.append(game)
+
         game.print_game_state()
-        return best_move, self.root
+        return self.root
