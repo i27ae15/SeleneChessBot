@@ -200,18 +200,15 @@ class MCST:
                 "Action": legal_moves,
                 "Probability": action_probs,
             }
-        )
-        actions_df = actions_df.sort_values("Probability", ascending=False)
+        ).sort_values("Probability", ascending=False)
 
         # print children ucb
 
-        # print('-'*50)
-        # for child in self.root.children.values():
-        #     print(child.move, child.get_ucb(), child.num_visits)
+        print('-'*50)
+        for child in self.root.children.values():
+            print(child.move, child.get_ucb(), child.num_visits)
 
-        # print(actions_df)
-        # print('-'*50)
+        print(actions_df)
+        print('-'*50)
 
-        best_child = self.root.get_best_child()
-        # print('best_child', best_child.move)
         return legal_moves[np.argmax(action_probs)]

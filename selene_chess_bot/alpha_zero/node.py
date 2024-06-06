@@ -262,11 +262,6 @@ class GameStateNode:
         if node.num_visits == 0:
             return float("inf")
 
-        # old formula
-        # q_value = 1 - ((node.total_value / node.num_visits) + 1) / 2
-        # mul = math.sqrt(math.log(node.total_parent_visits) / node.num_visits)
-        # ucb = q_value + node.exploration_weight * mul
-
         # Calculate the exploitation term (average value)
         exploitation_term = node.total_value / node.num_visits
 
@@ -360,21 +355,6 @@ class GameStateNode:
             The UCB value of the current node.
         """
         return self.get_node_ucb(self)
-
-    def get_untried_move(self) -> str:
-        """
-        Get a move that has not been tried yet.
-
-        Returns:
-        --------
-        str
-            A move that has not been tried yet, or False if all moves have
-            been tried.
-        """
-        for move in self.expandable_moves:
-            if move not in self.explored_moves:
-                return move
-        return False
 
     def get_random_move(self) -> str:
         """

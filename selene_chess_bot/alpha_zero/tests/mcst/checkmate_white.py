@@ -47,7 +47,7 @@ class TestCheckmateWhite(TestCase):
         self.game.board.add_piece(
             piece=PieceName.ROOK,
             piece_color=PieceColor.WHITE,
-            algebraic_notation='h1',
+            algebraic_notation='h2',
             additional_information={
                 'rook_side': RookSide.KING
             }
@@ -69,4 +69,4 @@ class TestCheckmateWhite(TestCase):
         best_move = mcst.run(iterations=200)
         self.game.move_piece(best_move)
         self.game.board.print_board(show_in_algebraic_notation=True)
-        print(best_move)
+        self.assertEqual(best_move, 'Rhh8')
