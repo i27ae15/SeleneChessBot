@@ -15,6 +15,11 @@ class TestMCST(TestCase):
             initial_fen=game.create_current_fen(),
         )
         mcst.run(10)
-        best_move = max(mcst.root.children.values(), key=lambda n: n.num_visits)
+        best_move = max(
+            mcst.root.children.values(),
+            key=lambda n: n.num_visits
+        )
         game = Game.parse_fen(best_move.fen)
         game.board.print_board(show_in_algebraic_notation=True)
+
+

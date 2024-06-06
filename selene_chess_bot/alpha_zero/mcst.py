@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from alpha_zero.node import GameStateNode
 from alpha_zero.state_manager import StateManager
@@ -89,7 +90,11 @@ class MCST:
             return new_node
         return None
 
-    def run(self, iterations: int) -> GameStateNode:
+    def run(
+        self,
+        iterations: int,
+        simulation_depth_penalty: float = 1
+    ) -> GameStateNode:
         """
         Run the Monte Carlo Tree Search for a specified number of iterations.
 
@@ -159,27 +164,54 @@ class MCST:
             node = self.root
 
             while node.is_fully_expanded:
-                node = self.select(node)
-
-            value = Game.get_opponent_value(node.result)
+                node = node.get_best_child()
+                if node.is_game_terminated:
+                    break
 
             if not node.is_game_terminated:
                 node = node.expand(Game.parse_fen(node.fen))
-                value = node.simulate()
+                try:
+                    value, simulation_depth = node.simulate()
+                except Exception as e:
+                    print(e)
+                    continue
+            else:
+                value = node.result
+                simulation_depth = 0
 
-            node.backpropagate(value=value)
+            node.backpropagate(
+                value=value,
+                simulation_depth=simulation_depth,
+                depth_penalty=simulation_depth_penalty
+            )
 
         legal_moves = self.game.get_legal_moves(
-            color=self.game.player_turn,
             show_as_list=True,
-            show_in_algebraic=True
+            show_in_algebraic=True,
+            color=self.game.player_turn,
         )
         action_probs = np.zeros(len(legal_moves))
         for child in self.root.children.values():
             action_probs[legal_moves.index(child.move)] = child.num_visits
 
         action_probs /= np.sum(action_probs)
+        actions_df = pd.DataFrame(
+            {
+                "Action": legal_moves,
+                "Probability": action_probs,
+            }
+        )
+        actions_df = actions_df.sort_values("Probability", ascending=False)
 
-        print(f"Action probabilities: {action_probs}")
+        # print children ucb
 
+        # print('-'*50)
+        # for child in self.root.children.values():
+        #     print(child.move, child.get_ucb(), child.num_visits)
+
+        # print(actions_df)
+        # print('-'*50)
+
+        best_child = self.root.get_best_child()
+        # print('best_child', best_child.move)
         return legal_moves[np.argmax(action_probs)]

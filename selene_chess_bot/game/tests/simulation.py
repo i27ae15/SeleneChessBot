@@ -3,7 +3,7 @@ from django.test import TestCase
 from core.utils import INITIAL_FEN
 
 from game.models import GameState
-from game.game import Game
+from selene_chess_bot.game.tests.game.main import Game
 
 
 class TestGameModelSimulation(TestCase):

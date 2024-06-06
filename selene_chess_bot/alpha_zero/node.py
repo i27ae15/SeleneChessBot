@@ -155,6 +155,7 @@ class GameStateNode:
         self.exploration_weight: float = exploration_weight
 
         self.state_manager: StateManager = state_manager
+        self.depth: int = self.parents[0].depth + 1 if self.parents else 0
         # NOTE: This is momentarily, we have to set the move to be
         # a hash of the board position not a string
         self.move: str = move
@@ -239,7 +240,10 @@ class GameStateNode:
         )
 
     @staticmethod
-    def get_node_ucb(node: 'GameStateNode') -> float:
+    def get_node_ucb(
+        node: 'GameStateNode',
+        depth_penalty: float = 0.01
+    ) -> float:
 
         """
         Calculate the UCB value for the given node.
@@ -258,21 +262,24 @@ class GameStateNode:
         if node.num_visits == 0:
             return float("inf")
 
-        q_value = 1 - ((node.total_value / node.num_visits) + 1) / 2
-        mul = math.sqrt(math.log(node.total_parent_visits) / node.num_visits)
+        # old formula
+        # q_value = 1 - ((node.total_value / node.num_visits) + 1) / 2
+        # mul = math.sqrt(math.log(node.total_parent_visits) / node.num_visits)
+        # ucb = q_value + node.exploration_weight * mul
 
-        ucb = q_value + node.exploration_weight * mul
+        # Calculate the exploitation term (average value)
+        exploitation_term = node.total_value / node.num_visits
 
-        # if ucb == 0:
-        #     print('-' * 50)
-        #     print('result', node.result)
-        #     print('num_visits', node.num_visits)
-        #     print('-' * 50)
-        #     print('q_value', q_value)
-        #     print('mul', mul)
-        #     print('-' * 50)
+        # Calculate the exploration term (UCB)
+        exploration_term = node.exploration_weight * math.sqrt(
+            math.log(node.total_parent_visits) / node.num_visits
+        )
 
-        return ucb
+        # Depth penalty term (penalize deeper nodes)
+        depth_penalty_term = depth_penalty * node.depth
+
+        # UCB value with depth penalty
+        return exploitation_term + exploration_term - depth_penalty_term
 
     # ---------------------------- PUBLIC METHODS ----------------------------
 
@@ -293,6 +300,7 @@ class GameStateNode:
         if parent is None:
             return False
         self.parents.add(parent)
+        self.depth = parent.depth + 1
         return True
 
     def add_child(self, move: str, child: 'GameStateNode') -> bool:
@@ -390,6 +398,9 @@ class GameStateNode:
         self,
         game_instance: 'Game',
     ) -> 'GameStateNode':
+        if self.is_fully_expanded:
+            return None
+
         move = self.get_random_move()
         game_instance.move_piece(move)
 
@@ -498,22 +509,24 @@ class GameStateNode:
 
         return best_move
 
-    def simulate(self) -> float:
+    def simulate(self) -> tuple[float, int]:
 
         game_instance = Game.parse_fen(self.fen)
-        value: float = abs(game_instance.result)
+        value: float = game_instance.result
 
         value = game_instance.get_opponent_value(value=value)
 
         if self.is_game_terminated:
-            return value
+            return value, 0
 
         player_values: dict[PieceColor, float] = {
             PieceColor.WHITE: 1,
             PieceColor.BLACK: -1
         }
 
-        while True:
+        simulation_depth = self.depth
+
+        while not game_instance.is_game_terminated:
             moves = game_instance.get_legal_moves(
                 game_instance.player_turn,
                 show_in_algebraic=True,
@@ -525,21 +538,22 @@ class GameStateNode:
                 print('error:', e)
                 print('moves:', moves)
                 raise e
+
             game_instance.move_piece(move)
+            simulation_depth += 1
 
             if game_instance.is_game_terminated:
-                if game_instance.result == 15:
-                    print('-' * 50)
-                    print('game terminated')
-                    game_instance.print_game_state()
-                    print('-' * 50)
-                player_value = player_values[game_instance.player_turn]
+                break
 
-                if game_instance.player_turn == PieceColor.BLACK:
-                    value = game_instance.get_opponent_value(
-                        value=player_value
-                    )
-                return value
+        self.update(is_game_terminated=True, result=game_instance.result)
+        value = player_values[game_instance.player_turn]
+
+        if game_instance.player_turn == PieceColor.BLACK:
+            # white has won
+            return 1, simulation_depth
+
+        # black has won
+        return -1, simulation_depth
 
     def old_simulate(self) -> float:
         """
@@ -575,7 +589,12 @@ class GameStateNode:
 
         # return current_node.result
 
-    def backpropagate(self, value: int) -> None:
+    def backpropagate(
+        self,
+        value: int,
+        simulation_depth: int,
+        depth_penalty: float = 0.01
+    ) -> None:
         """
         Backpropagate the simulation result up the tree, updating values and
         visit counts.
@@ -585,10 +604,21 @@ class GameStateNode:
         result : float
             The result of the simulation to be propagated.
         """
-        value = Game.get_opponent_value(value=value)
+
         self.increment_visits()
-        self.total_value += value
+        depth_penalty_term = depth_penalty * (simulation_depth - self.depth)
+        self.total_value += value - depth_penalty_term
 
         if self.parents:
+            # print('-' * 50)
+            # print('move:', self.move)
+            # print('value:', value)
+            # print('total_value:', self.total_value)
+            # print('depth_penalty:', depth_penalty_term)
+            # print('-' * 50)
             for parent in self.parents:
-                parent.backpropagate(value=value)
+                parent.backpropagate(
+                    value=-value,
+                    simulation_depth=simulation_depth,
+                    depth_penalty=depth_penalty
+                )

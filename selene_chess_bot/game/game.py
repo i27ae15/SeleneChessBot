@@ -525,6 +525,27 @@ class Game:
         )
         return self.current_fen
 
+    def get_next_states(self) -> 'dict[str, Game]':
+        """
+            Get the possible next states (board_hash) in the position
+        """
+
+        legal_moves: list[str] = self.get_legal_moves(
+            show_as_list=True,
+            color=self.player_turn,
+            show_in_algebraic=True,
+        )
+
+        states: dict[str, Game] = dict()
+
+        for move in legal_moves:
+            game: Game = self.parse_fen(self.current_fen)
+            game.move_piece(move)
+
+            states[move] = game
+
+        return states
+
     def get_legal_moves(
         self,
         color: PieceColor,
@@ -680,6 +701,7 @@ class Game:
             piece: Piece
 
             for move in value:
+                move: str
                 if move in ['O-O', 'O-O-O'] or move.count('x') > 0:
                     moves.append(move)
                     continue
