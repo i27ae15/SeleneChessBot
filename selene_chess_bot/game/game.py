@@ -564,89 +564,13 @@ class Game:
             color, show_in_algebraic
         )
 
-        if not show_as_list and not show_as_ordered_dict:
-            return legal_moves
-
         if show_as_list:
-            moves = []
-
-            # TODO: Refactor this to be more elegant
-            for piece, value in legal_moves.items():
-                piece: Piece
-
-                for move in value:
-                    if move in ['O-O', 'O-O-O'] or move.count('x') > 0:
-                        moves.append(move)
-                        continue
-
-                    square_or_piece = self.board.get_square_or_piece(
-                        move=move
-                    )
-
-                    if piece.name != PieceName.PAWN:
-
-                        piece_name = piece.name.value[1]
-
-                        if piece.name in (PieceName.KNIGHT, PieceName.ROOK):
-                            piece_name = f'{piece_name}{piece.algebraic_pos[0]}'
-
-                        if not isinstance(square_or_piece, Piece):
-                            moves.append(f'{piece_name}{move}')
-                        else:
-                            moves.append(f'{piece_name}x{move}')
-
-                    elif piece.name == PieceName.PAWN:
-                        if isinstance(square_or_piece, Piece):
-                            moves.append(f'{piece.algebraic_pos[0]}x{move}')
-                            continue
-
-                        # check if there is en passant
-                        if self.possible_pawn_enp:
-
-                            row = self.possible_pawn_enp.row
-
-                            # add one or subtract one to the row based on the
-                            # color of the pawn
-                            if self.possible_pawn_enp.color == PieceColor.WHITE:
-                                row -= 1
-                            else:
-                                row += 1
-
-                            possible_enp_square = (
-                                row,
-                                self.possible_pawn_enp.column
-                            )
-
-                            if square_or_piece == possible_enp_square:
-                                moves.append(f'{piece.algebraic_pos[0]}x{move}')
-                                continue
-
-                        moves.append(move)
-
-                    else:
-                        moves.append(f'{piece.name.value[1]}x{move}')
-
-            return moves
+            return self._get_legal_moves_as_list(legal_moves)
 
         if show_as_ordered_dict:
+            return self._get_legal_moves_as_dict(legal_moves)
 
-            ordered_dict = dict()
-
-            for piece, value in legal_moves.items():
-                piece: Piece
-                piece_name = f'{piece.name.value[1]}_{piece.algebraic_pos}'
-
-                for move in value:
-                    if piece_name in ordered_dict:
-                        ordered_dict[piece_name]['moves'].append(move)
-                    else:
-                        ordered_dict[piece_name] = dict()
-                        ordered_dict[piece_name]['moves'] = [move]
-
-                    # add the algebraic position of the piece piece object
-                    ordered_dict[piece_name]['algebraic_pos'] = piece.algebraic_pos
-
-            return ordered_dict
+        return legal_moves
 
     def move_piece(self, move: str) -> bool:
         """
@@ -740,6 +664,93 @@ class Game:
                 print(e)
 
     # ---------------------------- PRIVATE METHODS ----------------------------
+
+    # -------------------------------- HELPERS --------------------------------
+
+    def _get_legal_moves_as_list(self, legal_moves: dict) -> list[str]:
+        """
+        Get the moves that are return in a dict, and conver them to a list
+        which for now, only works for the algebraic notation, since this is
+        supposed to work to view the moves
+        """
+
+        # TODO: Refactor this to be more elegant
+        moves: list[str] = []
+        for piece, value in legal_moves.items():
+            piece: Piece
+
+            for move in value:
+                if move in ['O-O', 'O-O-O'] or move.count('x') > 0:
+                    moves.append(move)
+                    continue
+
+                square_or_piece = self.board.get_square_or_piece(
+                    move=move
+                )
+
+                if piece.name != PieceName.PAWN:
+
+                    piece_name = piece.name.value[1]
+
+                    if piece.name in (PieceName.KNIGHT, PieceName.ROOK):
+                        piece_name = f'{piece_name}{piece.algebraic_pos[0]}'
+
+                    if not isinstance(square_or_piece, Piece):
+                        moves.append(f'{piece_name}{move}')
+                    else:
+                        moves.append(f'{piece_name}x{move}')
+
+                elif piece.name == PieceName.PAWN:
+                    if isinstance(square_or_piece, Piece):
+                        moves.append(f'{piece.algebraic_pos[0]}x{move}')
+                        continue
+
+                    # check if there is en passant
+                    if self.possible_pawn_enp:
+
+                        row = self.possible_pawn_enp.row
+
+                        # add one or subtract one to the row based on the
+                        # color of the pawn
+                        if self.possible_pawn_enp.color == PieceColor.WHITE:
+                            row -= 1
+                        else:
+                            row += 1
+
+                        possible_enp_square = (
+                            row,
+                            self.possible_pawn_enp.column
+                        )
+
+                        if square_or_piece == possible_enp_square:
+                            moves.append(f'{piece.algebraic_pos[0]}x{move}')
+                            continue
+
+                    moves.append(move)
+
+                else:
+                    moves.append(f'{piece.name.value[1]}x{move}')
+
+        return moves
+
+    def _get_legal_moves_as_dict(self, legal_moves: dict) -> dict:
+        ordered_dict = dict()
+
+        for piece, value in legal_moves.items():
+            piece: Piece
+            piece_name = f'{piece.name.value[1]}_{piece.algebraic_pos}'
+
+            for move in value:
+                if piece_name in ordered_dict:
+                    ordered_dict[piece_name]['moves'].append(move)
+                else:
+                    ordered_dict[piece_name] = dict()
+                    ordered_dict[piece_name]['moves'] = [move]
+
+                # add the algebraic position of the piece piece object
+                ordered_dict[piece_name]['algebraic_pos'] = piece.algebraic_pos
+
+        return ordered_dict
 
     # ----------------------------- INITIALIZERS ------------------------------
 

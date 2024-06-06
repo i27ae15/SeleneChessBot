@@ -1,5 +1,8 @@
 6/6/2024
 TODO
+
 1. Convert the moves into next states
 2. Create a parent position from which the game starts
 3. Be able to return to that parent position without creating a new instance of a class
+4. Refactor get Game.legal_moves to make it smaller
+5. Create test for the Game class for these new functionalities
