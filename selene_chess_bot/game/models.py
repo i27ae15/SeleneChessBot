@@ -1,13 +1,10 @@
 import math
-import uuid
 import numpy as np
 import json
 import os
 import networkx as nx
 
 from typing import Any, TYPE_CHECKING
-
-from django.db import models
 
 from pieces.utilites import PieceColor
 
@@ -18,7 +15,7 @@ if TYPE_CHECKING:
 C_VALUE = 1.414
 
 
-class GameState(models.Model):
+class GameState():
 
     """
     This also should act as the node in the AlphaZero tree.
@@ -33,36 +30,25 @@ class GameState(models.Model):
     """
 
     # A game State can have multiple parents and multiple children
-    parents = models.ManyToManyField(
-        'GameState',
-        related_name='children',
-        blank=True
-    )
+    parents = None
 
-    id: str = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
+    id: str = ''
+    board_hash: bytes = b''
 
-    board_hash: bytes = models.BinaryField(unique=True)
+    is_game_terminated: bool = None
 
-    is_game_terminated: bool = models.BooleanField()
-
-    white_value: float = models.FloatField()
-    black_value: float = models.FloatField()
+    white_value: float = .0
+    black_value: float = .0
 
     # NOTE: The fen is necessar to be able to create a game instance
     # NOTE: Note that the current turn in the fen can vary
-    fen: str = models.CharField(max_length=255, unique=True)
+    fen: str = ''
 
-    player_turn: int = models.IntegerField(
-        choices=PieceColor.choices
-    )
+    player_turn: 0
 
-    num_visits: int = models.IntegerField(default=1)
-    expandable_moves: list = models.JSONField()
-    explored_moves: list = models.JSONField(default=list)
+    num_visits: int = 0
+    expandable_moves: list = []
+    explored_moves: list = []
 
     @property
     def player_turn_obj(self) -> PieceColor:

@@ -150,6 +150,7 @@ class GameStateNode:
         self.total_value: float = 0.0
 
         self.expandable_moves: set['GameStateNode'] = expandable_moves
+        self.untried_moves: set['GameStateNode'] = expandable_moves.copy()
 
         self.policy: dict[bytes, float] = {}
         self.exploration_weight: float = exploration_weight
@@ -367,6 +368,20 @@ class GameStateNode:
         """
         return np.random.choice(list(self.expandable_moves))
 
+    def retrieve_move_from_untried_moves(self) -> str:
+        """
+        Get a move that has not been tried yet and remove it from the
+        set of untried moves
+
+        Returns:
+        --------
+        str
+            A move that has not been tried yet.
+        """
+        random_move = np.random.choice(list(self.untried_moves))
+        self.untried_moves.remove(random_move)
+        return random_move
+
     def update(self, is_game_terminated: bool, result: int):
 
         self.is_game_terminated = is_game_terminated
@@ -378,10 +393,11 @@ class GameStateNode:
         self,
         game_instance: 'Game',
     ) -> 'GameStateNode':
+
         if self.is_fully_expanded:
             return None
 
-        move = self.get_random_move()
+        move = self.retrieve_move_from_untried_moves()
         game_instance.move_piece(move)
 
         new_node = self.create_game_state(
@@ -590,12 +606,6 @@ class GameStateNode:
         self.total_value += value - depth_penalty_term
 
         if self.parents:
-            # print('-' * 50)
-            # print('move:', self.move)
-            # print('value:', value)
-            # print('total_value:', self.total_value)
-            # print('depth_penalty:', depth_penalty_term)
-            # print('-' * 50)
             for parent in self.parents:
                 parent.backpropagate(
                     value=-value,

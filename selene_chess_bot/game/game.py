@@ -10,8 +10,7 @@ from board import Board
 from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
-from game.apps import GameConfig
-from game.models import GameState
+from game.settings import GameConfig
 from game.piece_move import PieceMove
 from game.exceptions import InvalidMoveError
 
@@ -135,7 +134,6 @@ class Game:
             castling_rights=self.board.castleling_rights,
         )
 
-        self.current_game_state: GameState = None
         self.current_fen: str = str()
 
         self.game_values: dict = {
@@ -147,8 +145,6 @@ class Game:
             PieceColor.WHITE: True,
             PieceColor.BLACK: True
         }
-
-        self._initialize_game_state()
 
     #  ---------------------------- PROPERTIES ----------------------------
 
@@ -780,25 +776,6 @@ class Game:
         if en_passant_target:
             self._set_en_passant_pawn(en_passant_target)
 
-    def _initialize_game_state(self):
-
-        # First, we need to check if the state that is being passed already
-        # exists in the database
-
-        try:
-            self.current_game_state = GameState.objects.get(
-                board_hash=self.current_board_hash
-            )
-            self.current_game_state.increment_visits()
-        except GameState.DoesNotExist:
-            # if the game state does not exist, we need to create it
-            self.current_game_state = self._create_current_game_state_obj()
-
-        # We do this here, in case the current_game_state already exists in
-        # the db so we don't the current_fen is not intilizaed in the
-        # _create_current_game_state_obj
-        self.current_fen = self.current_game_state.fen
-
     # --------------------------------------------------------------------------
 
     def _clean_en_passant_state(self):
@@ -1261,23 +1238,6 @@ class Game:
             return True
         return False
 
-    def _manage_game_state_obj(self):
-
-        game_state = GameState.objects.filter(
-            board_hash=self.current_board_hash
-        )
-
-        if not game_state:
-            game_state = self._create_current_game_state_obj()
-        else:
-            game_state: GameState = game_state[0]
-            game_state.increment_visits()
-            game_state.parents.add(self.current_game_state)
-
-            self.current_fen = game_state.fen
-
-        self.current_game_state = game_state
-
     def _manage_game_state(self, piece_move: PieceMove):
         """
         Manages the state of the game after a move is made.
@@ -1306,7 +1266,6 @@ class Game:
             self.current_turn += 1
 
         self._set_current_game_state_hash()
-        # self._manage_game_state_obj()
 
     def _manage_draw(
         self,
@@ -1489,40 +1448,3 @@ class Game:
             self.white_possible_pawn_enp = piece
 
     # ---------------------------- CREATION METHODS ---------------------------
-
-    def _create_current_game_state_obj(self) -> GameState:
-        """
-        Creates a new game state object for the current game state.
-
-        This method creates a new game state object to represent the current
-        state of the game. It initializes the game state with the current board
-        hash, the current player turn, and the current FEN string.
-
-        Returns:
-            GameState: The newly created game state object.
-        """
-
-        self.current_fen = self.create_current_fen()
-        expandable_moves = self.get_legal_moves(
-            color=self.player_turn,
-            show_in_algebraic=True,
-            show_as_list=True
-        )
-
-        parent = self.current_game_state  # This could be None
-        self.current_game_state = GameState.objects.create(
-            fen=self.current_fen,
-            white_value=self.white_value,
-            black_value=self.black_value,
-            expandable_moves=expandable_moves,
-            player_turn=self.player_turn.value,
-            board_hash=self.current_board_hash,
-            is_game_terminated=self.is_game_terminated
-        )
-
-        self.current_game_state.add_parent(parent)
-
-        # We dont have to increment the visits since the visits are intialized
-        # to 1
-
-        return self.current_game_state
