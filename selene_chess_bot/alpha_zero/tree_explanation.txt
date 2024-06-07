@@ -1,0 +1,36 @@
+1. When the node is not fully expanded, the mcst will create a children based
+on the unexplored possible moves for the current state. from this fixed list of
+unexplored moves, the mcst will go take one randomly and proced to simulate to the
+end of the node, this is node.is_game_terminated == True.
+
+2. As mentioned above the expansion is based on the unexplored moves of the position,
+but randomly.
+
+3. Tree Policy, yes, I am using the UCB policy to get the selection phase, where
+once all the children of the position have been created, the best children is going
+to be taken from these children, this is node = node.get_best_child().
+
+4. In the backpropagation phase, I am updating the visit counts of the node, getting
+the penalty_term, and the updating the total_value of the node. where result:
+
+win = 1
+draw = 0
+loss = -1
+
+then the depth_penalty is applied:
+
+self.total_value += result - depth_penalty_term
+
+5. The node save the following important data:
+
+self.num_visits: int
+self.total_value: float (which is updated on the backpropagation method)
+self.result: int
+
+among other information that is not relevant for the case
+
+6. The terminal state is determine just by the rules of the game.
+
+
+---------------------------------------------------------------------------
+We can implement a checkmate detection

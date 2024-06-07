@@ -137,7 +137,7 @@ class GameStateNode:
             The weight used in the UCB calculation for balancing exploration
             and exploitation (default is 1.414).
         """
-        self.parents: set['GameStateNode'] = set()
+        self.parent: GameStateNode = None
         self.children: dict[bytes, 'GameStateNode'] = {}
         self.board_hash: bytes = board_hash
         self.is_game_terminated: bool = is_game_terminated
@@ -156,7 +156,9 @@ class GameStateNode:
         self.exploration_weight: float = exploration_weight
 
         self.state_manager: StateManager = state_manager
-        self.depth: int = self.parents[0].depth + 1 if self.parents else 0
+
+        self.depth: int = self.parent.depth + 1 if self.parent else 0
+
         # NOTE: This is momentarily, we have to set the move to be
         # a hash of the board position not a string
         self.move: str = move
@@ -186,18 +188,6 @@ class GameStateNode:
             True if the node is fully expanded, False otherwise.
         """
         return len(self.expandable_moves) == len(self.children)
-
-    @property
-    def total_parent_visits(self) -> int:
-        """
-        Get the total number of visits of all parent nodes.
-
-        Returns:
-        --------
-        int
-            The total number of visits of all parent nodes.
-        """
-        return sum([parent.num_visits for parent in self.parents])
 
     #  ---------------------------- STATIC METHODS ----------------------------
 
@@ -230,7 +220,7 @@ class GameStateNode:
 
         return GameStateNode(
             move=move,
-            result=abs(game.result),
+            result=game.result,
             fen=game.current_fen,
             state_manager=state_manager,
             player_turn=game.player_turn,
@@ -268,7 +258,7 @@ class GameStateNode:
 
         # Calculate the exploration term (UCB)
         exploration_term = node.exploration_weight * math.sqrt(
-            math.log(node.total_parent_visits) / node.num_visits
+            math.log(node.parent.num_visits) / node.num_visits
         )
 
         # Depth penalty term (penalize deeper nodes)
@@ -295,7 +285,7 @@ class GameStateNode:
         """
         if parent is None:
             return False
-        self.parents.add(parent)
+        self.parent = parent
         self.depth = parent.depth + 1
         return True
 
@@ -382,13 +372,6 @@ class GameStateNode:
         self.untried_moves.remove(random_move)
         return random_move
 
-    def update(self, is_game_terminated: bool, result: int):
-
-        self.is_game_terminated = is_game_terminated
-        self.result = result
-
-        self.increment_visits()
-
     def expand(
         self,
         game_instance: 'Game',
@@ -410,100 +393,6 @@ class GameStateNode:
         new_node.add_parent(self)
 
         return new_node
-
-    def old_expand(
-        self,
-        game_instance: 'Game',
-    ) -> 'GameStateNode | str':
-        """
-        Expand the current node by creating a new child node.
-
-        Parameters:
-        -----------
-        game_instance : Game
-            The game instance used to generate the new game state.
-
-        Returns:
-        --------
-        GameStateNode or str
-            The new game state node and the move leading to it.
-        """
-
-        move = self.get_random_move()
-        game_instance.move_piece(move)
-
-        # check if the hash is in the state manager
-        if self.state_manager:
-            game_hash = game_instance.current_board_hash
-
-            if game_hash in self.state_manager:
-                state = self.state_manager.get_state(
-                    board_hash=game_hash,
-                    check_exists=False
-                )
-
-                # NOTE: Check that somehow the state when created
-                # is not being set as terminated
-                # I believe because a node could be a terminal node,
-                # or not necessarily
-                # Due to the 50 rules, or threefold repetition
-                # Check into the implications of this
-                state.update(
-                    result=game_instance.result,
-                    is_game_terminated=game_instance.is_game_terminated,
-                )
-
-                return state, move
-
-        new_node = self.create_game_state(
-            move=move,
-            game=game_instance,
-            state_manager=self.state_manager,
-            exploration_weight=self.exploration_weight,
-        )
-
-        if self.state_manager:
-            self.state_manager.add_state(new_node)
-
-        self.add_child(move, new_node)
-        new_node.add_parent(self)
-
-        return new_node, move
-
-    def _get_move(self, random: bool = False) -> 'str':
-        if random:
-            return self.get_random_move()
-
-        best_move = None
-        best_ucb = float('-inf')
-
-        for move in self.expandable_moves:
-
-            new_game = Game.parse_fen(self.fen)
-            new_game.move_piece(move)
-
-            # if the hash of the new game is not in the state
-            # manager, we know that the move has not been explored
-            # and we can return it
-
-            if new_game.current_board_hash not in self.state_manager:
-                return move
-
-            # if this is in the state manager, then we can check
-            # the UCB value of the node
-
-            new_node = self.state_manager.get_state(
-                check_exists=False,
-                board_hash=new_game.current_board_hash,
-            )
-
-            current_ucb = new_node.get_ucb()
-
-            if current_ucb > best_ucb:
-                best_ucb = current_ucb
-                best_move = move
-
-        return best_move
 
     def simulate(self) -> tuple[float, int]:
 
@@ -538,10 +427,6 @@ class GameStateNode:
             game_instance.move_piece(move)
             simulation_depth += 1
 
-            if game_instance.is_game_terminated:
-                break
-
-        self.update(is_game_terminated=True, result=game_instance.result)
         value = player_values[game_instance.player_turn]
 
         if game_instance.player_turn == PieceColor.BLACK:
@@ -550,40 +435,6 @@ class GameStateNode:
 
         # black has won
         return -1, simulation_depth
-
-    def old_simulate(self) -> float:
-        """
-        Run a random simulation from the current node to the end of the game
-        and return the result.
-
-        Returns:
-        --------
-        float
-            The result of the simulation.
-        """
-
-        game_instance = Game.parse_fen(self.fen)
-        value: float = 0.0
-
-        if self.is_game_terminated:
-            return game_instance.result
-
-        current_node = self
-        while True:
-            current_node = current_node.expand(
-                game_instance=game_instance
-            )
-
-            if current_node.is_game_terminated:
-                if current_node.player_turn == PieceColor.WHITE:
-                    value = -1
-                else:
-                    value = 1
-                break
-
-        return value
-
-        # return current_node.result
 
     def backpropagate(
         self,
@@ -605,10 +456,9 @@ class GameStateNode:
         depth_penalty_term = depth_penalty * (simulation_depth - self.depth)
         self.total_value += value - depth_penalty_term
 
-        if self.parents:
-            for parent in self.parents:
-                parent.backpropagate(
-                    value=-value,
-                    simulation_depth=simulation_depth,
-                    depth_penalty=depth_penalty
-                )
+        if self.parent:
+            self.parent.backpropagate(
+                value=value,
+                simulation_depth=simulation_depth,
+                depth_penalty=depth_penalty
+            )

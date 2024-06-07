@@ -544,8 +544,8 @@ class Game:
 
     def get_legal_moves(
         self,
-        color: PieceColor,
-        show_in_algebraic: bool,
+        color: PieceColor = None,
+        show_in_algebraic: bool = False,
         show_as_list: bool = False,
         show_as_ordered_dict: bool = False
     ) -> dict | list[str]:
@@ -576,6 +576,9 @@ class Game:
                 representing the moves. If True, returns a list of strings
                 each representing a move in algebraic notation.
         """
+
+        if not color:
+            color = self.player_turn
 
         legal_moves: dict = self.board.get_legal_moves(
             color, show_in_algebraic

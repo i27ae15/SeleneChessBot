@@ -817,8 +817,11 @@ class Board:
         if perspective == PieceColor.WHITE:
             board_representation.reverse()
 
+        print('-' * 50)
         for row in board_representation:
             print(' '.join(row))
+        print('-' * 50)
+
 
     def print_attacked_squares(
         self,

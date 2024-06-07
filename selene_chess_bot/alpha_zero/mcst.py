@@ -92,8 +92,8 @@ class MCST:
 
     def run(
         self,
-        iterations: int,
-        simulation_depth_penalty: float = 0.005
+        iterations: int = None,
+        simulation_depth_penalty: float = 0.01
     ) -> GameStateNode:
         """
         Run the Monte Carlo Tree Search for a specified number of iterations.
@@ -118,6 +118,9 @@ class MCST:
         iterations : int
             The number of simulations (games) to be performed from the current
             state.
+
+        simulation_depth_penalty : float
+            The penalty for depth of simulation.
 
         Returns:
         --------
@@ -158,7 +161,15 @@ class MCST:
         >>> print("Best move after 1000 iterations:", best_move)
         """
 
-        _moves = dict()
+        if not iterations:
+            # then, the number of iterations is going to be the number of
+            # legal moves for the current position
+            iterations = len(self.game.get_legal_moves(
+                show_as_list=True,
+                show_in_algebraic=True,
+            ))
+            print(f"Number of iterations: {iterations}")
+
         for i in range(iterations):
             print(f"Running iteration {i+1}/{iterations}...")
 
@@ -180,11 +191,6 @@ class MCST:
             else:
                 value = node.result
                 simulation_depth = 0
-
-            if node.move not in _moves:
-                _moves[node.move] = 1
-            else:
-                _moves[node.move] += 1
 
             node.backpropagate(
                 value=value,
@@ -217,17 +223,15 @@ class MCST:
         ).sort_values("Probability", ascending=True)
 
         # print children ucb
-
-        # order the keys of _moves by the number of visits
-        _moves = {
-            k: v for k, v in sorted(
-                _moves.items(), key=lambda item: item[1], reverse=True
-            )
-        }
-
         print('-'*50)
-        print(actions_df)
-        print(_moves)
+        print('based on action probabilities')
+        # show the first 5 rows
+        print(actions_df.tail())
+
+        actions_df = actions_df.sort_values("UCB", ascending=True)
+
+        print('based on ucb')
+        print(actions_df.tail())
         print('-'*50)
 
         return legal_moves[np.argmax(action_probs)]

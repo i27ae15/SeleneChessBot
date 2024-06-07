@@ -14,8 +14,10 @@ To convert the moves into next states, we can create a class that inherits from 
 Class, in which we can create a move:state dictionary.
 
 6. Creat tests for MCST
-    A. Create test where the game is in a next to CheckMate - Done
+    A. Create test where the game is in a next to CheckMate (White) - Done
 
 -------------------------------------------------------------
 7/6/2024
 1. Delete Django from the Project - Done
+2. Create tests for MCST
+    A. Create test where the game is in a next to CheckMate (Black)

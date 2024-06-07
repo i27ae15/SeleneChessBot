@@ -8,7 +8,7 @@ from pieces.utilites import PieceName, PieceColor, RookSide
 from alpha_zero.mcst import MCST
 
 
-class TestCheckmateWhite(TestCase):
+class TestCheckmateBlack(TestCase):
 
     def setUp(self) -> None:
         self.initialize_game()
@@ -22,12 +22,10 @@ class TestCheckmateWhite(TestCase):
         self.game = Game()
         self.game.board.clean_board()
 
-    def load_mcst(self, fen: str = None):
-        if not fen:
-            fen = self.game.create_current_fen()
-        else:
-            self.game = Game.parse_fen(fen)
-        self.mcst = MCST(initial_fen=fen)
+    def load_mcst(self):
+        self.game.player_turn = PieceColor.BLACK
+        self.game.create_current_fen()
+        self.mcst = MCST(initial_fen=self.game.current_fen)
 
     def run_all_tests(self):
         """
@@ -45,7 +43,7 @@ class TestCheckmateWhite(TestCase):
     def t_checkmate_two_rooks(self):
         """
             Situation:
-            Black King on d8
+            White King on d8
             One rook on a7
             One rook on h1
 
@@ -55,10 +53,10 @@ class TestCheckmateWhite(TestCase):
         print_starting()
 
         # setting up pieces
-        # Black King on d8
+        # White King on d8
         self.game.board.add_piece(
             piece=PieceName.KING,
-            piece_color=PieceColor.BLACK,
+            piece_color=PieceColor.WHITE,
             algebraic_notation='d8'
         )
 
@@ -66,7 +64,7 @@ class TestCheckmateWhite(TestCase):
         # One rook on a7
         self.game.board.add_piece(
             piece=PieceName.ROOK,
-            piece_color=PieceColor.WHITE,
+            piece_color=PieceColor.BLACK,
             algebraic_notation='a7',
             additional_information={
                 'rook_side': RookSide.QUEEN
@@ -76,22 +74,22 @@ class TestCheckmateWhite(TestCase):
         # One rook on h1
         self.game.board.add_piece(
             piece=PieceName.ROOK,
-            piece_color=PieceColor.WHITE,
+            piece_color=PieceColor.BLACK,
             algebraic_notation='h2',
             additional_information={
                 'rook_side': RookSide.KING
             }
         )
 
-        # white king on e1
+        # BLACK king on e1
         self.game.board.add_piece(
             piece=PieceName.KING,
-            piece_color=PieceColor.WHITE,
+            piece_color=PieceColor.BLACK,
             algebraic_notation='e1'
         )
 
         self.load_mcst()
-        best_move = self.mcst.run()
+        best_move = self.mcst.run(iterations=200)
         self.game.move_piece(best_move)
         self.game.board.print_board(show_in_algebraic_notation=True)
         self.assertEqual(best_move, 'Rhh8')
@@ -111,24 +109,24 @@ class TestCheckmateWhite(TestCase):
         """
 
         print_starting()
-        # add the black king
-        self.game.board.add_piece(
-            piece=PieceName.KING,
-            piece_color=PieceColor.BLACK,
-            algebraic_notation='d8'
-        )
-
         # add the white king
         self.game.board.add_piece(
             piece=PieceName.KING,
             piece_color=PieceColor.WHITE,
+            algebraic_notation='d8'
+        )
+
+        # add the black king
+        self.game.board.add_piece(
+            piece=PieceName.KING,
+            piece_color=PieceColor.BLACK,
             algebraic_notation='d6'
         )
 
-        # add the white queen
+        # add the black queen
         self.game.board.add_piece(
             piece=PieceName.QUEEN,
-            piece_color=PieceColor.WHITE,
+            piece_color=PieceColor.BLACK,
             algebraic_notation='h1'
         )
 
@@ -185,33 +183,8 @@ class TestCheckmateWhite(TestCase):
     def t_real_position_mate_in_two(self):
 
         fen = 'r1b1R3/2qn1p1k/p5p1/1p1p3p/7Q/P2B4/1bP2PPP/R5K1 w - - 1 2'
-        fen = '5krR/3p1p2/p7/2PPQ3/3P4/6P1/5PK1/qq6 w - - 0 2'
-        self.load_mcst(fen=fen)
-        self.game.board.print_board(show_in_algebraic_notation=True)
-
-        self.mcst.run(iterations=1000)
-        # for fen 1
-        # The best move in the position is Qxh5
-        # and the line looks like this:
-        # Qxh5 Kg7
-        # Qh8#
-
-    def t_real_position_mate_in_two_checker(self):
-
-        fen = 'r1b1R3/2qn1p1k/p5p1/1p1p3p/7Q/P2B4/1bP2PPP/R5K1 w - - 1 2'
-        self.load_mcst(fen=fen)
-        self.game.board.print_board(show_in_algebraic_notation=True)
-
-        self.game.move_piece('Qxh5')
-        self.game.move_piece('Kg7')
-        self.game.board.print_board(show_in_algebraic_notation=True)
-
-        legal_moves = self.game.get_legal_moves(
-            show_in_algebraic=True,
-            show_as_list=True
-        )
-
-        print(legal_moves)
+        mcst = MCST(initial_fen=fen)
+        mcst.run(iterations=5000)
 
     def test_run_tests(self):
         """
@@ -220,4 +193,4 @@ class TestCheckmateWhite(TestCase):
 
             If you want to run all the tests, use the `run_all_tests` method.
         """
-        self.t_real_position_mate_in_two()
+        self.t_checkmate_king_and_queen()
