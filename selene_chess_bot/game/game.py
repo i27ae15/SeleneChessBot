@@ -1345,39 +1345,37 @@ class Game:
 
         piece_num = piece_num[color]
 
-        if piece_num > 8:
-            # The color has sufficient material
-            return True
-
         if piece_num == 1:
             # There is only the King left
             self.sufficient_material[color] = False
             return False
 
-        # check if the piece that is left with the king is a
-        # bishop or a Knight
+        elif piece_num == 2:
+            # check if the piece that is left with the king is a
+            # bishop or a Knight
 
-        # Check for the knight
-        knight = self.board.get_piece(
-            piece_name=PieceName.KNIGHT,
-            color=color
-        )
+            # Check for the knight
+            knight = self.board.get_piece(
+                piece_name=PieceName.KNIGHT,
+                color=color
+            )
 
-        if knight and piece_num == 2:
-            self.sufficient_material[color] = False
-            return False
+            if knight:
+                self.sufficient_material[color] = False
+                return False
 
-        # check for the bishop
-        bishop = self.board.get_piece(
-            piece_name=PieceName.BISHOP,
-            color=color
-        )
+            # check for the bishop
+            bishop = self.board.get_piece(
+                piece_name=PieceName.BISHOP,
+                color=color
+            )
 
-        if bishop and piece_num == 2:
-            self.sufficient_material[color] = False
-            return False
+            if bishop:
+                self.sufficient_material[color] = False
+                return False
 
-        # At this point, the piece that is with the King is either a Queen or
+        # At this point, there are either 3 or more pieces on the board or
+        # the piece that is with the King is either a Queen or
         # a Rook, so the color has sufficient material
         return True
 

@@ -21,5 +21,3 @@ class TestMCST(TestCase):
         )
         game = Game.parse_fen(best_move.fen)
         game.board.print_board(show_in_algebraic_notation=True)
-
-
