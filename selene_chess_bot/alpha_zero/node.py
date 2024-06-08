@@ -368,6 +368,7 @@ class GameStateNode:
         str
             A move that has not been tried yet.
         """
+        # BUG: Sometimes the untried moves set is empty
         random_move = np.random.choice(list(self.untried_moves))
         self.untried_moves.remove(random_move)
         return random_move

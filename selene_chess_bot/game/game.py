@@ -713,7 +713,12 @@ class Game:
 
                     piece_name = piece.name.value[1]
 
-                    if piece.name in (PieceName.KNIGHT, PieceName.ROOK):
+                    if piece.name in (
+                        PieceName.KNIGHT,
+                        PieceName.ROOK,
+                        PieceName.BISHOP,  # a pawn can become a bishop
+                        PieceName.QUEEN  # a pawn can become a queen
+                    ):
                         piece_name = f'{piece_name}{piece.algebraic_pos[0]}'
 
                     if not isinstance(square_or_piece, Piece):

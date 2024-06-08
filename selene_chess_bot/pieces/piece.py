@@ -957,7 +957,7 @@ class Piece(ABC):
         moves: 'list[PositionT, Piece | Piece]',
         check_only_last_move: bool = False,
         get_in_algebraic_notation: bool = False
-    ) -> list[tuple[int, int]]:
+    ) -> list[PositionT | str]:
 
         """
         Filter and modify a list of moves to only include capturable moves.
@@ -982,35 +982,42 @@ class Piece(ABC):
         coordinates.
         """
 
-        if not len(moves):
+        if not moves:
             return moves
 
         if check_only_last_move:
-            if isinstance(moves[-1], Piece):
+            self._check_capturable_moves_helper(
+                moves_reference=moves,
+                loop_start=len(moves) - 1,
+                get_in_algebraic_notation=get_in_algebraic_notation,
+            )
+        else:
+            self._check_capturable_moves_helper(
+                loop_start=0,
+                moves_reference=moves,
+                get_in_algebraic_notation=get_in_algebraic_notation,
+            )
+        return moves
+
+    def _check_capturable_moves_helper(
+        self,
+        loop_start: int,
+        get_in_algebraic_notation: bool,
+        moves_reference: 'list[PositionT | Piece]',
+    ):
+
+        for i in range(loop_start, len(moves_reference)):
+            if isinstance(moves_reference[i], Piece):
                 is_capturable = True
-                if moves[-1].color == self.color:
+                if moves_reference[i].color == self.color:
                     is_capturable = False
-                    moves.pop()
+                    moves_reference.pop(i)
 
                 if is_capturable:
                     if get_in_algebraic_notation:
-                        moves[-1] = moves[-1].algebraic_pos
+                        moves_reference[i] = moves_reference[i].algebraic_pos
                     else:
-                        moves[-1] = tuple(moves[-1].position)
-        else:
-            for index, move in enumerate(moves):
-                if isinstance(move, Piece):
-                    is_capturable = True
-                    if move.color == self.color:
-                        is_capturable = False
-                        moves.pop(index)
-
-                    if is_capturable:
-                        if get_in_algebraic_notation:
-                            moves[index] = move.algebraic_pos
-                        else:
-                            moves[index] = tuple(move.position)
-        return moves
+                        moves_reference[i] = tuple(moves_reference[i].position)
 
     def _check_row_and_columns(
         self,

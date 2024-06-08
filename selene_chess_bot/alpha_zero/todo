@@ -20,4 +20,9 @@ Class, in which we can create a move:state dictionary.
 7/6/2024
 1. Delete Django from the Project - Done
 2. Create tests for MCST
-    A. Create test where the game is in a next to CheckMate (Black)
+    A. Create test where the game is in a next to CheckMate (Black) - Done
+
+8/8/2024
+1. Create a Checkmate detection
+2. Check the way the get legal moves are being calculated
+    A. It is possible that we are using a method that is deprecated

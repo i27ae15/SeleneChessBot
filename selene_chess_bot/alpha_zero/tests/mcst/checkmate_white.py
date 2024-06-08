@@ -219,5 +219,12 @@ class TestCheckmateWhite(TestCase):
             this method is used to run a single test if needed.
 
             If you want to run all the tests, use the `run_all_tests` method.
+
+            NOTE:
+                Yes, in fact you can write on the terminal:
+                >>> python -m unittest
+                    alpha_zero.tests.mcst.checkmate_white.TestCheckmateWhite.__method_name__
+
+                But, do you really want to type all that?
         """
-        self.t_real_position_mate_in_two()
+        self.t_checkmate_two_rooks()

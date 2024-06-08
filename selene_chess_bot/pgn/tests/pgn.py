@@ -1,4 +1,4 @@
-from django.test import TestCase
+from unittest import TestCase
 from core.utils import INITIAL_FEN
 from pgn.pgn import PGN
 
@@ -101,31 +101,3 @@ class TestPGN(TestCase):
         PGN(game, debug=True)
 
         print_success()
-
-    def test_multiple_parents(self):
-
-        print_starting()
-
-        file_path = 'pgn/tests/same_pos_diff_moves.txt'
-        pgn_games = self.extract_pgn_to_variables(file_path)
-
-        for index, game in enumerate(pgn_games):
-            g = game.replace('\n', ' ')
-            print('game', index + 1)
-            PGN(g)
-
-        self.dfs(GameState.objects.get(fen=INITIAL_FEN))
-
-        print_success()
-
-    def dfs(self, parent: GameState):
-
-        print('-' * 50)
-        print('parents', parent.parents.all().count())
-        print('-' * 50)
-
-        if parent.children.all().count() == 0:
-            return
-
-        for child in parent.children.all():
-            self.dfs(child)
