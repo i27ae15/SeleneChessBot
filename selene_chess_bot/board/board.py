@@ -822,7 +822,6 @@ class Board:
             print(' '.join(row))
         print('-' * 50)
 
-
     def print_attacked_squares(
         self,
         traspass_king: bool = False,

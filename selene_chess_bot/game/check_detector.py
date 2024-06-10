@@ -60,9 +60,6 @@ class CheckDetector:
 
         possible_checks: list[str] = []
 
-        print("Checking for checks on the position...")
-        print("Legal moves:", legal_moves)
-
         for move in legal_moves:
 
             game = Game.parse_fen(self.initial_fen)
