@@ -81,6 +81,11 @@ STARTING_POSITIONS_FOR_B_PAWNS = [
     (6, 4), (6, 5), (6, 6), (6, 7)
 ]
 
+PLAYER_VALUES: dict[PieceColor, float] = {
+    PieceColor.WHITE: 1,
+    PieceColor.BLACK: -1
+}
+
 
 class ZobristHash():
 

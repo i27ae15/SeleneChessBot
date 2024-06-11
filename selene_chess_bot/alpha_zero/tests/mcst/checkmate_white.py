@@ -96,7 +96,6 @@ class TestCheckmateWhite(TestCase):
 
         self.load_mcst()
         best_move = self.mcst.run(iterations=200)
-        self.game.move_piece(best_move)
         self.assertEqual(best_move, 'Rhh8')
 
         print_success()
@@ -137,7 +136,6 @@ class TestCheckmateWhite(TestCase):
 
         self.load_mcst()
         best_move = self.mcst.run(iterations=200)
-        self.game.move_piece(best_move)
         best_moves = ['Qhh8', 'Qha8']
         self.assertIn(best_move, best_moves)
         print_success()
@@ -178,9 +176,10 @@ class TestCheckmateWhite(TestCase):
 
         self.load_mcst()
         best_move = self.mcst.run(iterations=200)
-        self.game.move_piece(best_move)
-        # Best moves are Kf2 or Kg3
-        self.game.board.print_board(show_in_algebraic_notation=True)
+        expected_moves = ['Kf2', 'Kg3']
+
+        self.assertIn(best_move, expected_moves)
+
         print_success()
 
     def t_real_position_mate_in_two(self):
@@ -191,10 +190,11 @@ class TestCheckmateWhite(TestCase):
         self.load_mcst(fen=fen)
         self.game.board.print_board(show_in_algebraic_notation=True)
 
-        self.mcst.run(iterations=200)
-        # for fen 1
-        # The best move in the position is Qxh5
-        # and the line looks like this:
+        best_move = self.mcst.run(iterations=200, print_iterations=False)
+
+        self.assertEqual(best_move, 'Qhxh5')
+
+        # The line looks like this:
         # Qxh5 Kg7
         # Qh8#
 
@@ -214,4 +214,4 @@ class TestCheckmateWhite(TestCase):
 
                 But, do you really want to type all that?
         """
-        self.t_real_position_mate_in_two()
+        self.run_all_tests()

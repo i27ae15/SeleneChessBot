@@ -379,7 +379,7 @@ class GameStateNode:
     ) -> 'GameStateNode':
 
         """
-        Expand the current node by creating a new child node.        
+        Expand the current node by creating a new child node.
         """
 
         if self.is_fully_expanded:
@@ -410,8 +410,8 @@ class GameStateNode:
             return value, 0
 
         player_values: dict[PieceColor, float] = {
-            PieceColor.WHITE: 1,
-            PieceColor.BLACK: -1
+            PieceColor.WHITE: -1,
+            PieceColor.BLACK: 1
         }
 
         simulation_depth = self.depth
@@ -433,6 +433,7 @@ class GameStateNode:
             simulation_depth += 1
 
         value = player_values[game_instance.player_turn]
+        return value, simulation_depth
 
         if game_instance.player_turn == PieceColor.BLACK:
             # white has won

@@ -4,7 +4,12 @@ import pandas as pd
 from alpha_zero.node import GameStateNode
 from alpha_zero.state_manager import StateManager
 
+from core.printing import __print__ as pprint
+
 from game import Game
+from game.checkmate_detector import CheckmateDetector
+
+from pieces.utilites import PLAYER_VALUES
 
 
 class MCST:
@@ -173,7 +178,10 @@ class MCST:
 
         for i in range(iterations):
             if print_iterations:
-                print(f"Running iteration {i+1}/{iterations}...")
+                pprint(
+                    f"Running iteration {i+1}/{iterations}...",
+                    print_lines=False
+                )
 
             node = self.root
 
@@ -188,12 +196,18 @@ class MCST:
                 # before expanding, we need to check if there is a
                 # force checkmate on the position
 
-                node = node.expand(Game.parse_fen(node.fen))
-                try:
-                    value, simulation_depth = node.simulate()
-                except Exception as e:
-                    print(e)
-                    continue
+                value = self._manage_checkmate(node)
+
+                if not value:
+                    node = node.expand(Game.parse_fen(node.fen))
+                    try:
+                        value, simulation_depth = node.simulate()
+                    except Exception as e:
+                        pprint(e)
+                        continue
+                else:
+                    simulation_depth = 0
+
             else:
                 value = node.result
                 simulation_depth = 0
@@ -228,16 +242,49 @@ class MCST:
             }
         ).sort_values("Probability", ascending=True)
 
-        # # print children ucb
-        # print('-'*50)
-        # print('based on action probabilities')
-        # # show the first 5 rows
-        # print(actions_df.tail())
-
-        # actions_df = actions_df.sort_values("UCB", ascending=True)
-
-        # print('based on ucb')
-        # print(actions_df.tail())
-        # print('-'*50)
-
         return legal_moves[np.argmax(action_probs)]
+
+    def _manage_checkmate(
+        self,
+        node: GameStateNode
+    ) -> int:
+
+        checkmate_detector = CheckmateDetector(
+            fen=node.fen,
+            detecting_mate_for=node.player_turn
+        )
+        checkmate_detector.find_force_checkmate()
+
+        player_mate: int = 0
+
+        if checkmate_detector.is_checkmate:
+            player_mate = PLAYER_VALUES[node.player_turn]
+
+            # take the routes of the checkmate and create the children
+            # of the node
+
+            for move_dict in checkmate_detector.get_routes_to_checkmates():
+                for move in move_dict:
+
+                    if move == 'best_depth':
+                        continue
+
+                    new_node = GameStateNode.create_game_state(
+                        move=move,
+                        game=Game.parse_fen(node.fen),
+                        exploration_weight=node.exploration_weight,
+                    )
+                    new_node.backpropagate(
+                        value=float('inf') * player_mate,
+                        simulation_depth=0,
+                        depth_penalty=0
+                    )
+
+                    new_node.add_parent(node)
+                    new_node.result = player_mate
+
+                    node.add_child(move, new_node)
+
+            node.is_game_terminated = True
+
+        return player_mate

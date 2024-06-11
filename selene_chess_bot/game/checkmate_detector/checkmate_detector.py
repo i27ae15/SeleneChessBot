@@ -38,6 +38,13 @@ class CheckmateDetector:
 
         self._routes_to_checkmates: list[dict] = []
 
+    @property
+    def is_checkmate(self) -> bool:
+        """
+        Returns True if there is a checkmate in the given position.
+        """
+        return bool(self.check_mates)
+
     def get_routes_to_checkmates(
         self,
         get_shortest_mate: bool = True
