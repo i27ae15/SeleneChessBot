@@ -111,4 +111,3 @@ class BoardRepresentation():
 
     def __iter__(self) -> Iterable[list[str]]:
         return iter(self.board)
-

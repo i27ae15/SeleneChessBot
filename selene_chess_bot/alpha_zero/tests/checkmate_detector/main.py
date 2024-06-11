@@ -95,13 +95,24 @@ class TestCheckmateWhite(TestCase):
         )
 
         self.load_checkmate_detector()
-        self.checkmate_detector.get_force_checkmate(
-            fen=self.game.create_current_fen(),
-            game=self.game
+        self.checkmate_detector.find_force_checkmate()
+
+        expected_result = [
+            {
+                'Rhh8': {
+                    'depth': 1,
+                    'is_checkmate': True,
+                    'best_child_depth': 1
+                },
+                'best_depth': 1
+            }
+        ]
+
+        self.assertEqual(
+            expected_result,
+            self.checkmate_detector.get_routes_to_checkmates()
         )
 
-        for move in self.checkmate_detector.check_mates:
-            move.print_route()
         print_success()
 
     def t_checkmate_king_and_queen(self):
@@ -142,8 +153,22 @@ class TestCheckmateWhite(TestCase):
         self.checkmate_detector.find_force_checkmate()
 
         expected_result = [
-            {'Qha8': {'is_checkmate': True}},
-            {'Qhh8': {'is_checkmate': True}}
+            {
+                "Qha8": {
+                    "depth": 1,
+                    "is_checkmate": True,
+                    "best_child_depth": 1
+                },
+                "best_depth": 1
+            },
+            {
+                "Qhh8": {
+                    "depth": 1,
+                    "is_checkmate": True,
+                    "best_child_depth": 1
+                },
+                "best_depth": 1
+            }
         ]
 
         self.assertEqual(
@@ -188,15 +213,57 @@ class TestCheckmateWhite(TestCase):
 
         self.load_checkmate_detector()
         self.checkmate_detector.find_force_checkmate()
-        r = self.checkmate_detector.get_routes_to_checkmates()
 
-        import json
-        # Convert dictionary to JSON-formatted string
+        expected_result = [
+            {
+                'Kf2': {
+                    'depth': 1,
+                    'Kh2': {
+                        'depth': 2,
+                        'Qag2': {
+                            'depth': 3,
+                            'is_checkmate': True,
+                            'best_child_depth': 3
+                        },
+                        'Qah8': {
+                            'depth': 3,
+                            'is_checkmate': True,
+                            'best_child_depth': 3
+                        },
+                        'best_child_depth': 3
+                    },
+                    'best_child_depth': 3
+                },
+                'best_depth': 3
+            },
+            {
+                'Kg3': {
+                    'depth': 1,
+                    'Kg1': {
+                        'depth': 2,
+                        'Qag2': {
+                            'depth': 3,
+                            'is_checkmate': True,
+                            'best_child_depth': 3
+                        },
+                        'Qaa1': {
+                            'depth': 3,
+                            'is_checkmate': True,
+                            'best_child_depth': 3
+                        },
+                        'best_child_depth': 3
+                    },
+                    'best_child_depth': 3
+                },
+                'best_depth': 3
+            }
+        ]
 
-        for m in r:
-            json_data = json.dumps(m, indent=2)
-            print(json_data)
-        # Best moves are Kf2 or Kg3
+        self.assertEqual(
+            expected_result,
+            self.checkmate_detector.get_routes_to_checkmates()
+        )
+
         print_success()
 
     def t_real_position_mate_in_two(self):
@@ -208,7 +275,22 @@ class TestCheckmateWhite(TestCase):
         self.checkmate_detector.find_force_checkmate()
 
         expected_result = [
-            {'Qhxh5': {'Kg7': {'Qhh8': {'is_checkmate': True}}}}
+            {
+                'Qhxh5': {
+                    'depth': 1,
+                    'Kg7': {
+                        'depth': 2,
+                        'Qhh8': {
+                            'depth': 3,
+                            'is_checkmate': True,
+                            'best_child_depth': 3
+                        },
+                        'best_child_depth': 3
+                    },
+                    'best_child_depth': 3
+                },
+                'best_depth': 3
+            }
         ]
 
         self.assertEqual(
@@ -237,4 +319,4 @@ class TestCheckmateWhite(TestCase):
 
                 But, do you really want to type all that?
         """
-        self.t_checkmate_in_two()
+        self.run_all_tests()
