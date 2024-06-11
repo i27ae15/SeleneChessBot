@@ -378,6 +378,10 @@ class GameStateNode:
         game_instance: 'Game',
     ) -> 'GameStateNode':
 
+        """
+        Expand the current node by creating a new child node.        
+        """
+
         if self.is_fully_expanded:
             return None
 

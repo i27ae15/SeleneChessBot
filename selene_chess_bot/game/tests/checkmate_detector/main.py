@@ -2,10 +2,10 @@ from unittest import TestCase
 
 from core.testing import print_starting, print_success
 
-from game.game import Game
 from pieces.utilites import PieceName, PieceColor, RookSide
 
-from alpha_zero.checkmate_detector import CheckmateDetector
+from game.game import Game
+from game.checkmate_detector import CheckmateDetector
 
 
 class TestCheckmateWhite(TestCase):

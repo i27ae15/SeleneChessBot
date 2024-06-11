@@ -4,7 +4,7 @@ import pandas as pd
 from alpha_zero.node import GameStateNode
 from alpha_zero.state_manager import StateManager
 
-from game.game import Game
+from game import Game
 
 
 class MCST:
@@ -93,6 +93,7 @@ class MCST:
     def run(
         self,
         iterations: int = None,
+        print_iterations: bool = True,
         simulation_depth_penalty: float = 0.01
     ) -> GameStateNode:
         """
@@ -163,15 +164,16 @@ class MCST:
 
         if not iterations:
             # then, the number of iterations is going to be the number of
-            # legal moves for the current position
+            # legal moves for the current position multiplied by 3
             iterations = len(self.game.get_legal_moves(
                 show_as_list=True,
                 show_in_algebraic=True,
-            ))
+            )) * 3
             print(f"Number of iterations: {iterations}")
 
         for i in range(iterations):
-            print(f"Running iteration {i+1}/{iterations}...")
+            if print_iterations:
+                print(f"Running iteration {i+1}/{iterations}...")
 
             node = self.root
 
@@ -182,6 +184,10 @@ class MCST:
                     break
 
             if not node.is_game_terminated:
+
+                # before expanding, we need to check if there is a
+                # force checkmate on the position
+
                 node = node.expand(Game.parse_fen(node.fen))
                 try:
                     value, simulation_depth = node.simulate()
@@ -213,7 +219,7 @@ class MCST:
             ucb[legal_moves.index(child.move)] = child.get_ucb()
 
         action_probs /= np.sum(action_probs)
-        actions_df = pd.DataFrame(
+        self.actions_df = pd.DataFrame(
             {
                 "Action": legal_moves,
                 "Probability": action_probs,
@@ -222,16 +228,16 @@ class MCST:
             }
         ).sort_values("Probability", ascending=True)
 
-        # print children ucb
-        print('-'*50)
-        print('based on action probabilities')
-        # show the first 5 rows
-        print(actions_df.tail())
+        # # print children ucb
+        # print('-'*50)
+        # print('based on action probabilities')
+        # # show the first 5 rows
+        # print(actions_df.tail())
 
-        actions_df = actions_df.sort_values("UCB", ascending=True)
+        # actions_df = actions_df.sort_values("UCB", ascending=True)
 
-        print('based on ucb')
-        print(actions_df.tail())
-        print('-'*50)
+        # print('based on ucb')
+        # print(actions_df.tail())
+        # print('-'*50)
 
         return legal_moves[np.argmax(action_probs)]

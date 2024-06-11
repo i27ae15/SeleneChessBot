@@ -149,7 +149,7 @@ class CheckmateDetector:
 
         return best_lines
 
-    def find_force_checkmate(self):
+    def find_force_checkmate(self) -> bool:
 
         """
         Identifies forced checkmate sequences from the initial FEN position
@@ -188,6 +188,7 @@ class CheckmateDetector:
         """
 
         check_detector = CheckDetector(fen=self.initial_fen)
+        found_forced_mate = False
 
         # Iterate over all checks found by the CheckDetector
         for check in check_detector.checks_on_position:
@@ -212,7 +213,10 @@ class CheckmateDetector:
                 fen=game.create_current_fen(),
             )
             if is_mate:
+                found_forced_mate = True
                 self.check_mates.append(current_node)
+
+        return found_forced_mate
 
     def _find_force_checkmate(
         self,

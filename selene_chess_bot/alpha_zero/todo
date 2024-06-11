@@ -1,3 +1,5 @@
+June 2024
+
 TODO
 1. Convert the moves into next states
 2. Create a parent position from which the game starts
@@ -17,12 +19,26 @@ Class, in which we can create a move:state dictionary.
     A. Create test where the game is in a next to CheckMate (White) - Done
 
 -------------------------------------------------------------
-7/6/2024
+6/7/2024
 1. Delete Django from the Project - Done
 2. Create tests for MCST
     A. Create test where the game is in a next to CheckMate (Black) - Done
 
-8/8/2024
-1. Create a Checkmate detection
+6/8/2024
+1. Create a Checkmate detection - Done - Finished on 6/10/2024
 2. Check the way the get legal moves are being calculated
     A. It is possible that we are using a method that is deprecated
+
+6/10/2024
+1. Finish Checkmate detection
+
+6/11/2024
+1. Integrates Checkmate detection into MCST
+
+2. Solve issue with the list of moves being empty on
+    GameStateNode.simulate, 'move = np.random.choice(moves)'
+    line 422 apx
+
+3. Solve issue withe he list of untried moves being empty on
+    GameStateNode.retrieve_move_from_untried_moves;
+    This might be related to point 2 above
