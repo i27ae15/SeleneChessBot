@@ -4,8 +4,8 @@ from core.testing import print_starting, print_success
 
 from pieces.utilites import PieceName, PieceColor, RookSide
 
-from game import Game
-from game.check_detector import CheckDetector
+from game.game import Game
+from game.checkmate_detector.check_detector import CheckDetector
 
 
 class CheckDetectorTest(TestCase):

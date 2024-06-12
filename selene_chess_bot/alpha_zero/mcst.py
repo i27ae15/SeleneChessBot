@@ -11,6 +11,10 @@ from game.checkmate_detector import CheckmateDetector
 
 from pieces.utilites import PLAYER_VALUES
 
+# TODO:
+# Check if possibel to Add the checkmate routes to the MCST to choose those
+# moves instead of calculating them again
+
 
 class MCST:
     def __init__(
@@ -224,6 +228,10 @@ class MCST:
             color=self.game.player_turn,
         )
         action_probs = np.zeros(len(legal_moves))
+
+        return legal_moves[np.argmax(action_probs)]
+
+    def create_actions_df(self, legal_moves: list, action_probs: np.array):
         visits = np.zeros(len(legal_moves))
         ucb = np.zeros(len(legal_moves))
 
@@ -241,8 +249,6 @@ class MCST:
                 "UCB": ucb,
             }
         ).sort_values("Probability", ascending=True)
-
-        return legal_moves[np.argmax(action_probs)]
 
     def _manage_checkmate(
         self,

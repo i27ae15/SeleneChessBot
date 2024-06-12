@@ -1,5 +1,5 @@
 from game import Game
-from game.check_detector import CheckDetector
+from game.checkmate_detector.check_detector import CheckDetector
 
 from pieces.utilites import PieceColor
 

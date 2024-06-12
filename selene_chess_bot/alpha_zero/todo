@@ -33,7 +33,7 @@ Class, in which we can create a move:state dictionary.
 1. Finish Checkmate detection
 
 6/11/2024
-1. Integrates Checkmate detection into MCST
+1. Integrates Checkmate detection into MCST - Done
 
 2. Solve issue with the list of moves being empty on
     GameStateNode.simulate, 'move = np.random.choice(moves)'
@@ -42,3 +42,8 @@ Class, in which we can create a move:state dictionary.
 3. Solve issue withe he list of untried moves being empty on
     GameStateNode.retrieve_move_from_untried_moves;
     This might be related to point 2 above
+
+
+6/12/2024
+
+1. Write teh first Neural Network
