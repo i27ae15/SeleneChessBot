@@ -1,10 +1,12 @@
+import numpy as np
+
 from colorama import Fore, Style
 
 from core.utils import (
     convert_from_algebraic_notation, convert_to_algebraic_notation,
     ALGEBRAIC_NOTATION
 )
-from core.types import BoardRepresentation, PositionT
+from core.types import PositionT
 
 from pieces import Piece, Pawn, Rook, Bishop, Knight, Queen, King
 from pieces.utilites import (
@@ -15,6 +17,8 @@ from board.exceptions import (
     BoardAlreadyInitializedError, KingAlreadyOnBoardError,
     SpaceAlreadyOccupiedError
 )
+from board.types import BoardRepresentation
+from board.encoder import BoardEncoder
 
 
 class Board:
@@ -438,6 +442,10 @@ class Board:
             self.n_black_pieces += 1
 
     # ---------------------------- GETTER METHODS ----------------------------
+
+    def get_encoded_board(self) -> np.ndarray:
+
+        return BoardEncoder.encode_board(self)
 
     def get_square_or_piece(
         self,

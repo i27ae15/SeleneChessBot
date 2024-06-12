@@ -145,4 +145,3 @@ class GameEncoder:
         board_hash ^= ZOBRIEST_KEYS['side'][current_side]
 
         return board_hash.to_bytes(8, byteorder='big', signed=False)
-    

@@ -1,4 +1,7 @@
-from pieces.utilites import PieceColor
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pieces.utilites import PieceColor
 
 ALGEBRAIC_NOTATION = {
     'row': {
@@ -31,7 +34,7 @@ def convert_to_algebraic_notation(
     row: int,
     column: int,
     can_castle: bool = False,
-    king_color: PieceColor = None,
+    king_color: 'PieceColor' = None,
 ) -> str:
     """
         Converts a position in the form of integers to a string in
@@ -56,7 +59,7 @@ def convert_to_algebraic_notation(
 
 def convert_from_algebraic_notation(
     position: str,
-    king_color: PieceColor = None
+    king_color: 'PieceColor' = None
 ) -> tuple:
     """
         Converts a position in algebraic notation to a tuple of integers.

@@ -1,16 +1,15 @@
 
 from core.debugger import control_state_manager
 from core.utils import convert_from_algebraic_notation
-from core.types import (
-    BoardStates, MoveDict, BoardRepresentation
-)
+from core.types import MoveDict
 
 from board import Board
+from board.types import BoardStates, BoardRepresentation
 
 from pieces.utilites import PieceColor, PieceName, RookSide
 from pieces import Piece, Pawn, King
 
-from game.enconder import GameEncoder
+from game.encoder import GameEncoder
 from game.piece_move import PieceMove
 from game.exceptions import InvalidMoveError
 from game.types import FENInfo

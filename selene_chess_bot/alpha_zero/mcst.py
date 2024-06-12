@@ -228,6 +228,7 @@ class MCST:
             color=self.game.player_turn,
         )
         action_probs = np.zeros(len(legal_moves))
+        self.create_actions_df(legal_moves, action_probs)
 
         return legal_moves[np.argmax(action_probs)]
 

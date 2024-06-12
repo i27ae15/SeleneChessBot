@@ -178,6 +178,8 @@ class TestCheckmateWhite(TestCase):
         best_move = self.mcst.run(iterations=200)
         expected_moves = ['Kf2', 'Kg3']
 
+        self.game.board.print_board(show_in_algebraic_notation=True)
+
         self.assertIn(best_move, expected_moves)
 
         print_success()

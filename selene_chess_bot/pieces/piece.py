@@ -6,7 +6,7 @@ from core.utils import (
     convert_from_algebraic_notation, convert_to_algebraic_notation
 )
 
-from .utilites import (
+from pieces.utilites import (
     PieceColor, PieceValue, PieceName, ATTACKING_ROWS_AND_COLUMNS,
     ATTACKING_DIAGONALS
 )
