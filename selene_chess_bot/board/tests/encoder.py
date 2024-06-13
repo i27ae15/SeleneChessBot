@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from core.testing import print_starting, print_success
-from core.printing import __print__ as pprint
 
 from board import Board
 from board.encoder import BoardEncoder

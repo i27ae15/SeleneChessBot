@@ -46,4 +46,9 @@ Class, in which we can create a move:state dictionary.
 
 6/12/2024
 
-1. Write teh first Neural Network
+1. Separate some of the methods used in Game to it own classes - Done
+2. Write a Board encoder to prepare for the NN
+
+6/13/2024
+
+1. Write the first Neural Network

@@ -81,7 +81,7 @@ class BoardEncoder(metaclass=SingletonMeta):
                         break
 
                 if piece:
-                    print(f"{piece.name[0]}{color}", end=' ')
+                    print(f"{piece.value[1]}{color}", end=' ')
                 else:
                     print('0', end=' ')
             print()

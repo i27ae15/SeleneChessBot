@@ -33,7 +33,7 @@ class PieceValue(Enum):
 
 
 class PieceName(Enum):
-    PAWN = 'Pawn', 'P',
+    PAWN = 'Pawn', 'P'
     BISHOP = 'Bishop', 'B'
     KNIGHT = 'Knight', 'N'
     ROOK = 'Rook', 'R'

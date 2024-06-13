@@ -435,13 +435,6 @@ class GameStateNode:
         value = player_values[game_instance.player_turn]
         return value, simulation_depth
 
-        if game_instance.player_turn == PieceColor.BLACK:
-            # white has won
-            return 1, simulation_depth
-
-        # black has won
-        return -1, simulation_depth
-
     def backpropagate(
         self,
         value: int,
