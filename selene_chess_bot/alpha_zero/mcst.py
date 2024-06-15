@@ -5,6 +5,7 @@ from alpha_zero.node import GameStateNode
 from alpha_zero.state_manager import StateManager
 
 from core.printing import __print__ as pprint
+from core.utils import INITIAL_FEN
 
 from game import Game
 from game.checkmate_detector import CheckmateDetector
@@ -19,6 +20,7 @@ from pieces.utilites import PLAYER_VALUES
 class MCST:
     def __init__(
         self,
+        model=None,
         initial_fen: str = None,
         root: GameStateNode = None,
         exploration_weight: float = 1.414,
@@ -34,9 +36,11 @@ class MCST:
             starting position of the game.
         """
 
+        self.model = model
         self.root: GameStateNode = root
 
-        self.initial_fen = initial_fen or self.root.fen
+        self.initial_fen = None
+        self.__initialize_fen(initial_fen, root)
         self.state_manager = state_manager or StateManager()
         self.game: Game = Game.parse_fen(self.initial_fen)
 
@@ -47,6 +51,25 @@ class MCST:
                 state_manager=self.state_manager,
                 exploration_weight=exploration_weight,
             )
+
+    def __initialize_fen(
+        self,
+        initial_fen: str = None,
+        root: GameStateNode = None,
+    ) -> None:
+
+        if self.initial_fen:
+            return
+
+        if root:
+            self.initial_fen = root.fen
+            return
+
+        if initial_fen:
+            self.initial_fen = initial_fen
+            return
+
+        self.initial_fen = INITIAL_FEN
 
     def select(self, node: GameStateNode):
         """
@@ -70,7 +93,7 @@ class MCST:
             node = node.get_best_child()
         return node
 
-    def expand(self, node: GameStateNode):
+    def expand(self, node: GameStateNode = None):
         """
         Expand the given node by adding one or more child nodes if it is not
         fully expanded.
@@ -90,14 +113,10 @@ class MCST:
             possible.
         """
 
-        new_node, move = node.expand()
-        new_node: GameStateNode
-        # this will return a move, such as e4
-        if new_node:
-            new_node.add_parent(node)
-            node.add_child(move, new_node)
-            return new_node
-        return None
+        if node is None:
+            node = self.root
+
+        return node.expand(model=self.model)
 
     def run(
         self,
@@ -178,7 +197,7 @@ class MCST:
                 show_as_list=True,
                 show_in_algebraic=True,
             )) * 3
-            print(f"Number of iterations: {iterations}")
+            pprint(f"Number of iterations: {iterations}")
 
         for i in range(iterations):
             if print_iterations:
@@ -203,7 +222,10 @@ class MCST:
                 value = self._manage_checkmate(node)
 
                 if not value:
-                    node = node.expand(Game.parse_fen(node.fen))
+                    node = node.expand(
+                        model=self.model,
+                        game_instance=Game.parse_fen(node.fen),
+                    )
                     try:
                         value, simulation_depth = node.simulate()
                     except Exception as e:
@@ -230,7 +252,16 @@ class MCST:
         action_probs = np.zeros(len(legal_moves))
         self.create_actions_df(legal_moves, action_probs)
 
-        return legal_moves[np.argmax(action_probs)]
+        # get the children of the root node with the best move
+
+        best_move = legal_moves[np.argmax(action_probs)]
+
+        for child in self.root.children.values():
+            if child.move == best_move:
+                return child
+
+        pprint('best_move', best_move)
+        raise ValueError("No best move in the children of the root node.")
 
     def create_actions_df(self, legal_moves: list, action_probs: np.array):
         visits = np.zeros(len(legal_moves))
@@ -265,6 +296,8 @@ class MCST:
         player_mate: int = 0
 
         if checkmate_detector.is_checkmate:
+            pprint(f"Checkmate detected for {node.player_turn}!")
+            pprint(checkmate_detector.get_routes_to_checkmates())
             player_mate = PLAYER_VALUES[node.player_turn]
 
             # take the routes of the checkmate and create the children
@@ -289,6 +322,7 @@ class MCST:
 
                     new_node.add_parent(node)
                     new_node.result = player_mate
+                    new_node.is_game_terminated = True
 
                     node.add_child(move, new_node)
 

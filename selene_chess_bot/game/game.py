@@ -1357,6 +1357,12 @@ class Game:
             row=square[0]
         )
 
+        if isinstance(piece, tuple):
+            from core.printing import __print__ as pprint
+            pprint(f'en_passant_target is not a pawn: {en_passant_target}')
+            self.board.print_board(show_in_algebraic_notation=True)
+            raise ValueError('The en passant target is not a pawn')
+
         piece.can_be_captured_en_passant = True
 
         if piece.color == PieceColor.WHITE:

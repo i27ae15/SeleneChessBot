@@ -1,4 +1,8 @@
-from game.game import Game
+import numpy as np
+
+from core.printing import __print__ as pprint
+
+from game import Game
 
 from alpha_zero.mcst import MCST
 from alpha_zero.node import GameStateNode
@@ -63,3 +67,59 @@ class AlphaZero:
 
         game.print_game_state()
         return self.root
+
+    def self_play(
+        self,
+        model,
+        num_games: int,
+        num_iterations: int,
+        model_save_path: str
+    ) -> None:
+
+        for game in range(num_games):
+
+            pprint(f"Playing game {game+1}/{num_games}...")
+
+            game_data = []
+
+            mcst = MCST(model=model)
+
+            while not mcst.root.is_game_terminated:
+
+                encoded_board = mcst.game.board.get_encoded_board()
+                policy, _ = model.predict(encoded_board.reshape(1, 8, 8, 12))
+                policy = policy.flatten()
+
+                best_child_node = mcst.run(num_iterations)
+
+                # save data
+                game_data.append(
+                    (encoded_board, policy, best_child_node.total_value)
+                )
+
+                pprint(f"Best move: {best_child_node.move}")
+                mcst.game.move_piece(best_child_node.move)
+                mcst.game.board.print_board(show_in_algebraic_notation=True)
+                mcst.root = best_child_node  # Update this in the MCST class
+
+            # Prepare training data
+            x_train = np.array([data[0] for data in game_data])
+            y_train_policy = np.array([data[1] for data in game_data])
+            y_train_value = np.array([data[2] for data in game_data])
+
+            pprint('Training model...')
+            pprint(f'x_train: {x_train}', print_lines=False)
+            pprint(f'y_train_policy: {y_train_policy}', print_lines=False)
+            pprint(f'y_train_value: {y_train_value}', print_lines=False)
+
+            # Train the model
+            model.fit(
+                x_train,
+                {'policy_head': y_train_policy, 'value_head': y_train_value},
+                epochs=100,
+                batch_size=32
+            )
+
+        model.save(model_save_path)
+        pprint('Model saved successfully!')
+        return model

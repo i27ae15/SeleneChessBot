@@ -1,39 +1,52 @@
-from django.test import TestCase
+from unittest import TestCase
+
+import tensorflow as tf
+
+from core.testing import print_starting, print_success
+from core.printing import __print__ as print
+
 from alpha_zero.alpha_zero import AlphaZero
-from alpha_zero.tree import TreeRepresentation
-from alpha_zero.checkpoint import Checkpoint
+from alpha_zero.neural_network import create_chess_cnn
 
 
 class AlphaZeroTest(TestCase):
 
-    def test_nodes(self):
+    def test_self_play(self):
+
+        print_starting()
 
         alpha_zero = AlphaZero(
             depth_of_search=15,
-            # mcst_exploration_weight=2.0
         )
-        root = alpha_zero.play_game()
 
-        print('-' * 50)
-        # tree = TreeRepresentation(root_node=root, view_tree=False)
+        # test self play
 
-        # nx_diagraph = tree.create_tree_representation(
-        #     parent=root,
-        # )
+        model = create_chess_cnn((8, 8, 12))
 
-        # Checkpoint.save_checkpoint(flatten=True, root=root)
-        # checkpoint = Checkpoint().load_checkpoint()
+        alpha_zero.self_play(
+            model=model,
+            num_games=1,
+            num_iterations=10,
+            model_save_path='model_v0_1.keras'
+        )
 
-        # nx_diagraph_loaded = tree.create_tree_representation(
-        #     parent=root,
-        # )
+        print_success()
 
-        # self.assertEqual(
-        #     nx_diagraph.number_of_nodes(),
-        #     nx_diagraph_loaded.number_of_nodes()
-        # )
+    def t_self_play_with_loaded_model(self):
 
-        # print('nx_diagraph nodes:', nx_diagraph.number_of_nodes())
+        print_starting()
 
-        # print('loading tree from checkpoint...')
-        # TreeRepresentation(root_node=root)
+        alpha_zero = AlphaZero(
+            depth_of_search=15,
+        )
+
+        model = tf.keras.models.load_model('model_v0_1.keras')
+
+        alpha_zero.self_play(
+            model=model,
+            num_games=1,
+            num_iterations=20,
+            model_save_path='model_v0_1.keras'
+        )
+
+        print_success()

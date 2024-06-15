@@ -106,7 +106,7 @@ class GameStateNode:
         expandable_moves: set[str],
         exploration_weight: float = 1.414,
         state_manager: 'StateManager' = None,
-        **kwargs
+        **kwargs  # why am I using this ?
     ) -> None:
         """
         Initialize the GameStateNode with the given game state parameters.
@@ -374,6 +374,65 @@ class GameStateNode:
         return random_move
 
     def expand(
+        self,
+        game_instance: 'Game',
+        model
+    ) -> 'GameStateNode':
+        """
+        Expand the current node by creating a new child node using the neural
+        network.
+
+        Parameters:
+        -----------
+        game_instance : Game
+            The current game instance.
+
+        model : tf.keras.Model
+            The neural network model to predict policy and value.
+
+        Returns:
+        --------
+        GameStateNode or None
+            The newly expanded child node, or None if expansion is not
+            possible.
+        """
+
+        if self.is_fully_expanded:
+            return None
+
+        # encode the board state to use as input to the neural network
+        encoded_board = game_instance.board.get_encoded_board()
+
+        # predict policy and value using the neural network
+        policy, _ = model.predict(encoded_board.reshape(1, 8, 8, 12))
+        policy = policy.flatten()
+
+        # Create a list of untried moves paired with their policy values
+        untried_move_policy_pairs = [
+            (move, policy[self.untried_moves.index(move)])
+            for move in self.untried_moves
+        ]
+
+        # sort untruied moves based on the policy values
+        untried_move_policy_pairs.sort(key=lambda x: x[1], reverse=True)
+
+        move, _ = untried_move_policy_pairs[0]
+        self.untried_moves.remove(move)
+        game_instance.move_piece(move)
+
+        new_node = self.create_game_state(
+            move=move,
+            game=game_instance,
+            state_manager=self.state_manager,
+            exploration_weight=self.exploration_weight,
+        )
+
+        self.add_child(move, new_node)
+        new_node.add_parent(self)
+
+        return new_node
+
+    def no_model_expand(
         self,
         game_instance: 'Game',
     ) -> 'GameStateNode':

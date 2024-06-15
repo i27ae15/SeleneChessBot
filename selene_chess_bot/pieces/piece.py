@@ -584,7 +584,6 @@ class Piece(ABC):
             get_only_squares=get_only_squares,
             get_in_algebraic_notation=get_in_algebraic_notation
         )
-
         direction_1: list[Piece | None] = self._check_row_and_columns(
             start_range=range(self.row - 1, -1, -1),
             end_range=range(self.column + 1, 8),
@@ -619,6 +618,40 @@ class Piece(ABC):
             'd2': direction_2,
             'd3': direction_3
         }
+
+    def __scan_diagonals(
+        self,
+        traspass_king: bool = False,
+        king_color: PieceColor = None,
+        get_only_squares: bool = False,
+        end_at_piece_found: bool = True,
+        get_in_algebraic_notation: bool = False
+    ) -> dict:
+
+        # Slower than the other method above
+
+        directions_to_scan = [
+            [range(self.row - 1, -1, -1), range(self.column - 1, -1, -1)],
+            [range(self.row - 1, -1, -1), range(self.column + 1, 8)],
+            [range(self.row + 1, 8), range(self.column - 1, -1, -1)],
+            [range(self.row + 1, 8), range(self.column + 1, 8)]
+        ]
+        directions_str = ['d0', 'd1', 'd2', 'd3']
+        directions_dict = dict()
+
+        for index, ranges in enumerate(directions_to_scan):
+            pieces = self._check_row_and_columns(
+                start_range=ranges[0],
+                end_range=ranges[1],
+                end_at_piece_found=end_at_piece_found,
+                traspass_king=traspass_king,
+                king_color=king_color,
+                get_only_squares=get_only_squares,
+                get_in_algebraic_notation=get_in_algebraic_notation
+            )
+            directions_dict[directions_str[index]] = pieces
+
+        return directions_dict
 
     def scan_direction_for_piece_at_end(
         self,
