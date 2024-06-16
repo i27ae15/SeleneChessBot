@@ -78,7 +78,8 @@ class AlphaZero:
         model,
         num_games: int,
         num_iterations: int,
-        model_save_path: str
+        train_model: bool = True,
+        model_save_path: str = None
     ) -> None:
 
         for game in range(num_games):
@@ -113,13 +114,17 @@ class AlphaZero:
                     return
 
             # Train the model
-            self.train_model(model=model, raw_game_data=game_data)
+            if train_model:
+                self.train_model(model=model, raw_game_data=game_data)
             # Save the model
-            self.save_model(model=model, model_save_path=model_save_path)
+            if model_save_path:
+                self.save_model(model=model, model_save_path=model_save_path)
 
         return model
 
     def manage_error(self, mcst: MCST, e: Exception) -> None:
+
+        # TODO: Convert this to a logging system class
 
         error_message = ''.join(traceback.format_exception(None, e, e.__traceback__))
         pprint(f'Error: {error_message}', print_lines=False)
@@ -160,8 +165,13 @@ class AlphaZero:
 
     def train_model(self, model: object, raw_game_data: list):
 
-        # Prepare training data
+        """
+        X_train: Encoded board in a numpy array of shape (8, 8, 12)
 
+
+        """
+
+        # Prepare training data
         x_train = np.array([data[0] for data in raw_game_data])
         y_train_policy = np.array([data[1] for data in raw_game_data])
         y_train_value = np.array([data[2] for data in raw_game_data])

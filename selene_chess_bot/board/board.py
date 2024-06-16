@@ -444,7 +444,6 @@ class Board:
     # ---------------------------- GETTER METHODS ----------------------------
 
     def get_encoded_board(self) -> np.ndarray:
-
         return BoardEncoder.encode_board(self)
 
     def get_square_or_piece(

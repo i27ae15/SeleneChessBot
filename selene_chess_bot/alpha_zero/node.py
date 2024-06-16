@@ -409,7 +409,7 @@ class GameStateNode:
         NOTE:
             This methods works as a manager to choose between `__model_expand`
             which uses a neural network to predict the best move and
-            `__no_model_expand` which uses a random move.
+            `__no_model_expand` which uses a random untried move.
         """
 
         if model:
@@ -496,8 +496,10 @@ class GameStateNode:
         encoded_board = game_instance.board.get_encoded_board()
 
         # predict policy and value using the neural network
-        policy, _ = model.predict(encoded_board.reshape(1, 8, 8, 12))
+        policy, value = model.predict(encoded_board.reshape(1, 8, 8, 12))
         policy = policy.flatten()
+
+        # Policy is 64 values, which is wrong
 
         # Create a list of untried moves paired with their policy values
         untried_move_policy_pairs = [
@@ -505,7 +507,9 @@ class GameStateNode:
             for move in self.untried_moves
         ]
 
-        # sort untruied moves based on the policy values
+        breakpoint()
+
+        # sort untried moves based on the policy values
         untried_move_policy_pairs.sort(key=lambda x: x[1], reverse=True)
 
         move, _ = untried_move_policy_pairs[0]

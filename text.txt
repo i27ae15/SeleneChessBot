@@ -1,0 +1,87 @@
+2024-06-16 14:32:25.274329: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-06-16 14:32:25.780087: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-06-16 14:32:26.742500: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+
+def self_play(
+        self,
+        model,
+        num_games: int,
+        num_iterations: int,
+        model_save_path: str
+    ) -> None:
+
+        for game in range(num_games):
+
+            pprint(f"Playing game {game+1}/{num_games}...")
+
+            game_data: list[tuple] = []
+            mcst: MCST = MCST(model=model)
+
+            while not mcst.root.is_game_terminated:
+                try:
+                    best_child_node = mcst.run(num_iterations)
+                    data_to_append = self.get_state_data(
+                        model=model,
+                        game=mcst.game,
+                        best_node=best_child_node
+                    )
+
+                    game_data.append(data_to_append)
+
+                    # Moving the piece after exploring multiple states
+                    # on the MCST
+                    mcst.update_game_state(best_child_node)
+
+                    pprint('best_move:', best_child_node.move)
+                    mcst.game.board.print_board(
+                        show_in_algebraic_notation=True
+                    )
+
+                except Exception as e:
+                    self.manage_error(mcst, e)
+                    return
+
+            # Train the model
+            self.train_model(model=model, raw_game_data=game_data)
+            # Save the model
+            self.save_model(model=model, model_save_path=model_save_path)
+
+        return model
+
+    def get_state_data(
+        self,
+        game: Game,
+        model: object,
+        best_node: GameStateNode
+    ) -> tuple:
+
+        encoded_board: np.ndarray = game.board.get_encoded_board()
+        policy, _ = model.predict(encoded_board.reshape(1, 8, 8, 12))
+        policy = policy.flatten()
+
+        data = (encoded_board, policy, best_node.total_value)
+
+        return data
+
+    def train_model(self, model: object, raw_game_data: list):
+
+        # Prepare training data
+
+        x_train = np.array([data[0] for data in raw_game_data])
+        y_train_policy = np.array([data[1] for data in raw_game_data])
+        y_train_value = np.array([data[2] for data in raw_game_data])
+
+        pprint('Training model...')
+        pprint(f'x_train: {x_train}', print_lines=False)
+        pprint(f'y_train_policy: {y_train_policy}', print_lines=False)
+        pprint(f'y_train_value: {y_train_value}', print_lines=False)
+
+        model.fit(
+            x_train,
+            {'policy_head': y_train_policy, 'value_head': y_train_value},
+            epochs=100,
+            batch_size=32
+        )
+
+        pprint('Model trained successfully!')

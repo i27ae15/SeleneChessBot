@@ -238,13 +238,15 @@ class MCST:
                 value = self._manage_checkmate(node)
 
                 if not value:
+
                     node = node.expand(
                         model=self.model,
                         game_instance=Game.parse_fen(
-                            node.fen,
-                            node.board_states
+                            fen=node.fen,
+                            board_states=node.board_states
                         ),
                     )
+
                     try:
                         value, simulation_depth = node.simulate()
                     except Exception as e:
@@ -256,6 +258,12 @@ class MCST:
             else:
                 value = node.result
                 simulation_depth = 0
+
+            # change value depending on the player
+            # value is going to be -1 for black wins, 1 for white wins
+            # and 0 for draw
+
+            value = value * PLAYER_VALUES[node.player_turn]
 
             node.backpropagate(
                 value=value,
