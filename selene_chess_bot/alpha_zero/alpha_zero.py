@@ -1,11 +1,9 @@
-import os
-import uuid
-import json
 import traceback
 
 import numpy as np
 
 from core.printing import __print__ as pprint
+from core.saver import FileSaver
 
 from game import Game
 
@@ -125,28 +123,22 @@ class AlphaZero:
     def manage_error(self, mcst: MCST, e: Exception) -> None:
 
         # TODO: Convert this to a logging system class
-
-        error_message = ''.join(traceback.format_exception(None, e, e.__traceback__))
-        pprint(f'Error: {error_message}', print_lines=False)
-
-        # Check if errors directory exists
-        error_dir = 'alpha_zero/errors'
-        if not os.path.exists(error_dir):
-            os.makedirs(error_dir)
-
-        # Creating a short unique identifier
-        u = str(uuid.uuid4()).split('-')[0]
-
-        file_name = os.path.join(error_dir, f'error_{u}.json')
+        error_message = ''.join(
+            traceback.format_exception(None, e, e.__traceback__)
+        )
 
         data_to_save = mcst.game.get_game_state(json_format=True)
         data_to_save['game_moves'] = mcst.game.moves
         data_to_save['error_message'] = error_message.split('\n')
 
-        with open(file_name, 'w') as file:
-            json.dump(data_to_save, file, indent=4)
+        file_name = FileSaver.json_saver(
+            data_to_save=mcst.game.get_game_state(json_format=True)
+        )
 
-        pprint(f'Check {file_name} for more information')
+        pprint(
+            f'Error: {error_message}, saved at {file_name}',
+            print_lines=False
+        )
 
     def get_state_data(
         self,
