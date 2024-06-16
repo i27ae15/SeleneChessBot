@@ -118,6 +118,22 @@ class MCST:
 
         return node.expand(model=self.model)
 
+    def update_game_state(self, best_child_node: GameStateNode) -> None:
+        """
+        Update the game state by moving the piece to the best child node
+        selected by the Monte Carlo Tree Search.
+
+        Also update the root node to the best child node.
+
+        Parameters:
+        -----------
+        best_child_node : GameStateNode
+            The best child node selected by the Monte Carlo Tree Search.
+        """
+
+        self.game.move_piece(best_child_node.move)
+        self.root = best_child_node
+
     def run(
         self,
         iterations: int = None,
@@ -224,7 +240,10 @@ class MCST:
                 if not value:
                     node = node.expand(
                         model=self.model,
-                        game_instance=Game.parse_fen(node.fen),
+                        game_instance=Game.parse_fen(
+                            node.fen,
+                            node.board_states
+                        ),
                     )
                     try:
                         value, simulation_depth = node.simulate()
@@ -315,7 +334,7 @@ class MCST:
                         exploration_weight=node.exploration_weight,
                     )
                     new_node.backpropagate(
-                        value=float('inf') * player_mate,
+                        value=1 * player_mate,
                         simulation_depth=0,
                         depth_penalty=0
                     )

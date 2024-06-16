@@ -1,3 +1,8 @@
+import os
+import uuid
+import json
+import traceback
+
 import numpy as np
 
 from core.printing import __print__ as pprint
@@ -80,47 +85,106 @@ class AlphaZero:
 
             pprint(f"Playing game {game+1}/{num_games}...")
 
-            game_data = []
-
-            mcst = MCST(model=model)
+            game_data: list[tuple] = []
+            mcst: MCST = MCST(model=model)
 
             while not mcst.root.is_game_terminated:
+                try:
+                    best_child_node = mcst.run(num_iterations)
+                    data_to_append = self.get_state_data(
+                        model=model,
+                        game=mcst.game,
+                        best_node=best_child_node
+                    )
 
-                encoded_board = mcst.game.board.get_encoded_board()
-                policy, _ = model.predict(encoded_board.reshape(1, 8, 8, 12))
-                policy = policy.flatten()
+                    game_data.append(data_to_append)
 
-                best_child_node = mcst.run(num_iterations)
+                    # Moving the piece after exploring multiple states
+                    # on the MCST
+                    mcst.update_game_state(best_child_node)
 
-                data_to_append = (encoded_board, policy, best_child_node.total_value)
-                # pprint(f"Data to append: {data_to_append}")
+                    pprint('best_move:', best_child_node.move)
+                    mcst.game.board.print_board(
+                        show_in_algebraic_notation=True
+                    )
 
-                # save data
-                game_data.append(data_to_append)
-
-                pprint(f"Best move: {best_child_node.move}")
-                mcst.game.move_piece(best_child_node.move)
-                mcst.game.board.print_board(show_in_algebraic_notation=True)
-                mcst.root = best_child_node  # Update this in the MCST class
-
-            # Prepare training data
-            x_train = np.array([data[0] for data in game_data])
-            y_train_policy = np.array([data[1] for data in game_data])
-            y_train_value = np.array([data[2] for data in game_data])
-
-            pprint('Training model...')
-            pprint(f'x_train: {x_train}', print_lines=False)
-            pprint(f'y_train_policy: {y_train_policy}', print_lines=False)
-            pprint(f'y_train_value: {y_train_value}', print_lines=False)
+                except Exception as e:
+                    self.manage_error(mcst, e)
+                    return
 
             # Train the model
-            model.fit(
-                x_train,
-                {'policy_head': y_train_policy, 'value_head': y_train_value},
-                epochs=100,
-                batch_size=32
-            )
+            self.train_model(model=model, raw_game_data=game_data)
+            # Save the model
+            self.save_model(model=model, model_save_path=model_save_path)
+
+        return model
+
+    def manage_error(self, mcst: MCST, e: Exception) -> None:
+
+        error_message = ''.join(traceback.format_exception(None, e, e.__traceback__))
+        pprint(f'Error: {error_message}', print_lines=False)
+
+        # Check if errors directory exists
+        error_dir = 'alpha_zero/errors'
+        if not os.path.exists(error_dir):
+            os.makedirs(error_dir)
+
+        # Creating a short unique identifier
+        u = str(uuid.uuid4()).split('-')[0]
+
+        file_name = os.path.join(error_dir, f'error_{u}.json')
+
+        data_to_save = mcst.game.get_game_state(json_format=True)
+        data_to_save['game_moves'] = mcst.game.moves
+        data_to_save['error_message'] = error_message.split('\n')
+
+        with open(file_name, 'w') as file:
+            json.dump(data_to_save, file, indent=4)
+
+        pprint(f'Check {file_name} for more information')
+
+    def get_state_data(
+        self,
+        game: Game,
+        model: object,
+        best_node: GameStateNode
+    ) -> tuple:
+
+        encoded_board: np.ndarray = game.board.get_encoded_board()
+        policy, _ = model.predict(encoded_board.reshape(1, 8, 8, 12))
+        policy = policy.flatten()
+
+        data = (encoded_board, policy, best_node.total_value)
+
+        return data
+
+    def train_model(self, model: object, raw_game_data: list):
+
+        # Prepare training data
+
+        x_train = np.array([data[0] for data in raw_game_data])
+        y_train_policy = np.array([data[1] for data in raw_game_data])
+        y_train_value = np.array([data[2] for data in raw_game_data])
+
+        pprint('Training model...')
+        pprint(f'x_train: {x_train}', print_lines=False)
+        pprint(f'y_train_policy: {y_train_policy}', print_lines=False)
+        pprint(f'y_train_value: {y_train_value}', print_lines=False)
+
+        model.fit(
+            x_train,
+            {'policy_head': y_train_policy, 'value_head': y_train_value},
+            epochs=100,
+            batch_size=32
+        )
+
+        pprint('Model trained successfully!')
+
+    def save_model(self, model: object, model_save_path: str) -> None:
+
+        # check if model_save_path has a .keras extension
+        if not model_save_path.endswith('.keras'):
+            model_save_path += '.keras'
 
         model.save(model_save_path)
         pprint('Model saved successfully!')
-        return model

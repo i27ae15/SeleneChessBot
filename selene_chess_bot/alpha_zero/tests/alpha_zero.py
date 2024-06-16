@@ -21,12 +21,12 @@ class AlphaZeroTest(TestCase):
 
         # test self play
 
-        model = create_chess_cnn((8, 8, 12))
+        model = create_chess_cnn((8, 8, 12), 546)
 
         alpha_zero.self_play(
             model=model,
             num_games=1,
-            num_iterations=10,
+            num_iterations=1,
             model_save_path='model_v0_1.keras'
         )
 

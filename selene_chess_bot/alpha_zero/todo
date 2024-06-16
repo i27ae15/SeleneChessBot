@@ -56,3 +56,10 @@ Class, in which we can create a move:state dictionary.
 6/15/2024
 
 1. Continue with the development of the NN
+
+6/16/2024
+1. Continue with the development of the NN
+2. Create a data structure to save the position where the checkmate has
+    already beencalculated
+3. Solve bug with ThreeFold Repetition: The boardstates was not being taken
+    Into account when creating a new GameStateNode

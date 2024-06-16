@@ -28,3 +28,22 @@ ValueError: 'Qcxd1' is not in list
 ----------------------------------------------------------------------
 I Believe the above bug is solved
 ----------------------------------------------------------------------
+
+
+ERROR: test_self_play (alpha_zero.tests.alpha_zero.AlphaZeroTest.test_self_play)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\andre\Desktop\projects\selene_chess\selene_chess_bot\alpha_zero\tests\alpha_zero.py", line 26, in test_self_play
+    alpha_zero.self_play(
+  File "C:\Users\andre\Desktop\projects\selene_chess\selene_chess_bot\alpha_zero\alpha_zero.py", line 93, in self_play
+    best_child_node = mcst.run(num_iterations)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\andre\Desktop\projects\selene_chess\selene_chess_bot\alpha_zero\mcst.py", line 253, in run
+    self.create_actions_df(legal_moves, action_probs)
+  File "C:\Users\andre\Desktop\projects\selene_chess\selene_chess_bot\alpha_zero\mcst.py", line 271, in create_actions_df
+    action_probs[legal_moves.index(child.move)] = child.num_visits
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: 'Rcd7' is not in list
+
+
+Possible for a ThreeFold Repetition position

@@ -9,6 +9,8 @@ from pieces.utilites import PieceColor
 
 from game import Game
 
+from board.types import BoardStates
+
 if TYPE_CHECKING:
     from alpha_zero.state_manager import StateManager
 
@@ -105,6 +107,7 @@ class GameStateNode:
         board_hash: bytes,
         player_turn: PieceColor,
         is_game_terminated: bool,
+        board_states: BoardStates,
         expandable_moves: set[str],
         exploration_weight: float = 1.414,
         state_manager: 'StateManager' = None,
@@ -146,6 +149,9 @@ class GameStateNode:
 
         self.result: int = result
         self.fen: str = fen
+
+        # The board states are used to keep track of the Threefold repetition
+        self.board_states: BoardStates = board_states
 
         self.player_turn: PieceColor = player_turn
         self.num_visits: int = 0
@@ -226,6 +232,7 @@ class GameStateNode:
             fen=game.current_fen,
             state_manager=state_manager,
             player_turn=game.player_turn,
+            board_states=game.board_states,
             expandable_moves=expandable_moves,
             board_hash=game.current_board_hash,
             exploration_weight=exploration_weight,
@@ -440,6 +447,7 @@ class GameStateNode:
     def simulate(self) -> tuple[float, int]:
 
         game_instance = Game.parse_fen(self.fen)
+        game_instance.board_states = self.board_states
         value: float = game_instance.result
 
         value = game_instance.get_opponent_value(value=value)
@@ -496,8 +504,6 @@ class GameStateNode:
             (move, policy[self.untried_moves.index(move)])
             for move in self.untried_moves
         ]
-
-        pprint('untried_move_policy_pairs:', untried_move_policy_pairs)
 
         # sort untruied moves based on the policy values
         untried_move_policy_pairs.sort(key=lambda x: x[1], reverse=True)

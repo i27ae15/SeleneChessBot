@@ -1,7 +1,9 @@
+from typing import Any
 
 from core.debugger import control_state_manager
 from core.utils import convert_from_algebraic_notation
 from core.types import MoveDict
+from core.printing import __print__ as pprint
 
 from board import Board
 from board.types import BoardStates, BoardRepresentation
@@ -88,6 +90,7 @@ class Game:
         self,
         current_turn: int = 1,
         castling_rights: dict = None,
+        board_states: BoardStates = None,
         en_passant_target: str | None = None,
         board_setup: BoardRepresentation = None,
         player_turn: PieceColor = PieceColor.WHITE,
@@ -102,7 +105,7 @@ class Game:
         self.debug: bool = False
 
         # Board
-        self.board_states: BoardStates = dict()
+        self.board_states: BoardStates = board_states or dict()
         self.board: Board = Board(
             board_setup=board_setup,
             castling_rights=castling_rights
@@ -281,7 +284,11 @@ class Game:
         )
 
     @staticmethod
-    def parse_fen(fen: str, reverse_piece_placement: bool = True) -> 'Game':
+    def parse_fen(
+        fen: str,
+        board_states: BoardStates = None,
+        reverse_piece_placement: bool = True
+    ) -> 'Game':
 
         """
         Parses a FEN string to initialize a game state in a chess game.
@@ -317,6 +324,7 @@ class Game:
         )
 
         game = Game(
+            board_states=board_states,
             board_setup=fen_info.board,
             player_turn=fen_info.active_color,
             current_turn=fen_info.fullmove_number,
@@ -559,6 +567,38 @@ class Game:
 
         return True
 
+    def get_game_state(self, json_format: bool) -> dict[str, Any]:
+        """
+        Get the current game state
+        """
+
+        player_turn = self.player_turn
+        possible_pawn_enp = self.possible_pawn_enp
+
+        if json_format:
+            player_turn = player_turn.value
+            possible_pawn_enp = possible_pawn_enp.algebraic_pos if possible_pawn_enp else False
+
+        return {
+            'fen': self.current_fen,
+            'player_turn': player_turn,
+            'possible_pawn_enp': possible_pawn_enp,
+            'is_game_terminated': self.is_game_terminated,
+            'is_game_drawn': self.is_game_drawn,
+            'game_drawn_reason': self.game_drawn_reason,
+            'moves_for_f_rule': self.moves_for_f_rule,
+            'white_value': self.white_value,
+            'black_value': self.black_value,
+            'w_has_sufficient_material': self.w_has_sufficient_material,
+            'b_has_sufficient_material': self.b_has_sufficient_material,
+            'white_king_in_check': self.board.white_king.is_in_check,
+            'black_king_in_check': self.board.black_king.is_in_check,
+            'legal_moves': self.get_legal_moves(
+                show_as_list=True,
+                show_in_algebraic=True
+            )
+        }
+
     def print_game_state(self):
         """
         Prints the current state of the game.
@@ -567,18 +607,11 @@ class Game:
         current player turn, the move history, and the board.
         """
 
+        game_state = self.get_game_state(json_format=False)
+
         print('-' * 50)
-        print(f'Player turn: {self.player_turn}')
-        print(f'white king in check: {self.board.white_king.is_in_check}')
-        print(f'black king in check: {self.board.black_king.is_in_check}')
-        print(f'is_game_terminated: {self.is_game_terminated}')
-        print(f'is_game_drawn: {self.is_game_drawn}')
-        print(f'game_drawn_reason: {self.game_drawn_reason}')
-        print(f'moves_for_f_rule: {self.moves_for_f_rule}')
-        print(f'values: {self.game_values}')
-        print(f'possible_pawn_enp: {self.possible_pawn_enp}')
-        print(f'w_has_sufficient_material: {self.w_has_sufficient_material}')
-        print(f'b_has_sufficient_material: {self.b_has_sufficient_material}')
+        for key, value in game_state.items():
+            pprint(f'{key}:', value, print_lines=False)
         print('-' * 50)
 
     def start(self) -> None:
