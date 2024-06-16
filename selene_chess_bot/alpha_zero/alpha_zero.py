@@ -92,10 +92,11 @@ class AlphaZero:
 
                 best_child_node = mcst.run(num_iterations)
 
+                data_to_append = (encoded_board, policy, best_child_node.total_value)
+                # pprint(f"Data to append: {data_to_append}")
+
                 # save data
-                game_data.append(
-                    (encoded_board, policy, best_child_node.total_value)
-                )
+                game_data.append(data_to_append)
 
                 pprint(f"Best move: {best_child_node.move}")
                 mcst.game.move_piece(best_child_node.move)

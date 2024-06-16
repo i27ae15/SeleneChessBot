@@ -3,9 +3,11 @@ import numpy as np
 
 from typing import TYPE_CHECKING
 
+from core.printing import __print__ as pprint
+
 from pieces.utilites import PieceColor
 
-from game.game import Game
+from game import Game
 
 if TYPE_CHECKING:
     from alpha_zero.state_manager import StateManager
@@ -376,8 +378,9 @@ class GameStateNode:
     def expand(
         self,
         game_instance: 'Game',
-        model
+        model=None
     ) -> 'GameStateNode':
+
         """
         Expand the current node by creating a new child node using the neural
         network.
@@ -395,68 +398,44 @@ class GameStateNode:
         GameStateNode or None
             The newly expanded child node, or None if expansion is not
             possible.
+
+        NOTE:
+            This methods works as a manager to choose between `__model_expand`
+            which uses a neural network to predict the best move and
+            `__no_model_expand` which uses a random move.
         """
 
-        if self.is_fully_expanded:
-            return None
+        if model:
+            return self.__model_expand(game_instance, model)
+        elif not model:
+            return self.__no_model_expand(game_instance)
 
-        # encode the board state to use as input to the neural network
-        encoded_board = game_instance.board.get_encoded_board()
-
-        # predict policy and value using the neural network
-        policy, _ = model.predict(encoded_board.reshape(1, 8, 8, 12))
-        policy = policy.flatten()
-
-        # Create a list of untried moves paired with their policy values
-        untried_move_policy_pairs = [
-            (move, policy[self.untried_moves.index(move)])
-            for move in self.untried_moves
-        ]
-
-        # sort untruied moves based on the policy values
-        untried_move_policy_pairs.sort(key=lambda x: x[1], reverse=True)
-
-        move, _ = untried_move_policy_pairs[0]
-        self.untried_moves.remove(move)
-        game_instance.move_piece(move)
-
-        new_node = self.create_game_state(
-            move=move,
-            game=game_instance,
-            state_manager=self.state_manager,
-            exploration_weight=self.exploration_weight,
-        )
-
-        self.add_child(move, new_node)
-        new_node.add_parent(self)
-
-        return new_node
-
-    def no_model_expand(
+    def backpropagate(
         self,
-        game_instance: 'Game',
-    ) -> 'GameStateNode':
-
+        value: int,
+        simulation_depth: int,
+        depth_penalty: float = 0.01
+    ) -> None:
         """
-        Expand the current node by creating a new child node.
+        Backpropagate the simulation result up the tree, updating values and
+        visit counts.
+
+        Parameters:
+        -----------
+        result : float
+            The result of the simulation to be propagated.
         """
 
-        if self.is_fully_expanded:
-            return None
+        self.increment_visits()
+        depth_penalty_term = depth_penalty * (simulation_depth - self.depth)
+        self.total_value += value - depth_penalty_term
 
-        move = self.retrieve_move_from_untried_moves()
-        game_instance.move_piece(move)
-
-        new_node = self.create_game_state(
-            move=move,
-            game=game_instance,
-            state_manager=self.state_manager,
-            exploration_weight=self.exploration_weight,
-        )
-        self.add_child(move, new_node)
-        new_node.add_parent(self)
-
-        return new_node
+        if self.parent:
+            self.parent.backpropagate(
+                value=value,
+                simulation_depth=simulation_depth,
+                depth_penalty=depth_penalty
+            )
 
     def simulate(self) -> tuple[float, int]:
 
@@ -494,29 +473,73 @@ class GameStateNode:
         value = player_values[game_instance.player_turn]
         return value, simulation_depth
 
-    def backpropagate(
+    # ---------------------------- PRIVATE METHODS ----------------------------
+
+    def __model_expand(
         self,
-        value: int,
-        simulation_depth: int,
-        depth_penalty: float = 0.01
-    ) -> None:
+        game_instance: 'Game',
+        model
+    ) -> 'GameStateNode':
+
+        if self.is_fully_expanded:
+            return None
+
+        # encode the board state to use as input to the neural network
+        encoded_board = game_instance.board.get_encoded_board()
+
+        # predict policy and value using the neural network
+        policy, _ = model.predict(encoded_board.reshape(1, 8, 8, 12))
+        policy = policy.flatten()
+
+        # Create a list of untried moves paired with their policy values
+        untried_move_policy_pairs = [
+            (move, policy[self.untried_moves.index(move)])
+            for move in self.untried_moves
+        ]
+
+        pprint('untried_move_policy_pairs:', untried_move_policy_pairs)
+
+        # sort untruied moves based on the policy values
+        untried_move_policy_pairs.sort(key=lambda x: x[1], reverse=True)
+
+        move, _ = untried_move_policy_pairs[0]
+        self.untried_moves.remove(move)
+        game_instance.move_piece(move)
+
+        new_node = self.create_game_state(
+            move=move,
+            game=game_instance,
+            state_manager=self.state_manager,
+            exploration_weight=self.exploration_weight,
+        )
+
+        self.add_child(move, new_node)
+        new_node.add_parent(self)
+
+        return new_node
+
+    def __no_model_expand(
+        self,
+        game_instance: 'Game',
+    ) -> 'GameStateNode':
+
         """
-        Backpropagate the simulation result up the tree, updating values and
-        visit counts.
-
-        Parameters:
-        -----------
-        result : float
-            The result of the simulation to be propagated.
+        Expand the current node by creating a new child node.
         """
 
-        self.increment_visits()
-        depth_penalty_term = depth_penalty * (simulation_depth - self.depth)
-        self.total_value += value - depth_penalty_term
+        if self.is_fully_expanded:
+            return None
 
-        if self.parent:
-            self.parent.backpropagate(
-                value=value,
-                simulation_depth=simulation_depth,
-                depth_penalty=depth_penalty
-            )
+        move = self.retrieve_move_from_untried_moves()
+        game_instance.move_piece(move)
+
+        new_node = self.create_game_state(
+            move=move,
+            game=game_instance,
+            state_manager=self.state_manager,
+            exploration_weight=self.exploration_weight,
+        )
+        self.add_child(move, new_node)
+        new_node.add_parent(self)
+
+        return new_node

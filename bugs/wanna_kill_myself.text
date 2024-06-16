@@ -24,3 +24,7 @@ Traceback (most recent call last):
     action_probs[legal_moves.index(child.move)] = child.num_visits
                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ValueError: 'Qcxd1' is not in list
+
+----------------------------------------------------------------------
+I Believe the above bug is solved
+----------------------------------------------------------------------
